@@ -127,6 +127,8 @@ The library will now be present for Arduino IDE to use. To update the library:
 
 Receiving the output ```WARNING: Category 'Device' in library Wio LTE Arduino Library is not valid. Setting to 'Uncategorized'``` See known #4 under [Limitations and Workarounds](#limitations-and-workarounds) below.
 
+**Note** Connecting to the network for the first time can take a minute or two. If the light doesn't go blue, try another location. You may not have cell coverage in your current location.
+
 ## Developer Board LEDs
 The LEDs on the Developer Board are set to function as the following:
 - Red CHG LED - Lights up based on the battery charging level. 
@@ -145,3 +147,20 @@ The LEDs on the Developer Board are set to function as the following:
  2. Unable to remove lithium battery from Developer Board.
     *  **Problem:** JST pings lock lithium battery into place.
     *  **Solution:**  If the battery is pushed in a touch too far, it locks. Lift the pins from the JST connector and pull on the lithium battery cable. The JST connector has tabs that dig in and are not meant to be disconnected again.
+  3. `No DFU capable USB device available`
+      *  **Problem:** Unable to upload firmware. Device is not in DFU mode.
+      ```
+      DFU begin
+      dfu-util 0.8
+
+      Copyright 2005-2009 Weston Schmidt, Harald Welte and OpenMoko Inc.
+      Copyright 2010-2014 Tormod Volden and Stefan Schmidt
+      This program is Free Software and has ABSOLUTELY NO WARRANTY
+      Please report bugs to http://sourceforge.net/p/dfu-util/tickets/
+
+      dfu-util: Invalid DFU suffix signature
+      dfu-util: A valid DFU suffix will be required in a future dfu-util release!!!
+      dfu-util: No DFU capable USB device available
+      DFU end
+      ```
+      *  **Solution:** [Put Developer Board in DFU mode.](#flash-the-developer-board-with-sample-applications)
