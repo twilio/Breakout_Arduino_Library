@@ -4,7 +4,9 @@ This page documents how to get started using the Breakout SDK and what it provid
 ## Alfa Developer Kit
 Alfa Developer Kit contains:
 
-  ![Arduino Preferences](img/alfa-developer-kit-box.png){ width="468" height="404" style="display: block; margin: 0 auto" }
+<p align="center">
+  <img width="468" height="404" src="img/alfa-developer-kit-box.png">
+</p>
 
 - Programmable Wireless Narrowband SIM
 - Alfa Developer Board
