@@ -116,6 +116,8 @@ int CoAPMessage::encode(bin_t *dst) {
   coap_option_number_e previous_number  = CoAP_Option__unknown;
   CoAPOption *opt                       = 0;
 
+  this->log(L_DBG);
+
   if (this->version > 3 || this->version < 0) {
     LOG(L_ERR, "Invalid version %d - must be 2-bit long\r\n", this->version);
     goto error;

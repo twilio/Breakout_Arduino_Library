@@ -301,7 +301,7 @@ class CoAPPeer {
   CoAPPeer_ResponseHandler_f handler_response    = 0;
 
   coap_message_id_t last_message_id = 0;
-  coap_token_t last_token           = 0;
+  coap_token_t last_token;
 
   /*
    * Instances, to allow for a static triggerRetransmit()
