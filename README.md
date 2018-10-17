@@ -137,16 +137,6 @@ The binary Command to send to Twilio - max 140 characters.
 ```
 sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
 ```
-#### Send a binary Command with a receipt request
-The binary Command to send to Twilio - max 140 characters.
-* @param `buf` - buffer containing the binary command to send to Twilio - max 140 characters.
-* @param `bufSize` - number of bytes of the binary command.
-* @param `callback` - command receipt callback.
-* @param `callback_parameter` - a generic pointer to application data.
-* @returns `command_status_code_e`
-```
-sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
-```
 #### Receive Commands
 Pop a received Command, in case it was received locally (hasWaitingCommand() returns `true`.
 * @param `maxBufSize` - size of buffer being passed in.
