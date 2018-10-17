@@ -2,8 +2,9 @@
 # Twilio Breakout SDK for Arduino
 This page documents how to get started using the Breakout SDK and what it provides. Today, the Breakout SDK is built for the STM32F405RG MCU and U-Blox Sara-N410 cellular module in mind. This specific Developer Board was provided in Twilio's Alfa Developer Kit and distributed to [SIGNAL 2018](https://www.twilio.com/signal) attendees, and it came with Grove sensors – humidity, light, and ultrasonic.
 
-### Setting up development environment
+## Setting up your development environment
 1. [Visit the Arduino IDE setup guide](IDESETUP.md) to learn how to set up your development environment.
+2. [Visit the Alfa Developer Kit Quickstart](https://www.twilio.com/docs/wireless/quickstart/alfa-developer-kit) to learn how to register and activate your Narrowband SIM in the [Programmable Wireless Console](https://twilio.com/console/wireless/sims).
 
 ## Breakout SDK
 
