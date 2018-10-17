@@ -87,7 +87,7 @@ The follow steps are required for Windows:
 
 ### Breakout SDK Installation
 1. Click the green "Clone or download" button at the top right handside of this repository
-2. Click the [Download as ZIP file](#) button
+2. Click the [Download as ZIP file](https://github.com/twilio/Breakout_Arduino_Library/archive/master.zip) button
 3. Make note of the download location
 4. Open Arduino IDE
 5. Select Sketch > Include Library > Add .ZIP Library and select the .zip file downloaded
@@ -109,12 +109,17 @@ The library will now be present for Arduino IDE to use. To update the library:
 1. Open Arduino IDE
 2. Click File > examples and navigate to the Breakout library examples
 3. Select an example from File > Examples > Breakout SDK > Sensors
+  1. Search for `psk_key`
+  2. Insert your PSK in place of `00112233445566778899aabbccddeeff`
+  3. You can find your PSK in the under your [Narrowband SIM Resource](https://twilio.com/console/wireless/sims)
+> **Note:** The example ino files are readonly. Save your changes to a new location.
 4. Enable Bootloader mode on the Developer Board: 
 	1. Press and hold the **BOOT0** button underneath the Developer Board
 	2. Press and hold the **RST** on the top of the Developer Board
 	3. Release the **RST** on the top of the Developer Board
 	4. Release the **BOOT0** button to enable Bootloader mode
 5. Click Sketch > Upload to upload the example to the Developer Board
+ * Do not use Upload Using Programmer
 6. Click the RST button when the sketch has finished uploading
 7. Click Tools > Port > **{Your Modem Port Here}**
     * OSX: /dev/{cu|tty}.usbmodem{XXXX}
