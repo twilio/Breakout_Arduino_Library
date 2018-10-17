@@ -49,6 +49,14 @@ The default is 0, which indicates no automatic querying of the server. Value is 
 ```
 breakout->setPollingInterval(10 * 60);
 ```
+#### Polling
+Checks for updates from server at defined interval.
+
+##### Why we poll for Commands
+In the non-Narrowband world, Commands are pushed to the device over SMS. Today, for Narrowband, the device must ask the server if there are any Commands waiting rather than the server telling the device that a Command is available.
+
+Instead of server sending command directly to the device, the device must ask the server if there are any Commands available to be sent to the device. This is why we have polling. Polling checks the server for new Commands at a predefined interval no less than 60 seconds.
+
 ####  Heartbeats
 Heartbeats are sent from Breakout to Twilio every time:
 
@@ -57,7 +65,7 @@ Heartbeats are sent from Breakout to Twilio every time:
  - When you send a Command
  - When you receive a Command
 
-Heartbeats are registered with Breakout service and visible under the **Breakout SDK** tab of your Narrowband SIM Resource in [Console](https://www.twilio.com/console/wireless). Heartbeats are displayed in reverse chronological order. You will see the version of Breakout SDK your Developer Board is using and the datetime the Heartbeat was sent.
+Heartbeats are registered with Breakout service and visible under the **Breakout SDK** tab of your Narrowband SIM Resource in [Console](https://www.twilio.com/console/wireless). Heartbeats are displayed in reverse chronological order. You will see the version of Breakout SDK your Developer Board is using and that the datetime the Heartbeat was sent.
 #### Power on the cellular module
 Powering the modem and starting up the SDK.
 Returns `true` if powered on, `false` otherwise.
