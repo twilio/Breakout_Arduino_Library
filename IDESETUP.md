@@ -2,12 +2,11 @@
 This page documents how to get started using the Breakout SDK and what it provides. Today, the Breakout SDK is built for the STM32F405RG MCU and U-Blox Sara-N410 cellular module in mind. This specific Developer Board was provided in Twilio's Alfa Developer Kit and distributed to [SIGNAL 2018](https://www.twilio.com/signal) attendees, and it came with Grove sensors – humidity, light, and ultrasonic.
 
 ## Alfa Developer Kit
-Alfa Developer Kit contains:
-
 <p align="center">
   <img width="468" height="404" src="img/alfa-developer-kit-box.png">
 </p>
 
+Alfa Developer Kit contains:
 - Programmable Wireless Narrowband SIM
 - Alfa Developer Board
 - LTE antenna
@@ -30,7 +29,9 @@ The following items are required to use Breakout SDK:
 
 1.  [Register the Narrowband SIM](https://www.twilio.com/console/wireless/sims/register) in the Programmable Wireless Console
 2. Insert the **smallest** form factor of the Narrowband SIM in the **bottom** of the **two** slots available on the Developer Board
+
 ![Narrowband SIM holder](img/alfa-developer-board-sim-holder.png)
+
 > The smallest form factor of a SIM is the Nano (4FF) SIM size. The top slot is a Micro-SD card slot. If you insert the Narrowband SIM in the top slow, gently pry it out with needle-nose pliers.
 
 3. Connect the LTE Antenna to the LTE pin located on the **bottom** of the board.
