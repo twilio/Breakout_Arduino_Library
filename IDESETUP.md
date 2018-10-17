@@ -6,7 +6,8 @@ This page documents how to get started using the Breakout SDK and what it provid
   <img width="468" height="404" src="img/alfa-developer-kit-box.png">
 </p>
 
-Alfa Developer Kit contains:
+
+### Alfa Developer Kit contents
 - Programmable Wireless Narrowband SIM
 - Alfa Developer Board
 - LTE antenna
@@ -26,7 +27,6 @@ The following items are required to use Breakout SDK:
 - dfu-util
 
 ## Installing the Narrowband SIM and the LTE Antenna into the Developer Board
-
 1.  [Register the Narrowband SIM](https://www.twilio.com/console/wireless/sims/register) in the Programmable Wireless Console
 2. Insert the **smallest** form factor of the Narrowband SIM in the **bottom** of the **two** slots available on the Developer Board
 
@@ -37,12 +37,10 @@ The following items are required to use Breakout SDK:
 3. Connect the LTE Antenna to the LTE pin located on the **bottom** of the board.
 
 ## Set up your development environment
-
 The following steps will guide you from downloading the Arduino IDE to installing sample applications on your Developer board.
 
 ### Arduino IDE Installation
-
-1. Download [Arduino IDE 1.8.7](https://www.arduino.cc/en/Main/Software)
+1. Download [Arduino IDE 1.8.7+](https://www.arduino.cc/en/Main/Software)
 
 ### dfu-util Installation
 ##### OSX
@@ -62,7 +60,6 @@ The follow steps are required for Windows:
 1.  [Install USB Drivers](http://wiki.seeedstudio.com/Wio_LTE_Cat_M1_NB-IoT_Tracker/#install-usb-driver)
 
 ### Arduino IDE Developer Board Installation
-
 1. Insert the Micro-USB cable into the Developer Board
 2. Insert the other end of the USB cable in your computer
 3. Open Arduino IDE
@@ -89,7 +86,6 @@ The follow steps are required for Windows:
   ![Arduino Preferences](img/arduino-boardmanager-stm32f4.png)
 
 ### Breakout SDK Installation
-
 1. Click the green "Clone or download" button at the top right handside of this repository
 2. Click the [Download as ZIP file](#) button
 3. Make note of the download location
@@ -100,7 +96,6 @@ The follow steps are required for Windows:
   ![Download Repository](img/breakoutsdk-download-zip.png)
 
 ### Updating Breakout SDK on your local machine
-
 The library will now be present for Arduino IDE to use. To update the library:
 
 1. Delete the library from your Arduino directory
@@ -111,7 +106,6 @@ The library will now be present for Arduino IDE to use. To update the library:
 >  **Tip:** An alternative to downloading the library as a ZIP is to check the library out using ```git``` in the Arduino/libraries directory, or symlink the locally-checked out copy there.
 
 ## Flash the Developer Board with sample applications
-
 1. Open Arduino IDE
 2. Click File > examples and navigate to the Breakout library examples
 3. Select an example from File > Examples > Breakout SDK > Sensors
@@ -131,10 +125,9 @@ The library will now be present for Arduino IDE to use. To update the library:
 
 > When the board is in Bootloader mode the serial port won't be initialized and not available to monitor.
 
-Receiving the output ```WARNING: Category 'Device' in library Wio LTE Arduino Library is not valid. Setting to 'Uncategorized'``` See known #4 under [Limitations and Workarounds](#Limitations-and-Workarounds) below.
+Receiving the output ```WARNING: Category 'Device' in library Wio LTE Arduino Library is not valid. Setting to 'Uncategorized'``` See known #4 under [Limitations and Workarounds](#limitations-and-workarounds) below.
 
 ## Developer Board LEDs
-
 The LEDs on the Developer Board are set to function as the following:
 - Red CHG LED - Lights up based on the battery charging level. 
 - Yellow Status LED - lights up when the modem module is power on.
@@ -145,7 +138,6 @@ The LEDs on the Developer Board are set to function as the following:
 > Note that the lithium battery is recommended to be plugged in at all times, especially if your USB power source does not provide sufficient power for the board at peak levels.
 
 ## Limitations and Workarounds
-
 1. Receiving the output ```WARNING: Category 'Device' in library Wio LTE Arduino Library is not valid. Setting to 'Uncategorized'``` in Arduino IDE.
     *  **Problem:** Incorrect version of dfu-util. Using 0.8 or lower.
     *  **Solution:** Update dfu-util to 0.9+

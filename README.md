@@ -183,11 +183,10 @@ curl -X POST https://wireless.twilio.com/v1/Commands \
 -u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
 ```
 
-#### Receive Command from SIM to your web service
-To receive a Command from a SIM 'mobile-originated', you should create or update an existing SIM instance with a CommandsCallbackUrl property, and optionally a CommandsCallbackMethod property (defaults to POST).
+#### Receive Command from SIM to your servers
+To receive a Command from a SIM 'mobile-originated', you should create or update an existing SIM instance with a `CommandsCallbackUrl` property, and optionally a `CommandsCallbackMethod` property (defaults to POST).
 
 ## Limitations and Workarounds
-
 1. U-Blox data size limitation
     *  **Problem:** The U-Blox cellular module can receive up to 512 bytes of data in hex mode. Hence this is a limitation for UDP datagrams.
     *  **Solution:** partial solution would be to switch from the hex mode to binary mode. This shall double the amount of data received, yet it makes the code much more complex. So far 512 was a good upper limit, especially given the NB-IoT targets here, hence this wasn't explored.
@@ -196,7 +195,6 @@ To receive a Command from a SIM 'mobile-originated', you should create or update
     *  **Solution:** see [Update USART buffer below](#update-usart-buffer).
 
 ### Update USART buffer
-
 This is **required** for Wio STM32F4 devices not on 1.2.3.
 1. Locate ``/libmaple/usart.h``
     * OSX:  ``/Users/{{UserNameHere}}/Library/Arduino15/packages/Seeeduino/hardware/Seeed_STM32F4/{{VersionHere}}/cores/arduino/libmaple/usart.h``
