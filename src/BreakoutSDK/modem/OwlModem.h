@@ -34,6 +34,7 @@
 #include "OwlModemPDN.h"
 #include "OwlModemSIM.h"
 #include "OwlModemSocket.h"
+#include "OwlModemGNSS.h"
 
 
 /*
@@ -69,7 +70,7 @@ class OwlModem {
    * @param modem_port - mandatory modem port
    * @param debug_port - optional debug port, to use in the bypass functions
    */
-  OwlModem(HardwareSerial *modem_port, USBSerial *debug_port = 0);
+  OwlModem(HardwareSerial *modem_port, USBSerial *debug_port = 0, HardwareSerial *gnss_port = 0);
 
   /**
    * Destructror of OwlModem
@@ -81,7 +82,8 @@ class OwlModem {
    * Power on the module and wait until the AT interface is up. Might take up to 10 seconds.
    * @return 1 on success, 0 on failure
    */
-  int powerOn(owl_power_m bit_mask = Owl_PowerOnOff__Modem);
+  int powerOn(owl_power_m bit_mask = (owl_power_m)(Owl_PowerOnOff__Modem | Owl_PowerOnOff__GNSS |
+                                                   Owl_PowerOnOff__RGBLED | Owl_PowerOnOff__RGBLED));
 
   /**
    * Power off the module and wait until the AT interface is up. Might take up to 10 seconds.
@@ -119,10 +121,20 @@ class OwlModem {
   void bypass();
 
   /**
+   * Bypass the GNSS serial to the debug serial, so that you can directly issue AT commands yourself.
+   * This is for debug purposes. Drains current buffers, then returns, so call it again in a loop.
+   */
+  void bypassGNSS();
+
+  /**
    * Similar to bypass(), but with a loop that watches for a magic word "exitbypass" to quit.
    */
   void bypassCLI();
 
+  /**
+   * Similar to bypassGNSS(), but with a loop that watches for a magic word "exitbypass" to quit.
+   */
+  void bypassGNSSCLI();
 
   /**
    * Send arbitrary data to the modem.
@@ -201,6 +213,9 @@ class OwlModem {
   /** TCP/UDP communication over sockets */
   OwlModemSocket socket = OwlModemSocket(this);
 
+  /** GNSS to get position, date, time, etc */
+  OwlModemGNSS gnss = OwlModemGNSS(this);
+
 
 
   /** Cached modem model - to enable specific behavior for some buggy firmwares */
@@ -209,21 +224,24 @@ class OwlModem {
  private:
   HardwareSerial *modem_port = 0;
   USBSerial *debug_port      = 0;
+  HardwareSerial *gnss_port  = 0;
 
-  /** The receiving buffer - the modem interface is drained and bytes moved here */
-  char c_rx_buffer[MODEM_Rx_BUFFER_SIZE];
-  str rx_buffer = {.s = c_rx_buffer, .len = 0};
 
-  /** The execution is not in the bypass mode */
+  /** The execution is now in the modem bypass mode */
   volatile uint8_t in_bypass = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
   /** The execution is now in a timer - not used at the moment, will probably be removed in the near future */
   volatile uint8_t in_timer = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
   /** The modem has been issued a command and is waiting for its response - URC are not expected */
   volatile uint8_t in_command = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
 
+  /** The receiving buffer - the modem interface is drained and bytes moved here */
+  char c_rx_buffer[MODEM_Rx_BUFFER_SIZE];
+  str rx_buffer = {.s = c_rx_buffer, .len = 0};
+
   /** Response buffer, to be used by the internal functions */
   char response_buffer[MODEM_RESPONSE_BUFFER_SIZE];
   str response = {.s = response_buffer, .len = 0};
+
 
 
   at_result_code_e extractResult(str *out_response, int max_response_len);
@@ -263,6 +281,8 @@ class OwlModem {
    */
   void computeHostDeviceInformation(str purpose);
 
+public: // These things are not part of the API. TODO - make them private
+  int drainGNSSRx(str *gnss_buffer, int gnss_buffer_len);
 };
 
 

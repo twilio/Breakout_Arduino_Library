@@ -35,6 +35,8 @@
 #define SerialGNSS Serial2         // UART3
 #define SerialDebugPort SerialUSB  // USB port
 
+#define SerialModule_Baudrate 115200
+#define SerialGNSS_BAUDRATE 9600
 
 /**
  * MCU Pin Definitions
