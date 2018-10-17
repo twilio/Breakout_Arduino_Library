@@ -11,7 +11,7 @@ This page documents how to get started using the Breakout SDK and what it provid
 Breakout SDK enables developers to exchange data between low-powered devices and IoT cloud services. Breakout makes it easy to adopt low power optimizations provided by the Narrowband network and cellular modem hardware.
 
 #### Retrieve PSK from Console and assign PSK in client
-A pre shared key (PSK) is required to be retrieved from the Programmable Wireless Console Narrowband SIM Resource. Your Narrowband SIM PSK will need to be copied into your application code and can be regenerated anytime through the [SIMs section of the Console](https://twilio.com/console/wireless/sims).
+A pre shared key (PSK) is required to be retrieved from the Programmable Wireless Console Narrowband SIM Resource. Your Narrowband SIM PSK will need to be copied into your application code.
 
 PSKs are retrieved and set in hexadecimal and are unique per SIM.
 ```
@@ -29,15 +29,18 @@ Breakout *breakout = &Breakout::getInstance();
 Owl log provides robust output and color coding to Serial output. 
 Log verbosity from most critical to most verbose:
 * errors
-	* `L_ALERT`,` L_CRIT`, `L_ERR`, `L_ISSUE`
+	* `L_ERR`
 * warnings
-	* `L_WARN`, `L_NOTICE`
-* information & debug
-	* `L_INFO`, `L_DB`, `L_DBG`, `L_MEM`
+	* `L_WARN`
+* information 
+	* `L_INFO`
+* debug
+        * `L_DBG`
 ```
  owl_log_set_level(L_DBG);
 ```
 > When logging, the additional L_CLI level ensure that the output will always be visible, no matter the set level.
+
 #### Set PSK in Breakout
 PSK value is 16 bytes in hex or 32 characters.
 ```
