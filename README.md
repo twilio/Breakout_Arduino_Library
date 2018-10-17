@@ -55,7 +55,7 @@ Checks for updates from server at defined interval.
 ##### Why we poll for Commands
 In the non-Narrowband world, Commands are pushed to the device over SMS. Today, for Narrowband, the device must ask the server if there are any Commands waiting rather than the server telling the device that a Command is available.
 
-Instead of server sending command directly to the device, the device must ask the server if there are any Commands available to be sent to the device. This is why we have polling. Polling checks the server for new Commands at a predefined interval no less than 60 seconds.
+Instead of the server sending a Command directly to the device, the device must ask the server if there are any Commands available to be sent to the device. This is why we have polling. Polling checks the server for new Commands at a predefined interval no less than 60 seconds.
 
 ####  Heartbeats
 Heartbeats are sent from Breakout to Twilio every time:
