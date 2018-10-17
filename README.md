@@ -35,7 +35,7 @@ Log verbosity from most critical to most verbose:
 * information 
 	* `L_INFO`
 * debug
-        * `L_DBG`
+	* `L_DBG`
 ```
  owl_log_set_level(L_DBG);
 ```
