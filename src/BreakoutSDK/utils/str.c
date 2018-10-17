@@ -85,6 +85,61 @@ int str_tok(str src, char *sep, str *dst) {
   return 0;
 }
 
+int str_tok_with_empty_tokens(str src, char *sep, str *dst) {
+  int i, j, is_sep, sep_len;
+  int start;
+  if (!src.len || !sep || !dst) return 0;
+  sep_len = strlen(sep);
+  if (!sep_len) return 0;
+  if (dst->s) {
+    if (dst->s < src.s || dst->s > src.s + src.len || dst->s + dst->len > src.s + src.len) {
+      //      LOG(L_ERR, "The token parameter must either be an empty string on first call, or the last token!");
+      return 0;
+    }
+  }
+  if (!dst->s)
+    start = 0;
+  else
+    start = dst->s + dst->len - src.s;
+  for (i = start; i < src.len; i++) {
+    is_sep = 0;
+    for (j = 0; j < sep_len; j++)
+      if (src.s[i] == sep[j]) {
+        is_sep = 1;
+        break;
+      }
+    if (!is_sep) {
+      dst->s = src.s + i;
+      for (i = i + 1; i < src.len; i++) {
+        is_sep = 0;
+        for (j = 0; j < sep_len; j++)
+          if (src.s[i] == sep[j]) {
+            is_sep = 1;
+            break;
+          }
+        if (is_sep) break;
+      }
+      dst->len = src.s + i - dst->s;
+      return 1;
+    } else {
+      // peek at the next token and if separator, return empty token
+      if (i + 1 >= src.len) return 0;
+      is_sep = 0;
+      for (j = 0; j < sep_len; j++)
+        if (src.s[i + 1] == sep[j]) {
+          is_sep = 1;
+          break;
+        }
+      if (is_sep) {
+        dst->s   = src.s + i + 1;
+        dst->len = 0;
+        return 1;
+      }
+    }
+  }
+  return 0;
+}
+
 long int str_to_long_int(str x, int base) {
   char buf[65];
   if (x.len > 64) {
@@ -117,6 +172,16 @@ uint32_t str_to_uint32_t(str x, int base) {
   return strtoul(buf, 0, base);
 }
 
+double str_to_double(str x) {
+  char buf[65];
+  if (x.len > 64) {
+//    LOG(L_ERR, "The give string is too long to convert - %d > 64\n", x.len);
+    return 0;
+  }
+  memcpy(buf, x.s, x.len);
+  buf[x.len] = 0;
+  return strtod(buf, 0);
+}
 
 int hex_to_int(char c) {
   switch (c) {

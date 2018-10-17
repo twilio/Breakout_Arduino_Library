@@ -52,18 +52,18 @@ void setup() {
   // This is a good place to make sure the port is initialized properly.
   SerialDebugPort.enableBlockingTx();  // reliably write to it
 
-  owl_log_set_level(L_DBG);
+  owl_log_set_level(L_INFO);
   LOG(L_NOTICE, "Arduino setup() starting up\r\n");
 
   owlModem    = new OwlModem(&SerialModule, &SerialDebugPort);
   owlModemCLI = new OwlModemCLI(owlModem, &SerialDebugPort);
 
-  LOG(L_NOTICE, ".. WioLTE CAT M1/NB-IoT - powering on modules\r\n");
+  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
   if (!owlModem->powerOn()) {
-    LOG(L_ERR, ".. WioLTE CAT M1/NB-IoT - ... modem failed to power on\r\n");
+    LOG(L_ERR, ".. WioLTE Cat.NB-IoT - ... modem failed to power on\r\n");
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. WioLTE CAT M1/NB-IoT - now powered on.\r\n");
+  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - now powered on.\r\n");
 
   /* Initialize modem configuration to something we can trust. */
   LOG(L_NOTICE, ".. OwlModem - initializing modem\r\n");
@@ -83,7 +83,7 @@ void setup() {
   owlModem->network.setHandlerEPSRegistrationURC(handler_EPSRegistrationStatusChange);
 
   if (!owlModem->waitForNetworkRegistration("devkit", TESTING_VARIANT_REG)) {
-    LOG(L_ERR, ".. WioLTE CAT M1/NB-IoT - ... modem failed to register to the network\r\n");
+    LOG(L_ERR, ".. WioLTE Cat.NB-IoT - ... modem failed to register to the network\r\n");
     goto error_stop;
   }
   LOG(L_NOTICE, ".. OwlModem - registered to network\r\n");

@@ -138,7 +138,7 @@ bool Breakout::initModem() {
 
   LOG(L_NOTICE, "OwlModem starting up\r\n");
 
-  if (!(owlModem = new OwlModem(&SerialModule, &SerialDebugPort))) GOTOERR(error_stop);
+  if (!(owlModem = new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
 
   LOG(L_NOTICE, ".. OwlModem - powering on modules\r\n");
   if (!owlModem->powerOn()) {
@@ -576,6 +576,7 @@ recovered_connection:
 
   CoAPMessage request = CoAPMessage(CoAP_Type__Confirmable, CoAP_Code_Class__Request, CoAP_Code_Detail__Request__POST,
                                     coapPeer->getNextMessageId());
+  request.token = coapPeer->getNextToken(&request.token_length);
   if (!request.addOptionUriPath("v1")) {
     LOG(L_ERR, "Error adding UriPath\r\n");
     goto error;
@@ -653,6 +654,15 @@ command_status_code_e Breakout::receiveCommand(const size_t maxBufSize, char *bu
   WL_FREE(command, breakout_command_list_t);
 
   return COMMAND_STATUS_OK;
+}
+
+bool Breakout::getGNSSData(gnss_data_t *out_gnss_data) {
+  bool ret = owlModem->gnss.getGNSSData(out_gnss_data);
+  if (ret) {
+    LOG(L_DBG, "Current GNSS data:\r\n");
+    owlModem->gnss.logGNSSData(L_DBG, *out_gnss_data);
+  }
+  return ret;
 }
 
 
@@ -738,9 +748,10 @@ void Breakout::handler_EPSRegistrationStatusChange(at_cereg_stat_e stat, uint16_
 
 void Breakout::handler_UDPData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
   LOG(L_INFO,
-      "\r\n>>>\r\n>>>URC-UDP-Data>>> Received UDP data from socket=%d remote_ip=%.*s remote_port=%u of %d bytes [",
+      "\r\n>>>\r\n>>>URC-UDP-Data>>> Received UDP data from socket=%d remote_ip=%.*s remote_port=%u of %d bytes\r\n",
       socket, remote_ip.len, remote_ip.s, remote_port, data.len);
   LOGSTR(L_DBG, data);
+  LOG(L_DBG, ">>>\r\n");
 }
 
 void Breakout::handler_SocketClosed(uint8_t socket) {
@@ -752,7 +763,7 @@ void Breakout::handler_SocketClosed(uint8_t socket) {
 /*                     Handlers - CoAP                 */
 
 void Breakout::handler_CoAPStatelessMessage(CoAPPeer *peer, CoAPMessage *message) {
-  LOG(L_DBG, "\r\n>>>\r\n>>>Rx-CoAP-Stateless>>> From %.*s:%u", peer->remote_ip.len, peer->remote_ip.s,
+  LOG(L_DBG, "\r\n>>>\r\n>>>Rx-CoAP-Stateless>>> From %.*s:%u\r\n", peer->remote_ip.len, peer->remote_ip.s,
       peer->remote_port);
   if (message) message->log(L_DBG);
   LOG(L_DBG, ">>>\r\n");

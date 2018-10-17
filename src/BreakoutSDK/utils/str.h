@@ -111,8 +111,10 @@ extern "C" {
 void str_remove_prefix(str *x, char *prefix);
 void str_skipover_prefix(str *x, str prefix);
 int str_tok(str src, char *sep, str *dst);
+int str_tok_with_empty_tokens(str src, char *sep, str *dst);
 long int str_to_long_int(str x, int base);
 uint32_t str_to_uint32_t(str x, int base);
+double str_to_double(str x);
 
 int hex_to_int(char c);
 
