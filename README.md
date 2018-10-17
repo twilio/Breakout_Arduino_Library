@@ -20,7 +20,7 @@ static const char * psk_key = "00112233445566778899aabbccddeeff";
 
 #### Retrieve the Breakout instance
 Obtain an instance to the Breakout client singleton.
-Returns breakout client
+* @returns breakout client instance
 ```
 Breakout *breakout = &Breakout::getInstance();
 ```
@@ -52,7 +52,7 @@ breakout->setPollingInterval(10 * 60);
 Powering the modem and starting up the SDK.
 Returns `true` if powered on, `false` otherwise.
 ```
- breakout->powerModuleOn();
+breakout->powerModuleOn();
 ```
 #### Handle all modem events
 This is the main loop(), which will run forever. Keep  `breakout->spin()` call such that the SDK will be able to handle modem events, incoming data, and trigger retransmissions.
@@ -84,39 +84,72 @@ This is the main loop(), which will run forever. Keep  `breakout->spin()` call s
   * `COMMAND_STATUS_COMMAND_TOO_LONG`
 	  * Returned if provided command is too long
 
-####  Send a Command without a receipt request
+####  Send a text Command without a receipt request
 The Command to send to Twilio - max 140 characters.
-
-* cmd - the command to send to Twilio - max 140 characters.
-* isBinary - whether the command should be sent with Content-Format indicating text or binary.
-* Returns: `command_status_code_e `
+* @param `cmd` - the command to send to Twilio - max 140 characters.
+* @returns `command_status_code_e `
 ```
-sendCommand(char *const buf, isBinary=false);
+sendTextCommand(const char *buf);
 ```
-#### Send a Command with a receipt request
+####  Send a binary Command without a receipt request
 The Command to send to Twilio - max 140 characters.
-* buf - buffer containing the binary command to send to Twilio - max 140 characters
-* bufSize - number of bytes of the binary command
-* callback - command receipt callback.
-* callback_parameter - a generic pointer to application data
-* Returns: `command_status_code_e`
+* @param `cmd` - the command to send to Twilio - max 140 characters.
+* @returns `command_status_code_e `
 ```
-sendCommandWithReceiptRequest(char *const buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
+sendBinaryCommand(const char *buf);
+```
+#### Send a text Command with a receipt request
+The text Command to send to Twilio - max 140 characters.
+* @param `buf` - the text command to send to Twilio - max 140 characters.
+* @param `callback` - command receipt callback.
+* @param `callback_parameter` - a generic pointer to application data.
+* @returns: `command_status_code_e`
+```
+sendTextCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
+```
+#### Send a binary Command with a receipt request
+The binary Command to send to Twilio - max 140 characters.
+* @param `buf` - the text command to send to Twilio - max 140 characters.
+* @param `callback` - command receipt callback.
+* @param `callback_parameter` - a generic pointer to application data.
+* @returns: `command_status_code_e`
+```
+sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
+```
+#### Send a binary Command with a receipt request
+The binary Command to send to Twilio - max 140 characters.
+* @param `buf` - buffer containing the binary command to send to Twilio - max 140 characters.
+* @param `bufSize` - number of bytes of the binary command
+* @param `callback` - command receipt callback.]
+* @param `callback_parameter` - a generic pointer to application data.
+* @returns `command_status_code_e`
+```
+sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
 ```
 #### Receive Commands
 Pop a received Command, in case it was received locally (hasWaitingCommand() returns `true`.
-   * maxBufSize - size of buffer being passed in
-   * buf - buffer to receive command into
-   * bufSize - size of returned command in buf, will not exceed 141 bytes.
-   * Returns: `command_status_code_e`
+* @param `maxBufSize` - size of buffer being passed in
+* @param `buf` - buffer to receive command into
+* @param `bufSize` - output size of returned command in buf, will not exceed 141 bytes.
+* @param `isBinary` - output indicator if the command was received with Content-Format indicating text or binary
+ * @returns `command_status_code_e`
 ```
-receiveCommand(const size_t maxBufSiz, char  *const buf, size_t  *bufSize);
+receiveCommand(const  size_t maxBufSize, char  *buf, size_t  *bufSize, bool *isBinary);
 ```
 #### Commands waiting to be retrieved
 Indicates the presence of a waiting command.
-Returns `true` if Commands waiting on server, `false` otherwise.
+@returns `true` if Commands waiting on server, `false` otherwise.
 ```
 hasWaitingCommand();
+```
+#### Manually check for Commands
+Manually initiate a check for waiting Commands.
+If `setPollingInterval()` is set to a valid interval, this is automatically called at an interval. If both polling interval is enabled, the polling timer is reset on manual calls to this method.
+* @returns `true` if the operation was successful.
+
+Query `hasWaitingCommands()` for results.
+```
+checkForCommands(bool isRetry = false);
 ```
 ## Limitations and Workarounds
 
