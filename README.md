@@ -178,14 +178,13 @@ curl -X POST https://wireless.twilio.com/v1/Commands \
 ```
 curl -X POST https://wireless.twilio.com/v1/Commands \
 --data-urlencode "CommandMode=binary" \
---data-urlencode "Sim=AliceSmithSmartMeter" \
+--data-urlencode "Sim=MyNarrowbandSIM" \
 --data-urlencode "Command=SGVsbG8sIE1hY2hpbmUh==" \
 -u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
 ```
 
 ### Receive Command from SIM to your web service
-To receive a Command from a SIM ('mobile-originated'), you should create or update an existing SIM instance with a CommandsCallbackUrl property, and optionally a CommandsCallbackMethod property (defaults to POST).
-
+To receive a Command from a SIM 'mobile-originated', you should create or update an existing SIM instance with a CommandsCallbackUrl property, and optionally a CommandsCallbackMethod property (defaults to POST).
 
 ## Limitations and Workarounds
 
