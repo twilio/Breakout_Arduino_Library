@@ -70,9 +70,10 @@ This is the main loop(), which will run forever. Keep  `breakout->spin()` call s
     }
 
 ### Sending and receiving Commands
- 
- #### commands_status_code_e
- Enumeration for connection status updates:
+
+### Types
+#### `commands_status_code_e`
+Enumeration for connection status updates:
   * `COMMAND_STATUS_OK`
 	  * Returned if operation was successful
   * `COMMAND_STATUS_ERROR`
@@ -84,6 +85,24 @@ This is the main loop(), which will run forever. Keep  `breakout->spin()` call s
   * `COMMAND_STATUS_COMMAND_TOO_LONG`
 	  * Returned if provided command is too long
 
+#### `command_receipt_code_e`
+Enumeration for command status results:
+* `CONNECTION_STATUS_OFFLINE`
+	* The device is not registered on the mobile network - offline.
+* `CONNECTION_STATUS_NETWORK_REGISTRATION_DENIED`
+	* The mobile network denied network registration - check SIM status - offline.
+* `CONNECTION_STATUS_REGISTERED_NOT_CONNECTED`
+	* The device is registered to the mobile network but not yet connected to the Twilio Commands SDK - offline.
+* `CONNECTION_STATUS_REGISTERED_AND_CONNECTED`
+	* The device is registered to the mobile network and connected to the Twilio Commands SDK - online.
+#### Handler for Commands with receipt requests
+Handler function signature for Commands with receipt requests. Used in `sendTextCommandWithReceiptRequest()` and `sendBinaryCommandWithReceiptRequest()`.
+
+* @param `receipt_code` - the receipt request
+* @param `cb_parameter` - a generic pointer to application data, as passed to the `sendCommandWithReceiptRequest()`
+```
+typedef void (*BreakoutCommandReceiptCallback_f)(command_receipt_code_e receipt_code, void *cb_parameter);
+```
 ####  Send a text Command without a receipt request
 The Command to send to Twilio - max 140 characters.
 * @param `cmd` - the command to send to Twilio - max 140 characters.
@@ -119,8 +138,8 @@ sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallb
 #### Send a binary Command with a receipt request
 The binary Command to send to Twilio - max 140 characters.
 * @param `buf` - buffer containing the binary command to send to Twilio - max 140 characters.
-* @param `bufSize` - number of bytes of the binary command
-* @param `callback` - command receipt callback.]
+* @param `bufSize` - number of bytes of the binary command.
+* @param `callback` - command receipt callback.
 * @param `callback_parameter` - a generic pointer to application data.
 * @returns `command_status_code_e`
 ```
@@ -128,15 +147,15 @@ sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallb
 ```
 #### Receive Commands
 Pop a received Command, in case it was received locally (hasWaitingCommand() returns `true`.
-* @param `maxBufSize` - size of buffer being passed in
-* @param `buf` - buffer to receive command into
+* @param `maxBufSize` - size of buffer being passed in.
+* @param `buf` - buffer to receive command into.
 * @param `bufSize` - output size of returned command in buf, will not exceed 141 bytes.
-* @param `isBinary` - output indicator if the command was received with Content-Format indicating text or binary
+* @param `isBinary` - output indicator if the command was received with Content-Format indicating text or binary.
  * @returns `command_status_code_e`
 ```
 receiveCommand(const  size_t maxBufSize, char  *buf, size_t  *bufSize, bool *isBinary);
 ```
-#### Commands waiting to be retrieved
+#### Check if Commands are waiting to be retrieved
 Indicates the presence of a waiting command.
 @returns `true` if Commands waiting on server, `false` otherwise.
 ```
@@ -158,7 +177,7 @@ checkForCommands(bool isRetry = false);
     *  **Solution:** partial solution would be to switch from the hex mode to binary mode. This shall double the amount of data received, yet it makes the code much more complex. So far 512 was a good upper limit, especially given the NB-IoT targets here, hence this wasn't explored.
 2. Arduino Seeed STM32F4 Boards Package - USART buffer limitation
     *  **Problem:** The Seeed STM32F4 Boards package, published through the Boards Manager system, has a limitation in the USART interface implementation which we're using to communicate with the modem. The default USART_RX_BUF_SIZE is set to 256 bytes. With overheads and hex mode, this reduces the maximum chunk of data which we can read from the modem quite significantly. The effect is that the modem data in the receive side is shifted over its beginning, such that only the last 255 bytes are actually received by OwlModem.
-    *  **Solution:** see [Update USART buffer below](#Update0USART-buffer).
+    *  **Solution:** see [Update USART buffer below](#update-usart-buffer).
 
 ### Update USART buffer
 
