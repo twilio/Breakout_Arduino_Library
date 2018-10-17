@@ -29,7 +29,10 @@
 
 /** Change this to your device purpose */
 static const char *device_purpose = "Dev-Kit";
-/** Change this to your key for the SIM card inserted in this device */
+/** Change this to your key for the SIM card inserted in this device 
+ *  You can find your PSK under the Breakout SDK tab of your Narrowband SIM detail at
+ *  https://www.twilio.com/console/wireless/sims
+*/
 static const char *psk_key = "00112233445566778899aabbccddeeff";
 
 
@@ -87,7 +90,7 @@ void setup() {
 }
 
 void sendCommand(const char * command, size_t command_len) {
-  if (breakout->sendCommand(command, command_len) == COMMAND_STATUS_OK) {
+  if (breakout->sendTextCommand(command) == COMMAND_STATUS_OK) {
     LOG(L_INFO, "Tx-Command [%.*s]\r\n", command_len, command);
   } else {
     LOG(L_INFO, "Tx-Command ERROR\r\n");
