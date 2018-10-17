@@ -52,7 +52,7 @@ void setup() {
   // This is a good place to make sure the port is initialized properly.
   SerialDebugPort.enableBlockingTx();  // reliably write to it
 
-  owl_log_set_level(L_DBG);
+  owl_log_set_level(L_INFO);
   LOG(L_NOTICE, "Arduino setup() starting up\r\n");
 
   owlModem    = new OwlModem(&SerialModule, &SerialDebugPort);
