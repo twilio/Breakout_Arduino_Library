@@ -10,7 +10,7 @@ This page documents how to get started using the Breakout SDK and what it provid
 
 Breakout SDK enables developers to exchange data between low-powered devices and IoT cloud services. Breakout makes it easy to adopt low power optimizations provided by the Narrowband network and cellular modem hardware.
 
-#### Retrieve PSK from Console assign PSK in client
+#### Retrieve PSK from Console and assign PSK in client
 A pre shared key (PSK) is required to be retrieved from the Programmable Wireless Console Narrowband SIM Resource. Your Narrowband SIM PSK will need to be copied into your application code and can be regenerated anytime through the [SIMs section of the Console](https://twilio.com/console/wireless/sims).
 
 PSKs are retrieved and set in hexadecimal and are unique per SIM.
@@ -70,7 +70,7 @@ This is the main loop(), which will run forever. Keep  `breakout->spin()` call s
      delay(50);
     }
 
-### Sending and receiving Commands
+### Sending and receiving Commands from the device
 
 ### Types
 #### `commands_status_code_e`
@@ -162,6 +162,30 @@ Query `hasWaitingCommands()` for results.
 ```
 checkForCommands(bool isRetry = false);
 ```
+
+### Sending Commands to the SIM
+Commands to the SIM are sent via an HTTP request to Twilio. Visit the [Commands API](https://www.twilio.com/docs/wireless/api/commands) documentation to learn more.
+
+#### Create a text Command
+```
+curl -X POST https://wireless.twilio.com/v1/Commands \
+--data-urlencode "Sim=MyNarrowbandSim" \
+--data-urlencode "Command=wakeup" \
+-u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
+```
+
+#### Create a binary Command
+```
+curl -X POST https://wireless.twilio.com/v1/Commands \
+--data-urlencode "CommandMode=binary" \
+--data-urlencode "Sim=MyNarrowbandSIM" \
+--data-urlencode "Command=SGVsbG8sIE1hY2hpbmUh==" \
+-u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
+```
+
+#### Receive Command from SIM to your web service
+To receive a Command from a SIM 'mobile-originated', you should create or update an existing SIM instance with a CommandsCallbackUrl property, and optionally a CommandsCallbackMethod property (defaults to POST).
+
 ## Limitations and Workarounds
 
 1. U-Blox data size limitation
