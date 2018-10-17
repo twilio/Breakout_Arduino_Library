@@ -197,9 +197,9 @@ int CoAPOption::decode(coap_option_number_e previous_number, bin_t *src) {
   delta = first_byte >> 4;
   if (delta <= 12) {
   } else if (delta == 13) {
-    delta = bin_t_decode_uint8(src);
+    delta = bin_t_decode_uint8(src) + 13;
   } else if (delta == 14) {
-    delta = bin_t_decode_uint16(src);
+    delta = bin_t_decode_uint16(src) + 269;
   } else if (delta == 15) {
     LOG(L_ERR, "Found Option Delta set to 15 - this is an error, or indicator for payload\r\n");
     goto error;
@@ -227,6 +227,7 @@ int CoAPOption::decode(coap_option_number_e previous_number, bin_t *src) {
       break;
     case CoAP_Option__If_Match:
     case CoAP_Option__ETag:
+    case CoAP_Option__Twilio_HostDevice_Information:
       this->format           = CoAP_Option_Format__opaque;
       this->value.opaque.s   = (char *)src->s + src->idx;
       this->value.opaque.len = len;
@@ -242,6 +243,7 @@ int CoAPOption::decode(coap_option_number_e previous_number, bin_t *src) {
     case CoAP_Option__Block1:
     case CoAP_Option__Size2:
     case CoAP_Option__No_Response:
+    case CoAP_Option__Twilio_Queued_Command_Count:
       this->format     = CoAP_Option_Format__uint;
       this->value.uint = bin_t_decode_varuint(src, len);
       break;
