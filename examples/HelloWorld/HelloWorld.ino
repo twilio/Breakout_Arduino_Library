@@ -63,7 +63,7 @@ void setup() {
   //   - debug: L_DBG
   //
   // When logging, the additional L_CLI level ensure that the output will always be visible, no matter the set level.
-  owl_log_set_level(L_DBG);
+  owl_log_set_level(L_INFO);
   LOG(L_WARN, "Arduino setup() starting up\r\n");
 
   enableLed();
@@ -80,9 +80,14 @@ void setup() {
   LOG(L_WARN, "Powering on module and registering...");
   breakout->powerModuleOn();
 
-  char test[] = "BreakoutSDK test app";
-  sendCommand(test, sizeof(test));
-    
+  const char command[] = "Hello World from BreakoutSDK test app";
+
+  if (breakout->sendTextCommand(command) == COMMAND_STATUS_OK) {
+    LOG(L_INFO, "Tx-Command [%s]\r\n", command);
+  } else {
+    LOG(L_INFO, "Tx-Command ERROR\r\n");
+  }
+
   // Set RGB-LED to green
   strip.WS2812SetRGB(0, 0x00, 0x40, 0x00);
   strip.WS2812Send();
@@ -91,13 +96,6 @@ void setup() {
   LOG(L_WARN, "Arduino loop() starting up\r\n");
 }
 
-void sendCommand(const char * command, size_t command_len) {
-  if (breakout->sendTextCommand(command) == COMMAND_STATUS_OK) {
-    LOG(L_INFO, "Tx-Command [%.*s]\r\n", command_len, command);
-  } else {
-    LOG(L_INFO, "Tx-Command ERROR\r\n");
-  }
-}
 
 /**
  * This is just a simple example of a poll for commands application. See the documentation for
@@ -107,7 +105,7 @@ void your_application_example() {
   // This is a simple example, which drains the waiting commands and echoes them back to the server
   if (breakout->hasWaitingCommand()) {
     // Check if there is a command waiting and log it on the USB serial
-    char command[140];
+    char command[141];
     size_t commandLen = 0;
     bool isBinary     = false;
     // Read a command
