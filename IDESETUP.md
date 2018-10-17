@@ -119,7 +119,7 @@ The library will now be present for Arduino IDE to use. To update the library:
 	3. Release the **RST** on the top of the Developer Board
 	4. Release the **BOOT0** button to enable Bootloader mode
 5. Click Sketch > Upload to upload the example to the Developer Board
- * Do not use Upload Using Programmer
+  * Do not click `Upload Using Programmer`
 6. Click the RST button when the sketch has finished uploading
 7. Click Tools > Port > **{Your Modem Port Here}**
     * OSX: /dev/{cu|tty}.usbmodem{XXXX}

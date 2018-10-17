@@ -52,6 +52,15 @@ The default is 0, which indicates no automatic querying of the server. Value is 
 ```
 breakout->setPollingInterval(10 * 60);
 ```
+####  Heartbeats
+Heartbeats are sent from Breakout to Twilio every time:
+
+ - When the polling interval is fired
+ - When `checkForCommands()` is manually fired
+ - When you send a Command
+ - When you receive a Command
+
+Heartbeats are registered with Breakout service and visible under the **Breakout SDK** tab of your Narrowband SIM Resource in [Console](https://www.twilio.com/console/wireless). Heartbeats are displayed in reverse chronological order. You will see the version of Breakout SDK your Developer Board is using and the datetime the Heartbeat was sent.
 #### Power on the cellular module
 Powering the modem and starting up the SDK.
 Returns `true` if powered on, `false` otherwise.
@@ -165,10 +174,8 @@ Query `hasWaitingCommands()` for results.
 ```
 checkForCommands(bool isRetry = false);
 ```
-
 ### Sending Commands to the SIM
 Commands to the SIM are sent via an HTTP request to Twilio. Visit the [Commands API](https://www.twilio.com/docs/wireless/api/commands) documentation to learn more.
-
 #### Create a text Command
 ```
 curl -X POST https://wireless.twilio.com/v1/Commands \
@@ -176,7 +183,6 @@ curl -X POST https://wireless.twilio.com/v1/Commands \
 --data-urlencode "Command=wakeup" \
 -u ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX:your_auth_token
 ```
-
 #### Create a binary Command
 ```
 curl -X POST https://wireless.twilio.com/v1/Commands \
