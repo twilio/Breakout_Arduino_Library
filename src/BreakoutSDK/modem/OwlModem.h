@@ -83,7 +83,7 @@ class OwlModem {
    * @return 1 on success, 0 on failure
    */
   int powerOn(owl_power_m bit_mask = (owl_power_m)(Owl_PowerOnOff__Modem | Owl_PowerOnOff__GNSS |
-                                                   Owl_PowerOnOff__RGBLED | Owl_PowerOnOff__RGBLED));
+                                                   Owl_PowerOnOff__RGBLED | Owl_PowerOnOff__Grove));
 
   /**
    * Power off the module and wait until the AT interface is up. Might take up to 10 seconds.
