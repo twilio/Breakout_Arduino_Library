@@ -82,7 +82,7 @@ void setup() {
   owlModem->network.setHandlerGPRSRegistrationURC(handler_GPRSRegistrationStatusChange);
   owlModem->network.setHandlerEPSRegistrationURC(handler_EPSRegistrationStatusChange);
 
-  if (!owlModem->waitForNetworkRegistration("Flood-Monitor", TESTING_VARIANT_REG)) {
+  if (!owlModem->waitForNetworkRegistration("devkit", TESTING_VARIANT_REG)) {
     LOG(L_ERR, ".. WioLTE CAT M1/NB-IoT - ... modem failed to register to the network\r\n");
     goto error_stop;
   }

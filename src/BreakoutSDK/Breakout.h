@@ -234,7 +234,7 @@ class Breakout {
    *    COMMAND_STATUS_ERROR on error
    *    COMMAND_STATUS_COMMAND_TOO_LONG if strlen(buf) > 140
    */
-  command_status_code_e sendCommand(const char *buf);
+  command_status_code_e sendTextCommand(const char *buf);
 
   /**
    * Send a binary command to Twilio - without Receipt Request
@@ -245,7 +245,7 @@ class Breakout {
    *    COMMAND_STATUS_ERROR on error
    *    COMMAND_STATUS_COMMAND_TOO_LONG if bufSize > 140
    */
-  command_status_code_e sendCommand(const char *buf, size_t bufSize);
+  command_status_code_e sendBinaryCommand(const char *buf, size_t bufSize);
 
   /**
    * Send a command to Twilio - without Receipt Request
@@ -268,8 +268,8 @@ class Breakout {
    *    COMMAND_STATUS_ERROR on error
    *    COMMAND_STATUS_COMMAND_TOO_LONG if strlen(buf) > 140
    */
-  command_status_code_e sendCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback,
-                                                      void *callback_parameter);
+  command_status_code_e sendTextCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback,
+                                                          void *callback_parameter);
 
   /**
    * Send a binary command to Twilio - with Receipt Request
@@ -282,9 +282,9 @@ class Breakout {
    *    COMMAND_STATUS_ERROR on error
    *    COMMAND_STATUS_COMMAND_TOO_LONG if bufSize > 140
    */
-  command_status_code_e sendCommandWithReceiptRequest(const char *buf, size_t bufSize,
-                                                      BreakoutCommandReceiptCallback_f callback,
-                                                      void *callback_parameter);
+  command_status_code_e sendBinaryCommandWithReceiptRequest(const char *buf, size_t bufSize,
+                                                            BreakoutCommandReceiptCallback_f callback,
+                                                            void *callback_parameter);
 
   /**
    * Send a command to Twilio - with Receipt Request
