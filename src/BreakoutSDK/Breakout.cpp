@@ -656,6 +656,15 @@ command_status_code_e Breakout::receiveCommand(const size_t maxBufSize, char *bu
   return COMMAND_STATUS_OK;
 }
 
+bool Breakout::getGNSSData(gnss_data_t *out_gnss_data) {
+  bool ret = owlModem->gnss.getGNSSData(out_gnss_data);
+  if (ret) {
+    LOG(L_DBG, "Current GNSS data:\r\n");
+    owlModem->gnss.logGNSSData(L_DBG, *out_gnss_data);
+  }
+  return ret;
+}
+
 
 
 /*                 Internal methods   */
