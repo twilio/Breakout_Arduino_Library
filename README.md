@@ -104,6 +104,7 @@ Handler function signature for Commands with receipt requests. Used in `sendText
 ```
 typedef void (*BreakoutCommandReceiptCallback_f)(command_receipt_code_e receipt_code, void *cb_parameter);
 ```
+### Methods
 ####  Send a text Command without a receipt request
 The Command to send to Twilio - max 140 characters.
 * @param `cmd` - the command to send to Twilio - max 140 characters.
