@@ -104,6 +104,7 @@ Handler function signature for Commands with receipt requests. Used in `sendText
 ```
 typedef void (*BreakoutCommandReceiptCallback_f)(command_receipt_code_e receipt_code, void *cb_parameter);
 ```
+### Methods
 ####  Send a text Command without a receipt request
 The Command to send to Twilio - max 140 characters.
 * @param `cmd` - the command to send to Twilio - max 140 characters.
@@ -133,16 +134,6 @@ The binary Command to send to Twilio - max 140 characters.
 * @param `callback` - command receipt callback.
 * @param `callback_parameter` - a generic pointer to application data.
 * @returns: `command_status_code_e`
-```
-sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
-```
-#### Send a binary Command with a receipt request
-The binary Command to send to Twilio - max 140 characters.
-* @param `buf` - buffer containing the binary command to send to Twilio - max 140 characters.
-* @param `bufSize` - number of bytes of the binary command.
-* @param `callback` - command receipt callback.
-* @param `callback_parameter` - a generic pointer to application data.
-* @returns `command_status_code_e`
 ```
 sendBinaryCommandWithReceiptRequest(const char *buf, BreakoutCommandReceiptCallback_f callback, void *callback_parameter);
 ```
