@@ -87,7 +87,7 @@ void setup() {
 }
 
 void sendCommand(const char * command, size_t command_len) {
-  if (breakout->sendCommand(command, command_len) == COMMAND_STATUS_OK) {
+  if (breakout->sendBinaryCommand(command, command_len) == COMMAND_STATUS_OK) {
     LOG(L_INFO, "Tx-Command [%.*s]\r\n", command_len, command);
   } else {
     LOG(L_INFO, "Tx-Command ERROR\r\n");
