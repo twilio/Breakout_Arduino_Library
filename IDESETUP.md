@@ -4,6 +4,8 @@ This page documents how to get started using the Breakout SDK and what it provid
 ## Alfa Developer Kit
 Alfa Developer Kit contains:
 
+  ![Arduino Preferences](img/alfa-developer-kit-box.png)
+
 - Programmable Wireless Narrowband SIM
 - Alfa Developer Board
 - LTE antenna
@@ -26,7 +28,7 @@ The following items are required to use Breakout SDK:
 
 1.  [Register the Narrowband SIM](https://www.twilio.com/console/wireless/sims/register) in the Programmable Wireless Console
 2. Insert the **smallest** form factor of the Narrowband SIM in the **bottom** of the **two** slots available on the Developer Board
-  ![Narrowband SIM holder](img/alfa-developer-board-sim-holder.png)
+![Narrowband SIM holder](img/alfa-developer-board-sim-holder.png)
 > The smallest form factor of a SIM is the Nano (4FF) SIM size. The top slot is a Micro-SD card slot. If you insert the Narrowband SIM in the top slow, gently pry it out with needle-nose pliers.
 
 3. Connect the LTE Antenna to the LTE pin located on the **bottom** of the board.
@@ -77,6 +79,12 @@ The follow steps are required for Windows:
     * Linux: /dev/ttyACM{X}
     * Windows: COM{X}
 
+#### Arduino > Preferences
+  ![Arduino Preferences](img/arduino-preferences.png)
+
+#### Tools > Boards > Boards Manager > Seeed STM32F4 Board
+  ![Arduino Preferences](img/arduino-boardmanager-stm32f4.png)
+
 ### Breakout SDK Installation
 
 1. Click the green "Clone or download" button at the top right handside of this repository
@@ -85,6 +93,8 @@ The follow steps are required for Windows:
 4. Open Arduino IDE
 5. Select Sketch > Include Library > Add .ZIP Library and select the .zip file downloaded
 6. Restart Arduino IDE
+
+  ![Download Repository](img/breakoutsdk-download-zip.png)
 
 ### Updating Breakout SDK on your local machine
 
