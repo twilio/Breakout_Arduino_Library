@@ -353,12 +353,12 @@ void Breakout::spin() {
 
 
 
-command_status_code_e Breakout::sendCommand(const char *buf) {
+command_status_code_e Breakout::sendTextCommand(const char *buf) {
   str payload = {.s = (char *)buf, .len = strlen(buf)};
   return sendCommand(payload, false);
 }
 
-command_status_code_e Breakout::sendCommand(const char *buf, size_t bufSize) {
+command_status_code_e Breakout::sendBinaryCommand(const char *buf, size_t bufSize) {
   str payload = {.s = (char *)buf, .len = bufSize};
   return sendCommand(payload, true);
 }
@@ -409,16 +409,16 @@ error:
   return COMMAND_STATUS_ERROR;
 }
 
-command_status_code_e Breakout::sendCommandWithReceiptRequest(const char *buf,
-                                                              BreakoutCommandReceiptCallback_f callback,
-                                                              void *callback_parameter) {
+command_status_code_e Breakout::sendTextCommandWithReceiptRequest(const char *buf,
+                                                                  BreakoutCommandReceiptCallback_f callback,
+                                                                  void *callback_parameter) {
   str payload = {.s = (char *)buf, .len = strlen(buf)};
   return sendCommandWithReceiptRequest(payload, callback, callback_parameter, false);
 }
 
-command_status_code_e Breakout::sendCommandWithReceiptRequest(const char *buf, size_t bufSize,
-                                                              BreakoutCommandReceiptCallback_f callback,
-                                                              void *callback_parameter) {
+command_status_code_e Breakout::sendBinaryCommandWithReceiptRequest(const char *buf, size_t bufSize,
+                                                                    BreakoutCommandReceiptCallback_f callback,
+                                                                    void *callback_parameter) {
   str payload = {.s = (char *)buf, .len = bufSize};
   return sendCommandWithReceiptRequest(payload, callback, callback_parameter, true);
 }
