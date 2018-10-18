@@ -69,7 +69,7 @@ Heartbeats are registered with Breakout service and visible under the **Breakout
 #### Set the device's purpose
 Sets the "purpose" of the device. This defaults to "Dev-Kit" and is informational to the network for the purpose of your device's use. The maximum length for purpose string is 32 characters. Must be set **before** powering on the module or this call will return an error.
    * @param `purpose` - your developer kit's purpose.
-   * @return `true` is setting purpose was successful, `false` otherwise
+   * @returns `true` is setting purpose was successful, `false` otherwise
 ```
 setPurpose(char const *purpose);
 ```
