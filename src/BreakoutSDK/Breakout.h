@@ -41,22 +41,22 @@
 
 
 /**
- * Enumeration for command status result.
+ * Enumeration for Command status result.
  */
 typedef enum {
   COMMAND_STATUS_OK,                 /**< Returned if operation was successful. */
   COMMAND_STATUS_ERROR,              /**< Returned if operation failed. */
   COMMAND_STATUS_BUFFER_TOO_SMALL,   /**< Returned if provided buffer is too small for requested data. */
-  COMMAND_STATUS_NO_COMMAND_WAITING, /**< Returned if no command is available for reading. */
-  COMMAND_STATUS_COMMAND_TOO_LONG,   /**< Returned if provided command is too long. */
+  COMMAND_STATUS_NO_COMMAND_WAITING, /**< Returned if no Command is available for reading. */
+  COMMAND_STATUS_COMMAND_TOO_LONG,   /**< Returned if provided Command is too long. */
 } command_status_code_e;
 
 typedef enum {
-  COMMAND_RECEIPT_CONFIRMED_DELIVERY, /**< The command was confirmed as received on the server side. */
-  COMMAND_RECEIPT_SERVER_ERROR,       /**< The command was rejected and/or the server returned an error. */
+  COMMAND_RECEIPT_CONFIRMED_DELIVERY, /**< The Command was confirmed as received on the server side. */
+  COMMAND_RECEIPT_SERVER_ERROR,       /**< The Command was rejected and/or the server returned an error. */
   COMMAND_RECEIPT_CANCELED,           /**< The delivery receipt was canceled, this is a dummy event for cleanups.
                                        * It might have been delivered. */
-  COMMAND_RECEIPT_TIMEOUT,            /**< The command was not confirmed in time. Note that it might have been
+  COMMAND_RECEIPT_TIMEOUT,            /**< The Command was not confirmed in time. Note that it might have been
                                        * delivered, but all delivery receipts might've been lost on the way back. */
 } command_receipt_code_e;
 
@@ -84,18 +84,18 @@ typedef void (*BreakoutConnectionStatusHandler_f)(const connection_status_e conn
  * Handler function signature for To-SIM Commands (receiving Commands)
  * @param buf - a buffer containing the Command - duplicate data if you need to use it later
  * @param bufSize - the length of Command in the buffer
- * @param isBinary - indicates if the incoming command is binary or ascii.
+ * @param isBinary - indicates if the incoming Command is binary or ascii.
  */
 typedef void (*BreakoutCommandHandler_f)(const char *buf, size_t bufSize, bool isBinary);
 
 /**
  * Handler function signature for From-SIM Commands with Receipt Request
  * @param receipt_code - the Receipt Request
- *    COMMAND_RECEIPT_CONFIRMED_DELIVERY - The command was confirmed as received on the server side.
- *    COMMAND_RECEIPT_SERVER_ERROR       - The command was rejected and/or the server returned an error.
+ *    COMMAND_RECEIPT_CONFIRMED_DELIVERY - The Command was confirmed as received on the server side.
+ *    COMMAND_RECEIPT_SERVER_ERROR       - The Command was rejected and/or the server returned an error.
  *    COMMAND_RECEIPT_CANCELED           - The delivery receipt was canceled, this is a dummy event for cleanups.
  *                                         It might have been delivered.
- *    COMMAND_RECEIPT_TIMEOUT            - The command was not confirmed in time. Note that it might have been
+ *    COMMAND_RECEIPT_TIMEOUT            - The Command was not confirmed in time. Note that it might have been
                                            delivered, but all delivery receipts might've been lost on the way back.
  * @param cb_parameter - a generic pointer to application data, as passed to the sendCommandWithReceiptRequest()
  */
@@ -151,7 +151,7 @@ class Breakout {
   bool setPurpose(char const *purpose);
 
   /**
-   * Sets the interval (seconds) at which to poll for new commands from the server.  Minimum
+   * Sets the interval (seconds) at which to poll for new Commands from the server.  Minimum
    * supported interval is 60 (every 1 minute).  The default is 0, which indicates no automatic
    * querying of the server.  Value is specified in seconds, values < 60 will result in no polling.
    * If last polling was far away in the past, a poll will follow. Otherwise (e.g. change of interval), the timer
@@ -177,7 +177,7 @@ class Breakout {
   void setConnectionStatusHandler(BreakoutConnectionStatusHandler_f handler);
 
   /**
-   * Sets the handler for To-SIM Breakout Commands. The handler function will be called automatically when a command is
+   * Sets the handler for To-SIM Breakout Commands. The handler function will be called automatically when a Command is
    * received.
    * @param handler - the handler of type `void handler(const char * buf, size_t bufSize)`
    */
@@ -227,8 +227,8 @@ class Breakout {
 
 
   /**
-   * Send a text command to Twilio - without Receipt Request
-   * @param buf - the text command to send to Twilio - max 140 characters.
+   * Send a text Command to Twilio - without Receipt Request
+   * @param buf - the text Command to send to Twilio - max 140 characters.
    * @return
    *    COMMAND_STATUS_SUCCESS on success
    *    COMMAND_STATUS_ERROR on error
@@ -237,9 +237,9 @@ class Breakout {
   command_status_code_e sendTextCommand(const char *buf);
 
   /**
-   * Send a binary command to Twilio - without Receipt Request
-   * @param buf - buffer containing the binary command to send to Twilio - max 140 characters.
-   * @param bufSize - number of bytes of the binary command
+   * Send a binary Command to Twilio - without Receipt Request
+   * @param buf - buffer containing the binary Command to send to Twilio - max 140 characters.
+   * @param bufSize - number of bytes of the binary Command
    * @return
    *    COMMAND_STATUS_SUCCESS on success
    *    COMMAND_STATUS_ERROR on error
@@ -248,20 +248,9 @@ class Breakout {
   command_status_code_e sendBinaryCommand(const char *buf, size_t bufSize);
 
   /**
-   * Send a command to Twilio - without Receipt Request
-   * @param cmd - the command to send to Twilio - max 140 characters.
-   * @param isBinary - whether the command should be sent with Content-Format indicating text or binary
-   * @return
-   *    COMMAND_STATUS_SUCCESS on success
-   *    COMMAND_STATUS_ERROR on error
-   *    COMMAND_STATUS_COMMAND_TOO_LONG if cmd.len > 140
-   */
-  command_status_code_e sendCommand(str cmd, bool isBinary = false);
-
-  /**
-   * Send a text command to Twilio - with Receipt Request
-   * @param buf - the text command to send to Twilio - max 140 characters.
-   * @param callback - command receipt callback.
+   * Send a text Command to Twilio - with Receipt Request
+   * @param buf - the text Command to send to Twilio - max 140 characters.
+   * @param callback - Command receipt callback.
    * @param callback_parameter - a generic pointer to application data.
    * @return
    *    COMMAND_STATUS_SUCCESS on success
@@ -272,10 +261,10 @@ class Breakout {
                                                           void *callback_parameter);
 
   /**
-   * Send a binary command to Twilio - with Receipt Request
-   * @param buf - buffer containing the binary command to send to Twilio - max 140 characters.
-   * @param bufSize - number of bytes of the binary command
-   * @param callback - command receipt callback.
+   * Send a binary Command to Twilio - with Receipt Request
+   * @param buf - buffer containing the binary Command to send to Twilio - max 140 characters.
+   * @param bufSize - number of bytes of the binary Command
+   * @param callback - Command receipt callback.
    * @param callback_parameter - a generic pointer to application data.
    * @returns
    *    COMMAND_STATUS_SUCCESS on success
@@ -286,22 +275,9 @@ class Breakout {
                                                             BreakoutCommandReceiptCallback_f callback,
                                                             void *callback_parameter);
 
-  /**
-   * Send a command to Twilio - with Receipt Request
-   * @param cmd - the command to send to Twilio - max 140 characters.
-   * @param callback - command receipt callback.
-   * @param callback_parameter - a generic pointer to application data.
-   * @param isBinary - whether the command should be sent with Content-Format indicating text or binary
-   * @return
-   *    COMMAND_STATUS_SUCCESS on success
-   *    COMMAND_STATUS_ERROR on error
-   *    COMMAND_STATUS_COMMAND_TOO_LONG if cmd.len > 140
-   */
-  command_status_code_e sendCommandWithReceiptRequest(str cmd, BreakoutCommandReceiptCallback_f callback,
-                                                      void *callback_parameter, bool isBinary = false);
 
   /**
-   * Manually initiate a check for waiting commands.
+   * Manually initiate a check for waiting Commands.
    * If setPollingInterval() is set to a valid interval, this is automatically called at an interval.
    * If both polling interval is enabled, the polling timer is reset on manual calls to this method.
    * @return - true if the operation was successful, query `hasWaitingCommands()` for result.
@@ -309,10 +285,10 @@ class Breakout {
   bool checkForCommands(bool isRetry = false);
 
   /**
-   * Indicates the presence of at least one waiting command. This is an alternative to setting a handler for Breakout
+   * Indicates the presence of at least one waiting Command. This is an alternative to setting a handler for Breakout
    * Commands, in case polling is the preferred option. Use with receiveCommand() to retrieve the Breakout Commands one
    * by one, in case this returns true.
-   * @return - true if there is a command waiting, false otherwise
+   * @return - true if there is a Command waiting, false otherwise
    */
   bool hasWaitingCommand();
 
@@ -321,12 +297,12 @@ class Breakout {
    * in case a triggered behavior is preferred, set a handler with setCommandHandler(handler) and handler will be
    * called with Commands when they arrive, without having to poll.
    * @param maxBufSize - Size of buffer being passed in
-   * @param buf - Buffer to receive command into
-   * @param bufSize - Output size of returned command in buf, will not exceed 141 bytes.
-   * @param isBinary - Output indicator if the command was received with Content-Format indicating text or binary
+   * @param buf - Buffer to receive Command into
+   * @param bufSize - Output size of returned Command in buf, will not exceed 141 bytes.
+   * @param isBinary - Output indicator if the Command was received with Content-Format indicating text or binary
    * @return
    *    COMMAND_STATUS_OK on success
-   *    COMMAND_STATUS_NO_COMMAND_WAITING if no commands are waiting
+   *    COMMAND_STATUS_NO_COMMAND_WAITING if no Commands are waiting
    *    COMMAND_STATUS_BUFFER_TOO_SMALL if the receiving buffer would not be large enough
    *    COMMAND_STATUS_ERROR in case the parameters were bad
    */
@@ -383,6 +359,9 @@ class Breakout {
   owl_time_t last_coap_status_connected   = 0;
   void notifyConnectionStatusChanged();
   bool receivedCommandInternal(str data, bool isBinary);
+  command_status_code_e sendCommand(str cmd, bool isBinary = false);
+  command_status_code_e sendCommandWithReceiptRequest(str cmd, BreakoutCommandReceiptCallback_f callback,
+                                                      void *callback_parameter, bool isBinary = false);
 
 
 
@@ -432,6 +411,9 @@ class Breakout {
                                         coap_client_transaction_event_e event, CoAPMessage *message);
   static void callback_commandReceipt(CoAPPeer *peer, coap_message_id_t message_id, void *cb_param,
                                       coap_client_transaction_event_e event, CoAPMessage *message);
+
+  friend class BreakoutSendCommand;
+  friend class BreakoutSendCommandWithReceiptRequest;
 };
 
 #endif
