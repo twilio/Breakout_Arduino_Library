@@ -64,7 +64,6 @@ void loop()
 {
   long distance;
   distance = UltrasonicRanger.MeasureInCentimeters();
-  SerialUSB.println(distance);
   if (distance < 10){
     char message[] = "Object is within 10cm of sensor";
     sendCommand(message);

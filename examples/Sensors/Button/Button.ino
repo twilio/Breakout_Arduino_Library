@@ -44,7 +44,6 @@ void setup() {
   LOG(L_WARN, "Arduino loop() starting up\r\n");
 }
 
-
 /**
  * This is just a simple example to send a command and write out the status to the console.
  */
