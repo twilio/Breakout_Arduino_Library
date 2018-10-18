@@ -85,6 +85,45 @@ class SetDebugLevel : public OwlModemCLIExecutor {
   }
 };
 
+
+
+class SoftReset : public OwlModemCLIExecutor {
+ public:
+  SoftReset() : OwlModemCLIExecutor("softReset", "Try do to a software reset of the MCU") {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    //    TODO - find a way to do this...
+  }
+};
+
+
+
+class RawBypass : public OwlModemCLIExecutor {
+ public:
+  RawBypass() : OwlModemCLIExecutor("bypass", "Go into raw bypass mode with the modem - type exitbypass to quit") {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    cli.owlModem->bypassCLI();
+  }
+};
+
+
+
+class RawGNSSBypass : public OwlModemCLIExecutor {
+ public:
+  RawGNSSBypass()
+      : OwlModemCLIExecutor("bypassGNSS", "Go into raw bypass mode with teh GNSS - type exitbypass to quit") {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    cli.owlModem->bypassGNSSCLI();
+  }
+};
+
+
+
 class GetProductIdentification : public OwlModemCLIExecutor {
  public:
   GetProductIdentification()
@@ -1094,25 +1133,21 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
 };
 
 
-class SoftReset : public OwlModemCLIExecutor {
+
+class GetGNSSData : public OwlModemCLIExecutor {
  public:
-  SoftReset() : OwlModemCLIExecutor("softReset", "Try do to a software reset of the MCU") {
+  GetGNSSData()
+      : OwlModemCLIExecutor("gnss.getGNSSData", "Retrieve GNSS data and log it.") {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    //    TODO - find a way to do this...
-  }
-};
-
-
-
-class RawBypass : public OwlModemCLIExecutor {
- public:
-  RawBypass() : OwlModemCLIExecutor("bypass", "Go into raw bypass mode - type exitbypass to quit") {
-  }
-
-  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    cli.owlModem->bypassCLI();
+    gnss_data_t data;
+    if (cli.owlModem->gnss.getGNSSData(&data)) {
+      LOGF(L_CLI, "OK\r\n");
+      cli.owlModem->gnss.logGNSSData(L_CLI, data);
+    } else {
+      LOGF(L_CLI, "ERROR\r\n");
+    }
   }
 };
 
@@ -1329,20 +1364,20 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    str remote_ip = cmd.argv[0];
+    str remote_ip        = cmd.argv[0];
     uint16_t remote_port = 5684;
     if (cmd.argc >= 2) {
       remote_port = str_to_uint32_t(cmd.argv[1], 10);
     }
-    uint16_t local_port  = 0;
+    uint16_t local_port = 0;
     if (cmd.argc >= 3) {
-      local_port  = str_to_uint32_t(cmd.argv[2], 10);
+      local_port = str_to_uint32_t(cmd.argv[2], 10);
     }
-    str psk_id           = {0, 0};
+    str psk_id = {0, 0};
     if (cmd.argc >= 4) {
       psk_id = cmd.argv[3];
     }
-    str psk_key          = {0, 0};
+    str psk_key = {0, 0};
     if (cmd.argc >= 5) {
       psk_key = cmd.argv[4];
     }
@@ -1351,7 +1386,7 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
       LOGF(L_CLI, "ERROR - already created - call coap.destroy before calling this again\r\n");
       return;
     }
-    
+
     if (psk_key.len > 16) {
       LOGF(L_CLI, "Invalid PSK key [%*s] - should be max 16 bytes", psk_key.len, psk_key.s);
       return;
@@ -1705,9 +1740,9 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
                             1, 1) {
   }
 
-  static void commandHandler(const char * buf, size_t bufSize, bool isBinary) {
+  static void commandHandler(const char *buf, size_t bufSize, bool isBinary) {
     LOG(L_CLI, "Received To-SIM Command as %s:\r\n", isBinary ? "binary" : "text");
-    str data = {.s = (char*)buf, .len = bufSize};
+    str data = {.s = (char *)buf, .len = bufSize};
     LOGSTR(L_CLI, data);
   }
 
@@ -1843,7 +1878,7 @@ class BreakoutReinitTransport : public OwlModemCLIExecutor {
 };
 
 
-#define MAX_COMMANDS 80
+#define MAX_COMMANDS 90
 
 OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   this->owlModem  = modem;
@@ -1854,6 +1889,10 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
 
   int cnt          = 0;
   executors[cnt++] = new SetDebugLevel();
+  executors[cnt++] = new SoftReset();
+
+  executors[cnt++] = new RawBypass();
+  executors[cnt++] = new RawGNSSBypass();
 
   executors[cnt++] = new GetProductIdentification();
   executors[cnt++] = new GetManufacturer();
@@ -1917,9 +1956,8 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   executors[cnt++] = new OpenSocketAcceptTCP();
 
 
-  executors[cnt++] = new SoftReset();
+  executors[cnt++] = new GetGNSSData();
 
-  executors[cnt++] = new RawBypass();
 
   executors[cnt++] = new DTLSClientCreate();
   executors[cnt++] = new DTLSClientGetStatus();
@@ -2096,7 +2134,7 @@ int OwlModemCLI::handleUserInput(int resume) {
         LOGE(L_CLI, "\r");
         LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
         for (int i = command.len; i > 0; i--) {
-          if (command.s[i-1] == ' ') {
+          if (command.s[i - 1] == ' ') {
             command.len -= 1;
             command.s[command.len] = 0;
             break;
@@ -2106,7 +2144,7 @@ int OwlModemCLI::handleUserInput(int resume) {
         }
         LOGE(L_CLI, "\r");
         LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
-      	break;
+        break;
 
       case 9:
         /* Tab */
@@ -2143,7 +2181,7 @@ int OwlModemCLI::handleUserInput(int resume) {
 
       case 'B':
         /* DOWN Arrow - If this is the sequence \[A  ESC [ A */
-    	if (command.len >= 2 && command.s[command.len - 2] == 27 && command.s[command.len - 1] == '[') {
+        if (command.len >= 2 && command.s[command.len - 2] == 27 && command.s[command.len - 1] == '[') {
           if (cmdHistoryIterator != -1 && cmdHistoryIterator != cmdHistoryHead) {
             if (cmdHistoryIterator < cmdHistoryHead) {
               cmdHistoryIterator += 1;

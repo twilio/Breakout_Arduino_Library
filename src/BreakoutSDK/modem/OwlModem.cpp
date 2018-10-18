@@ -30,9 +30,8 @@
 
 
 
-OwlModem::OwlModem(HardwareSerial *modem_port, USBSerial *debug_port) {
-  this->modem_port = modem_port;
-  this->debug_port = debug_port;
+OwlModem::OwlModem(HardwareSerial *modem_port, USBSerial *debug_port, HardwareSerial *gnss_port)
+    : modem_port(modem_port), debug_port(debug_port), gnss_port(gnss_port) {
   if (debug_port) debug_port->enableBlockingTx();  // reliably write to it
   // Seed the random
   pinMode(ANALOG_RND_PIN, INPUT);
@@ -54,7 +53,7 @@ int OwlModem::powerOn(owl_power_m bit_mask) {
   int errCnt     = 0;
 
   if ((bit_mask & Owl_PowerOnOff__Modem) != 0) {
-    modem_port->begin(115200);
+    modem_port->begin(SerialModule_Baudrate);
 
     if (isPoweredOn()) return 1;
 
@@ -93,6 +92,7 @@ int OwlModem::powerOn(owl_power_m bit_mask) {
   }
 
   if ((bit_mask & Owl_PowerOnOff__GNSS) != 0) {
+    if (gnss_port) gnss_port->begin(SerialGNSS_BAUDRATE);
     pinMode(GNSS_PWR_PIN, OUTPUT);
     digitalWrite(GNSS_PWR_PIN, HIGH);
   }
@@ -369,6 +369,28 @@ void OwlModem::bypassCLI() {
   }
 }
 
+void OwlModem::bypassGNSSCLI() {
+  if (!gnss_port || !debug_port) return;
+  // TODO - set echo on/off - maybe with parameter to this function? but that will mess with other code
+  char c;
+  int index = 0;
+  while (1) {
+    if (gnss_port->available()) debug_port->write(gnss_port->read());
+    if (debug_port->available()) {
+      c = debug_port->read();
+      gnss_port->write(c);
+      if (s_exitbypass.s[index] == c)
+        index++;
+      else
+        index = 0;
+      if (index == s_exitbypass.len) {
+        gnss_port->write("\r\n", 2);
+        return;
+      }
+    }
+  }
+}
+
 void OwlModem::bypass() {
   while (modem_port->available())
     debug_port->write(modem_port->read());
@@ -376,6 +398,12 @@ void OwlModem::bypass() {
     modem_port->write(debug_port->read());
 }
 
+void OwlModem::bypassGNSS() {
+  while (gnss_port->available())
+    debug_port->write(gnss_port->read());
+  while (debug_port->available())
+    gnss_port->write(debug_port->read());
+}
 
 static str s_dev_kit = STRDECL("devkit");
 
@@ -651,6 +679,7 @@ int OwlModem::drainModemRxToBuffer() {
   LOG(L_MEM, "Trying to drain modem\r\n");
   int available, received, total = 0;
   while ((available = modem_port->available()) > 0) {
+    if (available > MODEM_Rx_BUFFER_SIZE) available = MODEM_Rx_BUFFER_SIZE;
     if (available > MODEM_Rx_BUFFER_SIZE - rx_buffer.len) {
       int shift = available - (MODEM_Rx_BUFFER_SIZE - rx_buffer.len);
       LOG(L_WARN, "Rx buffer full with %d bytes. Dropping oldest %d bytes.\r\n", rx_buffer.len, shift);
@@ -676,6 +705,44 @@ int OwlModem::drainModemRxToBuffer() {
   }
 error:
   LOG(L_MEM, "Done draining modem %d\r\n", total);
+  return total;
+}
+
+int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
+  if (!gnss_buffer || !gnss_port) return 0;
+  LOG(L_MEM, "Trying to drain GNSS data\r\n");
+  int available, received, total = 0, full = 0;
+  while ((available = gnss_port->available()) > 0) {
+    if (available > gnss_buffer_len) available = gnss_buffer_len;
+    //    LOG(L_DBG, "Available %d bytes\r\n", available);
+    if (available > gnss_buffer_len - gnss_buffer->len) {
+      int shift = available - (gnss_buffer_len - gnss_buffer->len);
+      LOG(L_WARN, "GNSS buffer full with %d bytes. Dropping oldest %d bytes.\r\n", gnss_buffer->len, shift);
+      gnss_buffer->len -= shift;
+      memmove(gnss_buffer->s, gnss_buffer->s + shift, gnss_buffer->len);
+      full = 1;
+    }
+    received = gnss_port->readBytes(gnss_buffer->s + gnss_buffer->len, available);
+    //    LOG(L_WARN, "Rx %d bytes\r\n", received);
+    if (received != available) {
+      LOG(L_ERR, "gnss_port said %d bytes available, but received %d.\r\n", available, received);
+      if (received < 0) goto error;
+    }
+
+    gnss_buffer->len += received;
+    total += received;
+
+    if (gnss_buffer->len > gnss_buffer_len) {
+      LOG(L_ERR, "Bug in the gnss_buffer_len calculation %d > %d\r\n", gnss_buffer->len, gnss_buffer_len);
+      goto error;
+    }
+
+    LOG(L_DBG, "GNSS Rx - size changed from %d to %d bytes\r\n", gnss_buffer->len - received, gnss_buffer->len);
+    LOGSTR(L_DBG, *gnss_buffer);
+    if (full) return total;
+  }
+error:
+  LOG(L_MEM, "Done draining GNSS %d\r\n", total);
   return total;
 }
 

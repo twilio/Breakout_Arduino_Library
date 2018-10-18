@@ -332,6 +332,12 @@ class Breakout {
    */
   command_status_code_e receiveCommand(const size_t maxBufSize, char *buf, size_t *bufSize, bool *isBinary);
 
+  /**
+   * Query the GNSS module for position information.
+   * @param out_gnss_data - gnss_data_t structure to receive current GNSS data.
+   * @return - true if the operation was successful, false otherwise
+   */
+  bool getGNSSData(gnss_data_t *out_gnss_data);
 
 
  private:
