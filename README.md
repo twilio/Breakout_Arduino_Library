@@ -56,19 +56,26 @@ breakout->setPollingInterval(10 * 60);
 Checks for updates from server at defined interval.
 
 ##### Why we poll for Commands
-In the non-Narrowband world, Commands are pushed to the device over SMS. Today, for Narrowband, the device must ask the server if there are any Commands waiting rather than the server telling the device that a Command is available.
+In the non-Narrowband world, Commands are pushed to the device over SMS. Today, in the Narrowband world, the device must ask the server if there are any Commands waiting rather than the server telling the device that Commands are available.
 
-Instead of the server sending a Command directly to the device, the device must ask the server if there are any Commands available to be sent to the device. This is why we have polling. Polling checks the server for new Commands at a predefined interval no less than 60 seconds.
+Instead of the server sending a Command directly to the device, the device must ask the server if there are any Commands available to be sent to the device. This is why we have polling. Polling checks the server for a new Commands at a predefined interval no less than 60 seconds.
 
 ####  Heartbeats
-Heartbeats are sent from Breakout to Twilio every time:
+Heartbeats are sent from Breakout to Twilio:
 
  - When the polling interval is fired
  - When `checkForCommands()` is manually fired
  - When you send a Command
  - When you receive a Command
 
-Heartbeats are registered with Breakout service and visible under the **Breakout SDK** tab of your Narrowband SIM Resource in [Console](https://www.twilio.com/console/wireless). Heartbeats are displayed in reverse chronological order. You will see the version of Breakout SDK your Developer Board is using and that the datetime the Heartbeat was sent.
+Heartbeats are registered with Breakout service and visible under the **Breakout SDK** tab of your Narrowband SIM Resource in [Console](https://www.twilio.com/console/wireless). Heartbeats are displayed in reverse chronological order. You will see the version of Breakout that your Developer Board is running and the date and time the Heartbeat was sent.
+#### Set the device's purpose
+Sets the "purpose" of the device. This defaults to "Dev-Kit" and is informational to the network for the purpose of your device's use. The maximum length for purpose string is 32 characters. Must be set **before** powering on the module or this call will return an error.
+   * @param `purpose` - your developer kit's purpose.
+   * @returns `true` is setting purpose was successful, `false` otherwise
+```
+setPurpose(char const *purpose);
+```
 #### Power on the cellular module
 Powering the modem and starting up the SDK.
 Returns `true` if powered on, `false` otherwise.
