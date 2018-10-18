@@ -1736,7 +1736,7 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
   BreakoutSetHandlerCommand()
       : OwlModemCLIExecutor("breakout.setHandlerCommand", "(on|off)",
                             "Set or unset the CLI handler - triggering log when commands are received. If you want to "
-                            "poll with breakout.hasWaitingComman and breakout.receiveCommand, set it to off.",
+                            "poll with breakout.hasWaitingCommand and breakout.receiveCommand, set it to off.",
                             1, 1) {
   }
 
@@ -1760,8 +1760,8 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
 
 class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
  public:
-  BreakoutHasWaitingCommand()
-      : OwlModemCLIExecutor("breakout.hasWaitingCommand", "Check if we have a waiting command received") {
+  BreakoutHasWaitingCommand(char * commandName = "breakout.hasWaitingCommand")
+      : OwlModemCLIExecutor(commandName, "Check if we have a waiting command received") {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1775,6 +1775,13 @@ class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
       LOG(L_CLI, "OK commands are waiting\r\n");
     else
       LOG(L_CLI, "OK no commands waiting\r\n");
+  }
+};
+
+class BreakoutICanHazWaitingCommand : public BreakoutHasWaitingCommand {
+ public:
+  BreakoutICanHazWaitingCommand()
+      : BreakoutHasWaitingCommand("breakout.iCanHazWaitingCommand") {
   }
 };
 
@@ -1978,6 +1985,7 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   executors[cnt++] = new BreakoutSendCommandWithReceiptRequest();
   executors[cnt++] = new BreakoutSetHandlerCommand();
   executors[cnt++] = new BreakoutHasWaitingCommand();
+  executors[cnt++] = new BreakoutICanHazWaitingCommand();
   executors[cnt++] = new BreakoutReceiveCommand();
   executors[cnt++] = new BreakoutCheckForCommands();
   executors[cnt++] = new BreakoutSetPollingInterval();
