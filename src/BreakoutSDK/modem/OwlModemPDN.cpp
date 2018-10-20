@@ -37,10 +37,8 @@ OwlModemPDN::OwlModemPDN(OwlModem *owlModem) : owlModem(owlModem) {
 static str s_cgpaddr = STRDECL("+CGPADDR: ");
 
 int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16]) {
-  int cnt          = 0;
-  str token        = {0};
-  str token_ip     = {0};
-  str token_number = {0};
+  int cnt   = 0;
+  str token = {0};
   if (ipv4) bzero(ipv4, 4);
   if (ipv6) bzero(ipv6, 16);
   char buf[64];
@@ -49,6 +47,7 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
   if (!result) return 0;
   owlModem->filterResponse(s_cgpaddr, &pdn_response);
   while (str_tok(pdn_response, ",\r\n", &token)) {
+    str token_ip = {0};
     switch (cnt) {
       case 0:
         // cid, ignore
@@ -58,7 +57,8 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
         while (str_tok(token, " \"", &token_ip)) {
           if (token_ip.len <= 15) {
             /* IPv4 */
-            int digit = 0;
+            int digit        = 0;
+            str token_number = {0};
             while (str_tok(token_ip, ".", &token_number))
               ipv4[digit++] = str_to_uint32_t(token_number, 10);
             if (digit != 4) {
@@ -67,7 +67,8 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
             }
           } else {
             /* IPv6 */
-            int digit = 0;
+            int digit        = 0;
+            str token_number = {0};
             while (str_tok(token_ip, ".", &token_number))
               ipv6[digit++] = str_to_uint32_t(token_number, 10);
             if (digit != 16) {
