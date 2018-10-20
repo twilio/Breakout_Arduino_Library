@@ -54,6 +54,7 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
         // cid, ignore
         break;
       case 1:
+      case 2:
         while (str_tok(token, " \"", &token_ip)) {
           if (token_ip.len <= 15) {
             /* IPv4 */

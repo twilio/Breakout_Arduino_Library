@@ -130,8 +130,9 @@ typedef struct {
 #define coap_client_transaction_list_t_free(x)                                                                         \
   do {                                                                                                                 \
     if (x) {                                                                                                           \
-      if ((x)->message.s) free((x)->message.s);                                                                        \
+      str_free((x)->message);                                                                                          \
       free(x);                                                                                                         \
+      (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
 
@@ -156,8 +157,9 @@ typedef struct {
 #define coap_server_transaction_list_t_free(x)                                                                         \
   do {                                                                                                                 \
     if (x) {                                                                                                           \
-      if ((x)->ack_rst.s) free((x)->ack_rst.s);                                                                        \
+      str_free((x)->ack_rst);                                                                                          \
       free(x);                                                                                                         \
+      (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
 

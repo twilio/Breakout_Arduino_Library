@@ -71,6 +71,9 @@ out_of_memory:
 
 CoAPPeer::~CoAPPeer() {
   removeInstance();
+  str_free(this->remote_ip);
+  str_free(this->psk_id);
+  str_free(this->psk_key);
   WL_FREE_ALL(&client_transactions, coap_client_transaction_list_t);
   WL_FREE_ALL(&server_transactions, coap_server_transaction_list_t);
   if (owlDTLSClient) {
@@ -172,8 +175,8 @@ void CoAPPeer::handlerDTLSEvent(OwlDTLSClient *owlDTLSClient, session_t *session
   if (peer->handler_dtls_event)
     (peer->handler_dtls_event)(peer, level, code);
   else
-    LOG(L_WARN, "No handler set remote_ip=%.*s:%u - received DTLS event %d - %s / %d - %s\r\n",
-        peer->remote_ip.len, peer->remote_ip.s, peer->remote_port, level, dtls_alert_level_text(level), code,
+    LOG(L_WARN, "No handler set remote_ip=%.*s:%u - received DTLS event %d - %s / %d - %s\r\n", peer->remote_ip.len,
+        peer->remote_ip.s, peer->remote_port, level, dtls_alert_level_text(level), code,
         dtls_alert_description_text(code));
 }
 
@@ -438,12 +441,19 @@ int CoAPPeer::addInstance() {
 }
 
 int CoAPPeer::removeInstance() {
-  int cnt = 0;
+  int cnt = 0, others = 0;
   for (int i = 0; i < instances_cnt; i++)
     if (instances[i] == this) {
       instances[i] = 0;
       cnt++;
+    } else {
+      others++;
     }
+  if (!others) {
+    free(instances);
+    instances     = 0;
+    instances_cnt = 0;
+  }
   return cnt;
 }
 

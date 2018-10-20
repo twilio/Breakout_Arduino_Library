@@ -124,6 +124,37 @@ class RawGNSSBypass : public OwlModemCLIExecutor {
 
 
 
+class PowerOn : public OwlModemCLIExecutor {
+ public:
+  PowerOn()
+      : OwlModemCLIExecutor("powerOn", "<module_bitmask>",
+                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    owl_power_m bit_mask = (owl_power_m) 0;
+    bit_mask = (owl_power_m)str_to_uint32_t(cmd.argv[0], 10);
+    cli.owlModem->powerOn(bit_mask);
+  }
+};
+
+
+
+class PowerOff : public OwlModemCLIExecutor {
+ public:
+  PowerOff()
+      : OwlModemCLIExecutor("powerOff", "<module_bitmask>",
+                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    owl_power_m bit_mask = (owl_power_m) 0;
+    bit_mask = (owl_power_m) str_to_uint32_t(cmd.argv[0], 10);
+    cli.owlModem->powerOff(bit_mask);
+  }
+};
+
+
 class GetProductIdentification : public OwlModemCLIExecutor {
  public:
   GetProductIdentification()
@@ -1136,8 +1167,7 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
 
 class GetGNSSData : public OwlModemCLIExecutor {
  public:
-  GetGNSSData()
-      : OwlModemCLIExecutor("gnss.getGNSSData", "Retrieve GNSS data and log it.") {
+  GetGNSSData() : OwlModemCLIExecutor("gnss.getGNSSData", "Retrieve GNSS data and log it.") {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1760,7 +1790,7 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
 
 class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
  public:
-  BreakoutHasWaitingCommand(char * commandName = "breakout.hasWaitingCommand")
+  BreakoutHasWaitingCommand(char *commandName = "breakout.hasWaitingCommand")
       : OwlModemCLIExecutor(commandName, "Check if we have a waiting command received") {
   }
 
@@ -1775,13 +1805,6 @@ class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
       LOG(L_CLI, "OK commands are waiting\r\n");
     else
       LOG(L_CLI, "OK no commands waiting\r\n");
-  }
-};
-
-class BreakoutICanHazWaitingCommand : public BreakoutHasWaitingCommand {
- public:
-  BreakoutICanHazWaitingCommand()
-      : BreakoutHasWaitingCommand("breakout.iCanHazWaitingCommand") {
   }
 };
 
@@ -1901,6 +1924,9 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   executors[cnt++] = new RawBypass();
   executors[cnt++] = new RawGNSSBypass();
 
+  executors[cnt++] = new PowerOn();
+  executors[cnt++] = new PowerOff();
+
   executors[cnt++] = new GetProductIdentification();
   executors[cnt++] = new GetManufacturer();
   executors[cnt++] = new GetModel();
@@ -1985,7 +2011,6 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   executors[cnt++] = new BreakoutSendCommandWithReceiptRequest();
   executors[cnt++] = new BreakoutSetHandlerCommand();
   executors[cnt++] = new BreakoutHasWaitingCommand();
-  executors[cnt++] = new BreakoutICanHazWaitingCommand();
   executors[cnt++] = new BreakoutReceiveCommand();
   executors[cnt++] = new BreakoutCheckForCommands();
   executors[cnt++] = new BreakoutSetPollingInterval();
