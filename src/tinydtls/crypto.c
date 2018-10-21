@@ -162,22 +162,22 @@ void crypto_init(void) {
 }
 
 static dtls_handshake_parameters_t *dtls_handshake_malloc(void) {
-  return malloc(sizeof(dtls_handshake_parameters_t));
+  return owl_malloc(sizeof(dtls_handshake_parameters_t));
 }
 
 static void dtls_handshake_dealloc(dtls_handshake_parameters_t *handshake) {
-  free(handshake);
+  owl_free(handshake);
 }
 
 static dtls_security_parameters_t *dtls_security_malloc(void) {
-  return malloc(sizeof(dtls_security_parameters_t));
+  return owl_malloc(sizeof(dtls_security_parameters_t));
 }
 
 static void dtls_security_dealloc(dtls_security_parameters_t *security) {
-  free(security);
+  owl_free(security);
 }
 
-#endif /* WITH_CONTIKI */
+#endif /* WITH_ARDUINO */
 
 dtls_handshake_parameters_t *dtls_handshake_new(void)
 {
@@ -290,10 +290,12 @@ dtls_p_hash(dtls_hashfunc_t h,
 
   dtls_hmac_init(hmac_p, key, keylen);
   dtls_hmac_update(hmac_p, A, dlen);
+
   
   HMAC_UPDATE_SEED(hmac_p, label, labellen);
   HMAC_UPDATE_SEED(hmac_p, random1, random1len);
   HMAC_UPDATE_SEED(hmac_p, random2, random2len);
+
   
   dtls_hmac_finalize(hmac_p, tmp);
   memcpy(buf, tmp, buflen - len);
@@ -335,6 +337,7 @@ dtls_mac(dtls_hmac_context_t *hmac_ctx,
   dtls_hmac_update(hmac_ctx, record, sizeof(uint8) + sizeof(uint16ptr));
   dtls_hmac_update(hmac_ctx, L, sizeof(uint16ptr));
   dtls_hmac_update(hmac_ctx, packet, length);
+
   
   dtls_hmac_finalize(hmac_ctx, buf);
 }

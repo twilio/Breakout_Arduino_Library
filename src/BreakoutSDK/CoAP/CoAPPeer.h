@@ -131,7 +131,7 @@ typedef struct {
   do {                                                                                                                 \
     if (x) {                                                                                                           \
       str_free((x)->message);                                                                                          \
-      free(x);                                                                                                         \
+      owl_free(x);                                                                                                     \
       (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
@@ -158,7 +158,7 @@ typedef struct {
   do {                                                                                                                 \
     if (x) {                                                                                                           \
       str_free((x)->ack_rst);                                                                                          \
-      free(x);                                                                                                         \
+      owl_free(x);                                                                                                     \
       (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)

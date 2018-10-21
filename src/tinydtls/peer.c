@@ -6,7 +6,7 @@
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  *
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
@@ -19,7 +19,7 @@
 #include "peer.h"
 #include "dtls_debug.h"
 
-#if !(defined (WITH_CONTIKI)) && !(defined (RIOT_VERSION))
+#if !(defined (WITH_CONTIKI)) && !(defined (RIOT_VERSION)) && !(defined (WITH_ARDUINO))
 void peer_init(void)
 {
 }
@@ -83,7 +83,23 @@ dtls_free_peer(dtls_peer_t *peer) {
   memarray_free(&peer_storage, peer);
 }
 
-#endif /* WITH_CONTIKI */
+#elif defined (WITH_ARDUINO)
+void peer_init(void) {
+}
+
+static inline dtls_peer_t *
+dtls_malloc_peer(void) {
+  return (dtls_peer_t *)owl_malloc(sizeof(dtls_peer_t));
+}
+
+void
+dtls_free_peer(dtls_peer_t *peer) {
+  dtls_handshake_free(peer->handshake_params);
+  dtls_security_free(peer->security_params[0]);
+  dtls_security_free(peer->security_params[1]);
+  owl_free(peer);
+}
+#endif
 
 dtls_peer_t *
 dtls_new_peer(const session_t *session) {

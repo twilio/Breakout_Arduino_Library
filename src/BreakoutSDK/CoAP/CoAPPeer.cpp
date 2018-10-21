@@ -78,7 +78,7 @@ CoAPPeer::~CoAPPeer() {
   WL_FREE_ALL(&server_transactions, coap_server_transaction_list_t);
   if (owlDTLSClient) {
     owlDTLSClient->close();
-    delete owlDTLSClient;
+    owl_delete(owlDTLSClient);
     owlDTLSClient = 0;
   }
 }
@@ -88,10 +88,10 @@ CoAPPeer::~CoAPPeer() {
 int CoAPPeer::initDTLSClient() {
   if (owlDTLSClient) {
     owlDTLSClient->close();
-    delete owlDTLSClient;
+    owl_delete(owlDTLSClient);
     owlDTLSClient = 0;
   }
-  owlDTLSClient = new OwlDTLSClient(psk_id, psk_key);
+  owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
   if (!owlDTLSClient) {
     LOG(L_ERR, "Error creating DTLS instance\r\n");
     return 0;
@@ -433,7 +433,7 @@ int CoAPPeer::addInstance() {
       instances[i] = this;
       return 1;
     }
-  CoAPPeer **new_instances = (CoAPPeer **)realloc(instances, sizeof(CoAPPeer *) * (instances_cnt + 1));
+  CoAPPeer **new_instances = (CoAPPeer **)owl_realloc(instances, sizeof(CoAPPeer *) * (instances_cnt + 1));
   if (!new_instances) return 0;
   instances                  = new_instances;
   instances[instances_cnt++] = this;
@@ -450,7 +450,7 @@ int CoAPPeer::removeInstance() {
       others++;
     }
   if (!others) {
-    free(instances);
+    owl_free(instances);
     instances     = 0;
     instances_cnt = 0;
   }

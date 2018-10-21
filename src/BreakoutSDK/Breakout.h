@@ -119,7 +119,7 @@ typedef struct {
   do {                                                                                                                 \
     if (x) {                                                                                                           \
       str_free((x)->command);                                                                                          \
-      free(x);                                                                                                         \
+      owl_free(x);                                                                                                         \
       (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)

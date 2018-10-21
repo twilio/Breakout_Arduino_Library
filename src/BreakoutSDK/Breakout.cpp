@@ -27,7 +27,7 @@
 
 
 Breakout::Breakout() {
-  // strip = new WS2812(1, ublox->RGB_LED_PIN);
+  // strip = owl_new WS2812(1, ublox->RGB_LED_PIN);
   // ublox->enableRGBPower();
   // strip->begin();
   // strip->brightness = 20;
@@ -39,13 +39,13 @@ Breakout::Breakout() {
 }
 
 Breakout::~Breakout() {
-  delete owlModem;
+  owl_delete(owlModem);
   owlModem = 0;
-  delete coapPeer;
+  owl_delete(coapPeer);
   coapPeer = 0;
 
 #if TESTING_WITH_CLI == 1
-  delete owlModemCLI;
+  owl_delete(owlModemCLI);
   owlModemCLI = 0;
 #endif
 
@@ -138,7 +138,7 @@ bool Breakout::initModem() {
 
   LOG(L_NOTICE, "OwlModem starting up\r\n");
 
-  if (!(owlModem = new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
+  if (!(owlModem = owl_new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
 
   LOG(L_NOTICE, ".. OwlModem - powering on modules\r\n");
   if (!owlModem->powerOn()) {
@@ -201,9 +201,9 @@ bool Breakout::initCoAPPeer() {
   LOG(L_NOTICE, "CoAPPeer - creating \r\n");
 
 #if TESTING_WITH_DTLS == 0
-  coapPeer = new CoAPPeer(owlModem, 0, remote_ip, 5683);
+  coapPeer = owl_new CoAPPeer(owlModem, 0, remote_ip, 5683);
 #else
-  coapPeer = new CoAPPeer(owlModem, psk_id, psk_key, 0, remote_ip, 5684);
+  coapPeer = owl_new CoAPPeer(owlModem, psk_id, psk_key, 0, remote_ip, 5684);
 #endif
   if (!coapPeer) GOTOERR(error);
 
@@ -259,7 +259,7 @@ error:
 
 bool Breakout::reinitCoAPPeer() {
   if (coapPeer) {
-    delete coapPeer;
+    owl_delete(coapPeer);
     coapPeer = 0;
   }
   return initCoAPPeer();
@@ -296,7 +296,7 @@ bool Breakout::powerModuleOff(void) {
   eps_registration_status = AT_CEREG__Stat__Not_Registered;
   // Should we not keep the CoAP peer up?
   //  coapPeer->close();
-  //  delete coapPeer;
+  //  owl_delete(coapPeer);
   //  coapPeer = 0;
   return owlModem->powerOff() != 0;
 }
@@ -346,7 +346,7 @@ void Breakout::spin() {
 
 #if TESTING_WITH_CLI == 1
   /* Enable also CLI, for intermediary testing */
-  if (!owlModemCLI) owlModemCLI = new OwlModemCLI(owlModem, &SerialDebugPort);
+  if (!owlModemCLI) owlModemCLI = owl_new OwlModemCLI(owlModem, &SerialDebugPort);
   cli_resume                    = owlModemCLI->handleUserInput(cli_resume);
 #endif
 }
@@ -450,7 +450,7 @@ void Breakout::callback_commandReceipt(CoAPPeer *peer, coap_message_id_t message
       break;
   }
   if (receipt->callback) (receipt->callback)(receipt_code, receipt->callback_parameter);
-  free(receipt);
+  owl_free(receipt);
 }
 
 command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutCommandReceiptCallback_f callback,
@@ -491,7 +491,7 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
   request.payload = cmd;
 
   if (callback) {
-    receipt = (receipt_t *)malloc(sizeof(receipt_t));
+    receipt = (receipt_t *)owl_malloc(sizeof(receipt_t));
     if (!receipt) goto error;
     receipt->callback           = callback;
     receipt->callback_parameter = callback_parameter;
@@ -505,7 +505,7 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
   request.destroy();
   return COMMAND_STATUS_OK;
 error:
-  if (receipt) free(receipt);
+  if (receipt) owl_free(receipt);
   request.destroy();
   return COMMAND_STATUS_ERROR;
 }
