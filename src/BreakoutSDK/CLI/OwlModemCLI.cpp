@@ -1342,7 +1342,7 @@ class DTLSClientDestroy : public OwlModemCLIExecutor {
     } else {
       LOG(L_CLI, "OK\r\n");
     }
-    owl_delete(owlDTLSClient);
+    delete owlDTLSClient;
     owlDTLSClient = 0;
   }
 };
@@ -1527,10 +1527,10 @@ class CoAPPeerSend : public OwlModemCLIExecutor {
 
     msg->log(L_CLI);
     LOGF(L_CLI, "OK\r\n");
-    owl_delete(msg);
+    delete msg;
     return;
   error:
-    owl_delete(msg);
+    delete msg;
     LOGF(L_CLI, "ERROR\r\n");
   }
 };
@@ -1601,7 +1601,7 @@ class CoAPPeerDestroy : public OwlModemCLIExecutor {
     } else {
       LOG(L_CLI, "OK\r\n");
     }
-    owl_delete(coapPeer);
+    delete coapPeer;
     coapPeer = 0;
   }
 };
@@ -2033,7 +2033,7 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
 
 OwlModemCLI::~OwlModemCLI() {
   for (int i = 0; executors[i]; i++)
-    owl_delete(executors[i]);
+    delete executors[i];
   owl_free(executors);
 }
 

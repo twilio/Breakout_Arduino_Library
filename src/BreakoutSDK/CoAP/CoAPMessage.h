@@ -56,20 +56,20 @@ typedef uint64_t coap_token_t;
 
 class CoAPMessage {
  public:
-  coap_version_e version;
-  coap_type_e type;
+  coap_version_e version = CoAP_Version__1;
+  coap_type_e type       = CoAP_Type__Confirmable;
 
-  coap_code_class_e code_class;
-  coap_code_detail_e code_detail;
+  coap_code_class_e code_class   = CoAP_Code_Class__Empty_Message;
+  coap_code_detail_e code_detail = CoAP_Code_Detail__Empty_Message;
 
-  coap_message_id_t message_id;
+  coap_message_id_t message_id = 0;
 
-  coap_token_lenght_t token_length;
-  coap_token_t token;
+  coap_token_lenght_t token_length = 0;
+  coap_token_t token               = 0;
 
-  CoAPOption *options;
+  CoAPOption *options = 0;
 
-  str payload;
+  str payload = {0};
 
   CoAPMessage();
   CoAPMessage(coap_type_e type, coap_code_class_e code_class, coap_code_detail_e code_detail,

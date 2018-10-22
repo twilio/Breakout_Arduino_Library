@@ -123,7 +123,7 @@ class OwlModemSIM {
   OwlModem_PINHandler_f handler_cpin = 0;
 
  private:
-  OwlModem *owlModem;
+  OwlModem *owlModem = 0;
 
   //char sim_response_buffer[MODEM_SIM_RESPONSE_BUFFER_SIZE];
   //str sim_response = {.s = sim_response_buffer, .len = 0};

@@ -92,7 +92,7 @@ void CoAPMessage::destroy() {
   while (this->options) {
     CoAPOption *opt = this->options;
     this->options   = opt->next;
-    owl_delete(opt);
+    delete opt;
   }
   this->payload.s   = 0;
   this->payload.len = 0;
@@ -252,7 +252,7 @@ int CoAPMessage::decode(bin_t *src) {
       data.s   = (char *)src->s + src->idx;
       data.len = src->max - src->idx;
       LOGSTR(L_ERR, data);
-      owl_delete(opt);
+      delete opt;
       goto error;
     }
     for (last_opt = this->options; last_opt != 0 && last_opt->next != 0; last_opt = last_opt->next)

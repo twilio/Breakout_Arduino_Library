@@ -69,7 +69,7 @@ class OwlModemPDN {
 
 
  private:
-  OwlModem *owlModem;
+  OwlModem *owlModem = 0;
 
   char pdn_response_buffer[MODEM_PDN_RESPONSE_BUFFER_SIZE];
   str pdn_response = {.s = pdn_response_buffer, .len = 0};

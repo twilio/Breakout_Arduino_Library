@@ -110,7 +110,7 @@ class OwlModemInformation {
 
 
  private:
-  OwlModem *owlModem;
+  OwlModem *owlModem = 0;
 };
 
 #endif

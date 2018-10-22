@@ -39,13 +39,13 @@ Breakout::Breakout() {
 }
 
 Breakout::~Breakout() {
-  owl_delete(owlModem);
+  delete owlModem;
   owlModem = 0;
-  owl_delete(coapPeer);
+  delete coapPeer;
   coapPeer = 0;
 
 #if TESTING_WITH_CLI == 1
-  owl_delete(owlModemCLI);
+  delete owlModemCLI;
   owlModemCLI = 0;
 #endif
 
@@ -259,7 +259,7 @@ error:
 
 bool Breakout::reinitCoAPPeer() {
   if (coapPeer) {
-    owl_delete(coapPeer);
+    delete coapPeer;
     coapPeer = 0;
   }
   return initCoAPPeer();
@@ -296,7 +296,7 @@ bool Breakout::powerModuleOff(void) {
   eps_registration_status = AT_CEREG__Stat__Not_Registered;
   // Should we not keep the CoAP peer up?
   //  coapPeer->close();
-  //  owl_delete(coapPeer);
+  //  delete coapPeer;
   //  coapPeer = 0;
   return owlModem->powerOff() != 0;
 }

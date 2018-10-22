@@ -263,7 +263,7 @@ class OwlModemNetwork {
 
 
  private:
-  OwlModem *owlModem;
+  OwlModem *owlModem = 0;
 
   char network_response_buffer[MODEM_NETWORK_RESPONSE_BUFFER_SIZE];
   str network_response = {.s = network_response_buffer, .len = 0};

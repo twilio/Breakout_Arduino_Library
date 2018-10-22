@@ -78,7 +78,7 @@ CoAPPeer::~CoAPPeer() {
   WL_FREE_ALL(&server_transactions, coap_server_transaction_list_t);
   if (owlDTLSClient) {
     owlDTLSClient->close();
-    owl_delete(owlDTLSClient);
+    delete owlDTLSClient;
     owlDTLSClient = 0;
   }
 }
@@ -88,7 +88,7 @@ CoAPPeer::~CoAPPeer() {
 int CoAPPeer::initDTLSClient() {
   if (owlDTLSClient) {
     owlDTLSClient->close();
-    owl_delete(owlDTLSClient);
+    delete owlDTLSClient;
     owlDTLSClient = 0;
   }
   owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
@@ -221,6 +221,7 @@ int CoAPPeer::reinitializeTransport() {
           // TODO: support
           break;
         case DTLS_Alert_Description__tinydtls_event_connect:
+        default:
           // TODO: support
           // Cycle everything
           if (!initDTLSClient()) {
@@ -228,12 +229,6 @@ int CoAPPeer::reinitializeTransport() {
                 remote_port);
             return 0;
           }
-          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
-            return 0;
-          }
-          break;
-        default:
           if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
             LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
             return 0;
@@ -251,7 +246,7 @@ int CoAPPeer::reinitializeTransport() {
 int CoAPPeer::close() {
   switch (this->transport_type) {
     case CoAP_Transport__plaintext:
-      if (!owlModem->socket.close(socket_id)) {
+      if (socket_id != 255 && !owlModem->socket.close(socket_id)) {
         LOG(L_ERR, "Error closing local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       }

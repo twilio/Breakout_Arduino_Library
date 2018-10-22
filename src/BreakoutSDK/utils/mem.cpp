@@ -94,10 +94,14 @@ void operator delete[](void *ptr) throw() {
 }
 
 
-void owl_internal_delete(void *ptr, const char *file, const char *func, unsigned int line) throw() {
+void operator delete(void *ptr, const char *file, const char *func, unsigned int line) throw() {
   if (ptr) free(ptr);
   LOGF(L_MEMDBG, "MEMDBG, %p,            ,  delete, %s/%s():%u\r\n", ptr, file, func, line);
 }
 
+void operator delete[](void *ptr, const char *file, const char *func, unsigned int line) throw() {
+  if (ptr) free(ptr);
+  LOGF(L_MEMDBG, "MEMDBG, %p,            ,  delete, %s/%s():%u\r\n", ptr, file, func, line);
+}
 
 #endif

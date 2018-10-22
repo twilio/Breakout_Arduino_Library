@@ -305,7 +305,10 @@ int OwlModem::initModem(int testing_variant) {
   if (!information.getModel(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
     LOG(L_WARN, "Potential error caching the modem model\r\n");
   } else {
-    if (str_equal_char(response, "SARA-N410-02B")) model = Owl_Modem__SARA_N410_02B__Listen_Bug;
+    if (str_equal_char(response, "SARA-N410-02B")) {
+      LOG(L_NOTICE, "Detected the SARA-N410-02B - marking for the listen bug workaround\r\n");
+      model = Owl_Modem__SARA_N410_02B__Listen_Bug;
+    }
   }
 
   LOG(L_DBG, "Modem correctly initialized\r\n");

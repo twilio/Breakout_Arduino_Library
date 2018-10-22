@@ -274,8 +274,8 @@ class CoAPPeer {
   coap_token_t getNextToken(coap_token_lenght_t *token_length);
 
  private:
-  OwlModem *owlModem;
-  coap_transport_type_e transport_type;
+  OwlModem *owlModem                   = 0;
+  coap_transport_type_e transport_type = CoAP_Transport__plaintext;
 
   int initDTLSClient();
 
@@ -345,9 +345,9 @@ class CoAPPeer {
 
   // TODO investigate if it makes sense to make these private
  public:
-  uint16_t local_port;
-  str remote_ip;
-  uint16_t remote_port;
+  uint16_t local_port  = 0;
+  str remote_ip        = {0};
+  uint16_t remote_port = 0;
 };
 
 #endif

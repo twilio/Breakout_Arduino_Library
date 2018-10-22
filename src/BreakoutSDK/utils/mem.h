@@ -58,11 +58,11 @@ void *operator new[](size_t size, const char *file, const char *func, unsigned i
 void operator delete(void *ptr) throw();
 void operator delete[](void *ptr) throw();
 
-void owl_internal_delete(void *ptr, const char *file, const char *func, unsigned int line);
-
+void operator delete(void *ptr, const char *file, const char *func, unsigned int line);
+void operator delete[](void *ptr, const char *file, const char *func, unsigned int line);
 
 #define owl_new new (__FILE__, __FUNCTION__, __LINE__)
-#define owl_delete(ptr) owl_internal_delete(ptr, __FILE__, __FUNCTION__, __LINE__)
+#define owl_delete delete (__FILE__, __FUNCTION__, __LINE__)
 
 #endif
 
@@ -73,7 +73,7 @@ void owl_internal_delete(void *ptr, const char *file, const char *func, unsigned
 
 
 #define owl_new new
-#define owl_delete(ptr) delete ptr
+#define owl_delete delete
 
 #endif
 
