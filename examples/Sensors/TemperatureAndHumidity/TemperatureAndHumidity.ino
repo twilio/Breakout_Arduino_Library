@@ -66,7 +66,7 @@ void loop()
   LOG(L_INFO, "Current temperature [%f] degrees celcius\r\n", temperature);
   LOG(L_INFO, "Current humidity [%f]\r\n", humidity);
   char commandText[512];
-  snprintf(commandText, 512, "Current humidity [%4.2f] and current temp [%4.2f]", temperature, humidity);
+  snprintf(commandText, 512, "Current humidity [%4.2f] and current temp [%4.2f]", humidity, temperature);
   sendCommand(commandText);
 
   breakout->spin();
