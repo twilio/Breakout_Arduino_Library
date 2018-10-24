@@ -250,6 +250,7 @@ int CoAPPeer::close() {
         LOG(L_ERR, "Error closing local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       }
+      socket_id = 255;
       return 1;
       break;
     case CoAP_Transport__DTLS_PSK:
