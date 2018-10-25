@@ -196,7 +196,7 @@ bool Breakout::initCoAPPeer() {
   }
   owl_time_t timeout = 0;
   str remote_ip      = STRDECL(BREAKOUT_IP);
-  int retries        = 5;
+  int retries        = BREAKOUT_INIT_CONNECTION_RETRIES;
 
   LOG(L_NOTICE, "CoAPPeer - creating \r\n");
 
@@ -209,7 +209,7 @@ bool Breakout::initCoAPPeer() {
 
   coapPeer->setHandlers(Breakout::handler_CoAPStatelessMessage, Breakout::handler_CoAPDTLSEvent,
                         Breakout::handler_CoAPRequest, Breakout::handler_CoAPResponse);
-  if (!coapPeer->reinitializeTransport()) GOTOERR(error);
+  if (!coapPeer->reinitialize()) GOTOERR(error);
 
   LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
@@ -219,11 +219,12 @@ bool Breakout::initCoAPPeer() {
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
-        LOG(L_ERR, "Failed to initialize CoAP peer 5 times in a row\r\n");
+        LOG(L_ERR, "Failed to initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
         goto error;
       }
-      timeout = owl_time() + 60 * 1000;
-      coapPeer->reinitializeTransport();
+      LOG(L_NOTICE, ".. CoAPPeer - will try another initialization %d left\r\n", retries - 1);
+      timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+      if (!coapPeer->reinitialize()) GOTOERR(error);
       retries--;
     }
   }
@@ -323,9 +324,9 @@ bool Breakout::reinitializeTransport() {
     return initCoAPPeer();
   }
   owl_time_t timeout = 0;
-  int retries        = 5;
+  int retries        = BREAKOUT_INIT_CONNECTION_RETRIES;
 
-  if (!coapPeer->reinitializeTransport()) GOTOERR(error);
+  if (!coapPeer->reinitialize()) GOTOERR(error);
 
   LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
@@ -335,11 +336,12 @@ bool Breakout::reinitializeTransport() {
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
-        LOG(L_ERR, "Failed to re-initialize CoAP peer 5 times in a row\r\n");
+        LOG(L_ERR, "Failed to re-initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
         goto error;
       }
-      timeout = owl_time() + 60 * 1000;
-      coapPeer->reinitializeTransport();
+      LOG(L_NOTICE, ".. CoAPPeer - will try another reinitialization %d left\r\n", retries - 1);
+      timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+      if (!coapPeer->reinitialize()) GOTOERR(error);
       retries--;
     }
   }
@@ -596,12 +598,11 @@ bool Breakout::checkForCommands(bool isRetry) {
     // If the connection was dead for too long, try to automatically reinitialize it
     if (getConnectionStatus() == CONNECTION_STATUS_REGISTERED_NOT_CONNECTED &&
         now >= last_coap_status_connected + BREAKOUT_REINIT_CONNECTION_INTERVAL * 1000) {
+      // Reset this timer, so that we won't try again for another interval
+      last_coap_status_connected = now;
       if (reinitializeTransport()) {
         // Success, new connection is up
         goto recovered_connection;
-      } else {
-        // Reset this timer, so that we won't try again for another interval
-        last_coap_status_connected = now;
       }
     }
     // If called on at the polling interval, back off a little, otherwise notify the user

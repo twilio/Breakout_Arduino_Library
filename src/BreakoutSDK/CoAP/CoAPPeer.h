@@ -186,7 +186,7 @@ class CoAPPeer {
    * Call this function to start initialization, or restart it in case it failed.
    * @return 1 on success, 0 on failure
    */
-  int reinitializeTransport();
+  int reinitialize();
 
   /**
    * Returns true if the transport is ready for sending out messages. E.g. DTLS finished the handshake.

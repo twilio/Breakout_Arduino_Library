@@ -1432,7 +1432,7 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
       return;
     }
     coapPeer->setHandlers(handlerStatelessMessage, handlerDTLSEvent, handlerCoAPRequest, handlerCoAPResponse);
-    if (!coapPeer->reinitializeTransport()) {
+    if (!coapPeer->reinitialize()) {
       LOG(L_CLI, "ERROR - internal\r\n");
       return;
     }

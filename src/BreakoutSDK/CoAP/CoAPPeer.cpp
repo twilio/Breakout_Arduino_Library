@@ -182,7 +182,7 @@ void CoAPPeer::handlerDTLSEvent(OwlDTLSClient *owlDTLSClient, session_t *session
 
 
 
-int CoAPPeer::reinitializeTransport() {
+int CoAPPeer::reinitialize() {
   switch (this->transport_type) {
     case CoAP_Transport__plaintext:
       if (socket_id != 255) owlModem->socket.close(socket_id);
@@ -202,15 +202,61 @@ int CoAPPeer::reinitializeTransport() {
       break;
 
     case CoAP_Transport__DTLS_PSK:
-      // It doesn't matter that much in which state we are. For now, will recycle all DTLS
-      if (!initDTLSClient()) {
-        LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
-            remote_port);
-        return 0;
+      if (!owlDTLSClient) {
+        if (!initDTLSClient()) {
+          LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient initialization failed\r\n", remote_ip.len, remote_ip.s,
+              remote_port);
+          return 0;
+        }
       }
-      if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-        LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
-        return 0;
+      switch (owlDTLSClient->getCurrentStatus()) {
+        case DTLS_Alert_Description__close_notify:  // Initial state
+          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+                owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
+            return 0;
+          }
+          break;
+        case DTLS_Alert_Description__tinydtls_event_connected:  // Up and ready state
+          // TODO: support
+          LOG(L_NOTICE, "remote_ip=%.*s:%u - already connected - cycling everything\r\n", remote_ip.len, remote_ip.s,
+              remote_port);
+          // Cycle everything
+          if (!initDTLSClient()) {
+            LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
+                remote_port);
+            return 0;
+          }
+          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+            return 0;
+          }
+          break;
+        //        case DTLS_Alert_Description__tinydtls_event_renegotiate:
+        //          // TODO: support
+        //          break;
+        case DTLS_Alert_Description__tinydtls_event_connect:  // In-Handshake state
+          // TODO: support
+          // Cycle everything
+          if (!initDTLSClient()) {
+            LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
+                remote_port);
+            return 0;
+          }
+          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+            return 0;
+          }
+          break;
+        default:
+          LOG(L_ERR, "remote_ip=%.*s:%u - not handled status %d\r\n", remote_ip.len, remote_ip.s, remote_port,
+              owlDTLSClient->getCurrentStatus());
+          //          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+          //            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+          //                owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
+          //            return 0;
+          //          }
+          break;
       }
       return 1;
       break;
