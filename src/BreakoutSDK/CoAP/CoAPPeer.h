@@ -310,8 +310,8 @@ class CoAPPeer {
    */
   static CoAPPeer **instances;
   static int instances_cnt;
-  int addInstance();
-  int removeInstance();
+  static int addInstance(CoAPPeer *x);
+  static int removeInstance(CoAPPeer *x);
 
   /*
    * Client transactions

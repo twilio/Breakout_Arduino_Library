@@ -257,13 +257,6 @@ error:
   return false;
 }
 
-bool Breakout::reinitCoAPPeer() {
-  if (coapPeer) {
-    delete coapPeer;
-    coapPeer = 0;
-  }
-  return initCoAPPeer();
-}
 
 bool Breakout::powerModuleOn() {
   if (owlModem == 0) {
@@ -324,7 +317,60 @@ connection_status_e Breakout::getConnectionStatus() {
 
 bool Breakout::reinitializeTransport() {
   LOG(L_WARN, "Reinitializing transport connection with the Twilio Commands server\r\n");
-  return reinitCoAPPeer();
+
+  if (!coapPeer) {
+    LOG(L_NOTICE, "CoAPPeer - Not yet initialized - starting from scratch\r\n");
+    return initCoAPPeer();
+  }
+  owl_time_t timeout = 0;
+  int retries        = 5;
+
+  if (!coapPeer->reinitializeTransport()) GOTOERR(error);
+
+  LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
+  timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+  while (!coapPeer->transportIsReady()) {
+    // Need to spin, because otherwise tinydtls things don't get properly initialized.
+    spin();
+    delay(50);
+    if (timeout < owl_time()) {
+      if (retries <= 0) {
+        LOG(L_ERR, "Failed to re-initialize CoAP peer 5 times in a row\r\n");
+        goto error;
+      }
+      timeout = owl_time() + 60 * 1000;
+      coapPeer->reinitializeTransport();
+      retries--;
+    }
+  }
+  LOG(L_NOTICE, "... CoAP Peer is ready.\r\n");
+  LOG(L_NOTICE, "        B R E A K O U T - re\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
+  LOG(L_NOTICE, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
+  LOG(L_NOTICE, "▒▒▒▒                       ▒▒▒▒\r\n");
+  LOG(L_NOTICE, "░░░░                      ░░░░░\r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "               ⚪               \r\n");
+  LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  if (!coap_status) {
+    coap_status = true;
+    notifyConnectionStatusChanged();
+  }
+  return true;
+error:
+  LOG(L_ERR, "... CoAP Peer was not re-initialized correctly.\r\n");
+  if (coap_status) {
+    coap_status = false;
+    notifyConnectionStatusChanged();
+  }
+  return false;
 }
 
 
@@ -777,7 +823,7 @@ void Breakout::handler_CoAPDTLSEvent(CoAPPeer *peer, dtls_alert_level_e level, d
     // Reinitialize CoAPPeer
     Breakout *breakout = &Breakout::getInstance();
     if (breakout->coap_status) {
-      if (!(breakout->coap_status = breakout->reinitCoAPPeer())) {
+      if (!(breakout->coap_status = breakout->reinitializeTransport())) {
         breakout->coap_status = false;
         breakout->notifyConnectionStatusChanged();
       }

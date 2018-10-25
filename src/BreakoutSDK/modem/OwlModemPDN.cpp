@@ -62,7 +62,7 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
             while (str_tok(token_ip, ".", &token_number))
               ipv4[digit++] = str_to_uint32_t(token_number, 10);
             if (digit != 4) {
-              LOG(L_ERR, "IPv4 [%.*s] has invalid number of tokens\r\n", token_ip.len, token_ip.s, digit);
+              LOG(L_ERR, "IPv4 [%.*s] has invalid number of tokens %d\r\n", token_ip.len, token_ip.s, digit);
               return 0;
             }
           } else {
@@ -72,7 +72,7 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
             while (str_tok(token_ip, ".", &token_number))
               ipv6[digit++] = str_to_uint32_t(token_number, 10);
             if (digit != 16) {
-              LOG(L_ERR, "IPv6 [%.*s] has invalid number of tokens\r\n", token_ip.len, token_ip.s, digit);
+              LOG(L_ERR, "IPv6 [%.*s] has invalid number of tokens %d\r\n", token_ip.len, token_ip.s, digit);
               return 0;
             }
           }

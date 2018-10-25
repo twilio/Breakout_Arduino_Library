@@ -148,7 +148,7 @@
 
 #define WL_NEW(el, list_type)                                                                                          \
   do {                                                                                                                 \
-    (el) = (struct _##list_type##_slot *)owl_malloc(sizeof(struct _##list_type##_slot));                                   \
+    (el) = (struct _##list_type##_slot *)owl_malloc(sizeof(struct _##list_type##_slot));                               \
     if (!(el)) {                                                                                                       \
       LOG(L_ERR, "Unable to allocate %ld bytes\r\n", (long int)sizeof(struct _##list_type##_slot));                    \
       goto out_of_memory;                                                                                              \

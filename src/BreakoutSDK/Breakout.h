@@ -119,7 +119,7 @@ typedef struct {
   do {                                                                                                                 \
     if (x) {                                                                                                           \
       str_free((x)->command);                                                                                          \
-      owl_free(x);                                                                                                         \
+      owl_free(x);                                                                                                     \
       (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
@@ -352,7 +352,6 @@ class Breakout {
 
   bool initModem();
   bool initCoAPPeer();
-  bool reinitCoAPPeer();
 
   at_cereg_stat_e eps_registration_status = AT_CEREG__Stat__Not_Registered;
   bool coap_status                        = false;

@@ -343,9 +343,13 @@ int OwlDTLSClient::close() {
   this->remote_ip.len = 0;
   this->remote_port   = 0;
   if (socket_id != 255) {
-    OwlDTLSClient::socketMappings[socket_id] = 0;
-    owlModem->socket.close(socket_id);
-    socket_id = 255;
+    if (this->socket_id < 0 || this->socket_id >= MODEM_MAX_SOCKETS) {
+      LOG(L_ERR, "Bad socket_id %d returned\r\n", this->socket_id);
+    } else {
+      OwlDTLSClient::socketMappings[this->socket_id] = 0;
+    }
+    if (owlModem) owlModem->socket.close(this->socket_id);
+    this->socket_id = 255;
   }
   return 1;
 }
