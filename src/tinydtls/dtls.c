@@ -4070,6 +4070,8 @@ dtls_free_context(dtls_context_t *ctx) {
     return;
   }
 
+  netq_delete_all(&ctx->sendqueue);
+
   if (ctx->peers) {
 #ifdef DTLS_PEERS_NOHASH
     LL_FOREACH_SAFE(ctx->peers, p, tmp) {
