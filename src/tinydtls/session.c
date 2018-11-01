@@ -87,8 +87,7 @@ dtls_session_init(session_t *sess) {
  * for sessions and peers and store a pointer to a session in the peer
  * struct.
  */
-#if !(defined(WITH_CONTIKI)) && !(defined(RIOT_VERSION)) &&                  \
-    !(defined(WITH_ARDUINO))
+#if !(defined(WITH_CONTIKI)) && !(defined(RIOT_VERSION)) &&  !(defined(WITH_ARDUINO))
 session_t *
 dtls_new_session(struct sockaddr *addr, socklen_t addrlen) {
   session_t *sess;
@@ -122,7 +121,7 @@ session_t *
 dtls_new_session(ip_address_u *addr, socklen_t addrlen) {
   session_t *sess;
 
-  sess = malloc(sizeof(session_t));
+  sess = owl_malloc(sizeof(session_t));
   if (!sess) return NULL;
   dtls_session_init(sess);
 
@@ -134,7 +133,7 @@ dtls_new_session(ip_address_u *addr, socklen_t addrlen) {
 
 void
 dtls_free_session(session_t *sess) {
-  free(sess);
+  owl_free(sess);
 }
 
 ip_address_u *

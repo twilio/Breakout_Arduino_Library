@@ -27,7 +27,7 @@
 
 
 Breakout::Breakout() {
-  // strip = new WS2812(1, ublox->RGB_LED_PIN);
+  // strip = owl_new WS2812(1, ublox->RGB_LED_PIN);
   // ublox->enableRGBPower();
   // strip->begin();
   // strip->brightness = 20;
@@ -79,9 +79,9 @@ void Breakout::setPollingInterval(uint32_t interval_seconds) {
   } else if (interval_seconds == 0) {
     polling_interval = 0;
   } else {
-    LOG(L_WARN, "Interval %u seconds less than minimum of %u. Polling will be disabled.\r\n", interval_seconds,
+    LOG(L_WARN, "Interval %u seconds less than minimum of %u but not 0. Using minimum polling interval.\r\n", interval_seconds,
         BREAKOUT_POLLING_INTERVAL_MINIMUM);
-    polling_interval = 0;
+    polling_interval = BREAKOUT_POLLING_INTERVAL_MINIMUM;
   }
 
   if (polling_interval == 0) {
@@ -138,7 +138,7 @@ bool Breakout::initModem() {
 
   LOG(L_NOTICE, "OwlModem starting up\r\n");
 
-  if (!(owlModem = new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
+  if (!(owlModem = owl_new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
 
   LOG(L_NOTICE, ".. OwlModem - powering on modules\r\n");
   if (!owlModem->powerOn()) {
@@ -196,20 +196,20 @@ bool Breakout::initCoAPPeer() {
   }
   owl_time_t timeout = 0;
   str remote_ip      = STRDECL(BREAKOUT_IP);
-  int retries        = 5;
+  int retries        = BREAKOUT_INIT_CONNECTION_RETRIES;
 
   LOG(L_NOTICE, "CoAPPeer - creating \r\n");
 
 #if TESTING_WITH_DTLS == 0
-  coapPeer = new CoAPPeer(owlModem, 0, remote_ip, 5683);
+  coapPeer = owl_new CoAPPeer(owlModem, 0, remote_ip, 5683);
 #else
-  coapPeer = new CoAPPeer(owlModem, psk_id, psk_key, 0, remote_ip, 5684);
+  coapPeer = owl_new CoAPPeer(owlModem, psk_id, psk_key, 0, remote_ip, 5684);
 #endif
   if (!coapPeer) GOTOERR(error);
 
   coapPeer->setHandlers(Breakout::handler_CoAPStatelessMessage, Breakout::handler_CoAPDTLSEvent,
                         Breakout::handler_CoAPRequest, Breakout::handler_CoAPResponse);
-  if (!coapPeer->reinitializeTransport()) GOTOERR(error);
+  if (!coapPeer->reinitialize()) GOTOERR(error);
 
   LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
@@ -219,11 +219,12 @@ bool Breakout::initCoAPPeer() {
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
-        LOG(L_ERR, "Failed to initialize CoAP peer 5 times in a row\r\n");
+        LOG(L_ERR, "Failed to initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
         goto error;
       }
-      timeout = owl_time() + 60 * 1000;
-      coapPeer->reinitializeTransport();
+      LOG(L_NOTICE, ".. CoAPPeer - will try another initialization %d left\r\n", retries - 1);
+      timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+      if (!coapPeer->reinitialize()) GOTOERR(error);
       retries--;
     }
   }
@@ -257,13 +258,6 @@ error:
   return false;
 }
 
-bool Breakout::reinitCoAPPeer() {
-  if (coapPeer) {
-    delete coapPeer;
-    coapPeer = 0;
-  }
-  return initCoAPPeer();
-}
 
 bool Breakout::powerModuleOn() {
   if (owlModem == 0) {
@@ -324,7 +318,61 @@ connection_status_e Breakout::getConnectionStatus() {
 
 bool Breakout::reinitializeTransport() {
   LOG(L_WARN, "Reinitializing transport connection with the Twilio Commands server\r\n");
-  return reinitCoAPPeer();
+
+  if (!coapPeer) {
+    LOG(L_NOTICE, "CoAPPeer - Not yet initialized - starting from scratch\r\n");
+    return initCoAPPeer();
+  }
+  owl_time_t timeout = 0;
+  int retries        = BREAKOUT_INIT_CONNECTION_RETRIES;
+
+  if (!coapPeer->reinitialize()) GOTOERR(error);
+
+  LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
+  timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+  while (!coapPeer->transportIsReady()) {
+    // Need to spin, because otherwise tinydtls things don't get properly initialized.
+    spin();
+    delay(50);
+    if (timeout < owl_time()) {
+      if (retries <= 0) {
+        LOG(L_ERR, "Failed to re-initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
+        goto error;
+      }
+      LOG(L_NOTICE, ".. CoAPPeer - will try another reinitialization %d left\r\n", retries - 1);
+      timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
+      if (!coapPeer->reinitialize()) GOTOERR(error);
+      retries--;
+    }
+  }
+  LOG(L_NOTICE, "... CoAP Peer is ready.\r\n");
+  LOG(L_NOTICE, "        B R E A K O U T - re\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_NOTICE, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
+  LOG(L_NOTICE, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
+  LOG(L_NOTICE, "▒▒▒▒                       ▒▒▒▒\r\n");
+  LOG(L_NOTICE, "░░░░                      ░░░░░\r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "                               \r\n");
+  LOG(L_NOTICE, "               ⚪               \r\n");
+  LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  if (!coap_status) {
+    coap_status = true;
+    notifyConnectionStatusChanged();
+  }
+  return true;
+error:
+  LOG(L_ERR, "... CoAP Peer was not re-initialized correctly.\r\n");
+  if (coap_status) {
+    coap_status = false;
+    notifyConnectionStatusChanged();
+  }
+  return false;
 }
 
 
@@ -346,7 +394,7 @@ void Breakout::spin() {
 
 #if TESTING_WITH_CLI == 1
   /* Enable also CLI, for intermediary testing */
-  if (!owlModemCLI) owlModemCLI = new OwlModemCLI(owlModem, &SerialDebugPort);
+  if (!owlModemCLI) owlModemCLI = owl_new OwlModemCLI(owlModem, &SerialDebugPort);
   cli_resume                    = owlModemCLI->handleUserInput(cli_resume);
 #endif
 }
@@ -450,7 +498,7 @@ void Breakout::callback_commandReceipt(CoAPPeer *peer, coap_message_id_t message
       break;
   }
   if (receipt->callback) (receipt->callback)(receipt_code, receipt->callback_parameter);
-  free(receipt);
+  owl_free(receipt);
 }
 
 command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutCommandReceiptCallback_f callback,
@@ -491,7 +539,7 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
   request.payload = cmd;
 
   if (callback) {
-    receipt = (receipt_t *)malloc(sizeof(receipt_t));
+    receipt = (receipt_t *)owl_malloc(sizeof(receipt_t));
     if (!receipt) goto error;
     receipt->callback           = callback;
     receipt->callback_parameter = callback_parameter;
@@ -505,7 +553,7 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
   request.destroy();
   return COMMAND_STATUS_OK;
 error:
-  if (receipt) free(receipt);
+  if (receipt) owl_free(receipt);
   request.destroy();
   return COMMAND_STATUS_ERROR;
 }
@@ -550,12 +598,11 @@ bool Breakout::checkForCommands(bool isRetry) {
     // If the connection was dead for too long, try to automatically reinitialize it
     if (getConnectionStatus() == CONNECTION_STATUS_REGISTERED_NOT_CONNECTED &&
         now >= last_coap_status_connected + BREAKOUT_REINIT_CONNECTION_INTERVAL * 1000) {
+      // Reset this timer, so that we won't try again for another interval
+      last_coap_status_connected = now;
       if (reinitializeTransport()) {
         // Success, new connection is up
         goto recovered_connection;
-      } else {
-        // Reset this timer, so that we won't try again for another interval
-        last_coap_status_connected = now;
       }
     }
     // If called on at the polling interval, back off a little, otherwise notify the user
@@ -777,7 +824,7 @@ void Breakout::handler_CoAPDTLSEvent(CoAPPeer *peer, dtls_alert_level_e level, d
     // Reinitialize CoAPPeer
     Breakout *breakout = &Breakout::getInstance();
     if (breakout->coap_status) {
-      if (!(breakout->coap_status = breakout->reinitCoAPPeer())) {
+      if (!(breakout->coap_status = breakout->reinitializeTransport())) {
         breakout->coap_status = false;
         breakout->notifyConnectionStatusChanged();
       }

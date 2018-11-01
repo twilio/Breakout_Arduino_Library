@@ -322,7 +322,7 @@ class OwlModemSocket {
 
 
  private:
-  OwlModem *owlModem;
+  OwlModem *owlModem = 0;
 
 
   OwlModemSocketStatus status[MODEM_MAX_SOCKETS];

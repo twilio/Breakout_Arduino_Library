@@ -28,6 +28,7 @@
 #include "bin_t.h"
 #include "log.h"
 #include "time.h"
+#include "mem.h"
 
 
 #endif

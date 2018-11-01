@@ -38,10 +38,7 @@ OwlDTLSClient::OwlDTLSClient(str psk_id, str psk_key) {
 }
 
 OwlDTLSClient::~OwlDTLSClient() {
-  if (owlModem) {
-    if (socket_id) owlModem->socket.close(socket_id);
-  }
-  if (this->dtls_context) dtls_free_context(this->dtls_context);
+  this->close();
 }
 
 
@@ -311,35 +308,50 @@ int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_p
                                              &this->socket_id)) {
     if (!owlModem->socket.openConnectUDP(remote_ip, remote_port, OwlDTLSClient::handleRawData, &this->socket_id)) {
       LOG(L_ERR, "Error opening local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
-      return 0;
+      goto error;
     } else {
-      LOG(L_WARN,
-          "Potential error opening local socket towards %.*s:%u - listen failed, model wasn't blacklisted\r\n",
+      LOG(L_WARN, "Potential error opening local socket towards %.*s:%u - listen failed, model wasn't blacklisted\r\n",
           remote_ip.len, remote_ip.s, remote_port);
     }
   }
   if (this->socket_id < 0 || this->socket_id >= MODEM_MAX_SOCKETS) {
     LOG(L_ERR, "Bad socket_id %d returned\r\n", this->socket_id);
-    return 0;
+    goto error;
   }
   OwlDTLSClient::socketMappings[this->socket_id] = this;
 
   if (dtls_connect(this->dtls_context, &this->dtls_dst) < 0) {
     LOG(L_ERR, "Error on dtls_connect()\r\n");
-    return 0;
+    goto error;
   }
 
   return 1;
+error:
+  this->close();
+  return 0;
 }
 
 int OwlDTLSClient::close() {
   if (!this->dtls_context) {
-    LOG(L_ERR, "DTLS context not created yet\r\n");
-    return 0;
+    LOG(L_DBG, "DTLS context not created yet\r\n");
+  } else {
+    int err = dtls_close(this->dtls_context, &this->dtls_dst);
+    LOG(L_NOTICE, "Close error=%d\r\n", err);
+    dtls_free_context(this->dtls_context);
+    this->dtls_context = 0;
   }
-  int err = dtls_close(this->dtls_context, &this->dtls_dst);
-  LOG(L_NOTICE, "Close error=%d\r\n", err);
-  return err >= 0;
+  this->remote_ip.len = 0;
+  this->remote_port   = 0;
+  if (socket_id != 255) {
+    if (this->socket_id < 0 || this->socket_id >= MODEM_MAX_SOCKETS) {
+      LOG(L_ERR, "Bad socket_id %d returned\r\n", this->socket_id);
+    } else {
+      OwlDTLSClient::socketMappings[this->socket_id] = 0;
+    }
+    if (owlModem) owlModem->socket.close(this->socket_id);
+    this->socket_id = 255;
+  }
+  return 1;
 }
 
 int OwlDTLSClient::renegotiate() {

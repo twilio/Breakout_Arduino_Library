@@ -6,7 +6,7 @@
  * and Eclipse Distribution License v. 1.0 which accompanies this distribution.
  *
  * The Eclipse Public License is available at http://www.eclipse.org/legal/epl-v10.html
- * and the Eclipse Distribution License is available at 
+ * and the Eclipse Distribution License is available at
  * http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
@@ -30,6 +30,21 @@
 
 /* use malloc()/free() on platforms other than Contiki */
 #ifndef WITH_CONTIKI
+#ifdef WITH_ARDUINO
+static inline dtls_hmac_context_t *
+dtls_hmac_context_new(void) {
+  return (dtls_hmac_context_t *)owl_malloc(sizeof(dtls_hmac_context_t));
+}
+
+static inline void
+dtls_hmac_context_free(dtls_hmac_context_t *ctx) {
+  owl_free(ctx);
+}
+
+void
+dtls_hmac_storage_init(void) {
+}
+#else
 #include <stdlib.h>
 
 static inline dtls_hmac_context_t *
@@ -46,6 +61,7 @@ void
 dtls_hmac_storage_init(void) {
 }
 
+#endif
 #else /* WITH_CONTIKI */
 #include "memb.h"
 MEMB(hmac_context_storage, dtls_hmac_context_t, DTLS_HASH_MAX);

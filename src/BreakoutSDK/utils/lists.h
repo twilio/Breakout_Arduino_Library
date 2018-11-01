@@ -20,13 +20,13 @@
 /*
  * Copyright (c) 2005-2018, Troy D. Hanson  http://troydhanson.github.com/uthash/
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
  * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
  * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -148,7 +148,7 @@
 
 #define WL_NEW(el, list_type)                                                                                          \
   do {                                                                                                                 \
-    (el) = (struct _##list_type##_slot *)malloc(sizeof(struct _##list_type##_slot));                                   \
+    (el) = (struct _##list_type##_slot *)owl_malloc(sizeof(struct _##list_type##_slot));                               \
     if (!(el)) {                                                                                                       \
       LOG(L_ERR, "Unable to allocate %ld bytes\r\n", (long int)sizeof(struct _##list_type##_slot));                    \
       goto out_of_memory;                                                                                              \

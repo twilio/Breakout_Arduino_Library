@@ -217,11 +217,9 @@ int OwlModem::initModem(int testing_variant) {
       if (doCommand("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK) LOG(L_WARN, "Error setting RAT to NB1\r\n");
       // This is a bitmask, LSB meaning Band1, MSB meaning Band64
       if (doCommand("AT+UBANDMASK=0,0", 5000, 0, 0) != AT_Result_Code__OK)
-        LOG(L_WARN, "Error setting band mask for Cat-M1 to none\r\n");
-      if (doCommand("AT+UBANDMASK=1,168761503", 5000, 0, 0) != AT_Result_Code__OK)
-        LOG(L_WARN, "Error setting band mask for NB1 to 168761503 (manual default\r\n");
-      //      if (doCommand("AT+UBANDMASK=1,2058", 5000, 0, 0) != AT_Result_Code__OK)
-      //        LOG(L_WARN, "Error setting band mask for NB1 to Band2 (1900MHz), Band4 and Band12 (700MHz)\r\n");
+        LOG(L_WARN, "Error setting band mask for Cat-M1 to 2/4/5/12\r\n");
+      if (doCommand("AT+UBANDMASK=1,2074", 5000, 0, 0) != AT_Result_Code__OK)
+        LOG(L_WARN, "Error setting band mask for NB1 to 2/4/5/12 (manual default)\r\n");
       // if (doCommand("AT+CGDCONT=1,\"IP\",\"" TESTING_APN "\"", 5000, 0, 0) != AT_Result_Code__OK)
       // LOG(L_WARN, "Error setting custom APN\r\n");
     }
@@ -307,7 +305,10 @@ int OwlModem::initModem(int testing_variant) {
   if (!information.getModel(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
     LOG(L_WARN, "Potential error caching the modem model\r\n");
   } else {
-    if (str_equal_char(response, "SARA-N410-02B")) model = Owl_Modem__SARA_N410_02B__Listen_Bug;
+    if (str_equal_char(response, "SARA-N410-02B")) {
+      LOG(L_NOTICE, "Detected the SARA-N410-02B - marking for the listen bug workaround\r\n");
+      model = Owl_Modem__SARA_N410_02B__Listen_Bug;
+    }
   }
 
   LOG(L_DBG, "Modem correctly initialized\r\n");

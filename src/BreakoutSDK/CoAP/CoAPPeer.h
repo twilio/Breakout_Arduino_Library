@@ -130,8 +130,9 @@ typedef struct {
 #define coap_client_transaction_list_t_free(x)                                                                         \
   do {                                                                                                                 \
     if (x) {                                                                                                           \
-      if ((x)->message.s) free((x)->message.s);                                                                        \
-      free(x);                                                                                                         \
+      str_free((x)->message);                                                                                          \
+      owl_free(x);                                                                                                     \
+      (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
 
@@ -156,8 +157,9 @@ typedef struct {
 #define coap_server_transaction_list_t_free(x)                                                                         \
   do {                                                                                                                 \
     if (x) {                                                                                                           \
-      if ((x)->ack_rst.s) free((x)->ack_rst.s);                                                                        \
-      free(x);                                                                                                         \
+      str_free((x)->ack_rst);                                                                                          \
+      owl_free(x);                                                                                                     \
+      (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
 
@@ -184,7 +186,7 @@ class CoAPPeer {
    * Call this function to start initialization, or restart it in case it failed.
    * @return 1 on success, 0 on failure
    */
-  int reinitializeTransport();
+  int reinitialize();
 
   /**
    * Returns true if the transport is ready for sending out messages. E.g. DTLS finished the handshake.
@@ -272,8 +274,8 @@ class CoAPPeer {
   coap_token_t getNextToken(coap_token_lenght_t *token_length);
 
  private:
-  OwlModem *owlModem;
-  coap_transport_type_e transport_type;
+  OwlModem *owlModem                   = 0;
+  coap_transport_type_e transport_type = CoAP_Transport__plaintext;
 
   int initDTLSClient();
 
@@ -308,8 +310,8 @@ class CoAPPeer {
    */
   static CoAPPeer **instances;
   static int instances_cnt;
-  int addInstance();
-  int removeInstance();
+  static int addInstance(CoAPPeer *x);
+  static int removeInstance(CoAPPeer *x);
 
   /*
    * Client transactions
@@ -343,9 +345,9 @@ class CoAPPeer {
 
   // TODO investigate if it makes sense to make these private
  public:
-  uint16_t local_port;
-  str remote_ip;
-  uint16_t remote_port;
+  uint16_t local_port  = 0;
+  str remote_ip        = {0};
+  uint16_t remote_port = 0;
 };
 
 #endif

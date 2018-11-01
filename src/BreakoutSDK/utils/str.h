@@ -57,7 +57,7 @@ typedef struct {
 
 #define str_free(x)                                                                                                    \
   do {                                                                                                                 \
-    if ((x).s) free((x).s);                                                                                            \
+    if ((x).s) owl_free((x).s);                                                                                        \
     (x).s   = 0;                                                                                                       \
     (x).len = 0;                                                                                                       \
   } while (0)
@@ -65,7 +65,7 @@ typedef struct {
 #define str_dup(dst, src)                                                                                              \
   do {                                                                                                                 \
     if ((src).len) {                                                                                                   \
-      (dst).s = (char *)malloc((src).len);                                                                             \
+      (dst).s = (char *)owl_malloc((src).len);                                                                         \
       if (!(dst).s) {                                                                                                  \
         LOG(L_ERR, "Error allocating %d bytes\r\n", (src).len);                                                        \
         (dst).len = 0;                                                                                                 \

@@ -39,8 +39,8 @@ typedef enum {
 
 class CoAPOption {
  public:
-  coap_option_number_e number;
-  coap_option_format_e format;
+  coap_option_number_e number = CoAP_Option__unknown;
+  coap_option_format_e format = CoAP_Option_Format__empty;
   union {
     /* void empty; */
     str opaque;

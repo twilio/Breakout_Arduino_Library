@@ -494,6 +494,7 @@ int OwlModemSocket::sendUDP(uint8_t socket, str data, int *out_bytes_sent) {
   }
   int bytes_sent                      = this->send(socket, data);
   if (out_bytes_sent) *out_bytes_sent = bytes_sent;
+  LOG(L_INFO, "Sent data over UDP on socket %u %d bytes\r\n", socket, bytes_sent);
   return bytes_sent == data.len;
 }
 
@@ -520,6 +521,7 @@ int OwlModemSocket::sendTCP(uint8_t socket, str data, int *out_bytes_sent) {
   }
   int bytes_sent                      = this->send(socket, data);
   if (out_bytes_sent) *out_bytes_sent = bytes_sent;
+  LOG(L_INFO, "Sent data over TCP on socket %u %d bytes\r\n", socket, bytes_sent);
   return bytes_sent > 0;
 }
 
@@ -565,6 +567,7 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
       default:
         break;
     }
+  LOG(L_INFO, "Sent data over UDP on socket %u %d bytes\r\n", socket, bytes_sent);
   return bytes_sent == data.len;
 }
 

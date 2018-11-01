@@ -28,7 +28,7 @@
 #endif
 #endif
 
-#if !(defined (WITH_CONTIKI)) && !(defined (RIOT_VERSION))
+#if !(defined (WITH_CONTIKI)) && !(defined (RIOT_VERSION)) && !(defined (WITH_ARDUINO))
 #include <stdlib.h>
 
 static inline netq_t *
@@ -83,9 +83,20 @@ netq_init(void) {
   memarray_init(&netq_storage, netq_storage_data, sizeof(netq_t), NETQ_MAXCNT);
 }
 
-#endif /* WITH_CONTIKI */
+#elif defined(WITH_ARDUINO)
 
-int 
+static inline netq_t *
+netq_malloc_node(size_t size) {
+  return (netq_t *)owl_malloc(sizeof(netq_t) + size);
+}
+
+static inline void
+netq_free_node(netq_t *node) {
+  owl_free(node);
+}
+#endif
+
+int
 netq_insert_node(netq_t **queue, netq_t *node) {
   netq_t *p;
 

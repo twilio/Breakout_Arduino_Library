@@ -124,6 +124,37 @@ class RawGNSSBypass : public OwlModemCLIExecutor {
 
 
 
+class PowerOn : public OwlModemCLIExecutor {
+ public:
+  PowerOn()
+      : OwlModemCLIExecutor("powerOn", "<module_bitmask>",
+                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    owl_power_m bit_mask = (owl_power_m) 0;
+    bit_mask = (owl_power_m)str_to_uint32_t(cmd.argv[0], 10);
+    cli.owlModem->powerOn(bit_mask);
+  }
+};
+
+
+
+class PowerOff : public OwlModemCLIExecutor {
+ public:
+  PowerOff()
+      : OwlModemCLIExecutor("powerOff", "<module_bitmask>",
+                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+  }
+
+  void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
+    owl_power_m bit_mask = (owl_power_m) 0;
+    bit_mask = (owl_power_m) str_to_uint32_t(cmd.argv[0], 10);
+    cli.owlModem->powerOff(bit_mask);
+  }
+};
+
+
 class GetProductIdentification : public OwlModemCLIExecutor {
  public:
   GetProductIdentification()
@@ -1136,8 +1167,7 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
 
 class GetGNSSData : public OwlModemCLIExecutor {
  public:
-  GetGNSSData()
-      : OwlModemCLIExecutor("gnss.getGNSSData", "Retrieve GNSS data and log it.") {
+  GetGNSSData() : OwlModemCLIExecutor("gnss.getGNSSData", "Retrieve GNSS data and log it.") {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1198,7 +1228,7 @@ class DTLSClientCreate : public OwlModemCLIExecutor {
       LOGF(L_CLI, "ERROR - already created - call dtls.client.destroy before calling this again\r\n");
       return;
     }
-    owlDTLSClient = new OwlDTLSClient(psk_id, psk_key);
+    owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
     if (!owlDTLSClient) {
       LOGF(L_CLI, "ERROR - internal\r\n");
       return;
@@ -1392,9 +1422,9 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
       return;
     }
     if (!psk_key.len || !psk_id.len) {
-      coapPeer = new CoAPPeer(cli.owlModem, local_port, remote_ip, remote_port);
+      coapPeer = owl_new CoAPPeer(cli.owlModem, local_port, remote_ip, remote_port);
     } else {
-      coapPeer = new CoAPPeer(cli.owlModem, psk_id, psk_key, local_port, remote_ip, remote_port);
+      coapPeer = owl_new CoAPPeer(cli.owlModem, psk_id, psk_key, local_port, remote_ip, remote_port);
     }
 
     if (!coapPeer) {
@@ -1402,7 +1432,7 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
       return;
     }
     coapPeer->setHandlers(handlerStatelessMessage, handlerDTLSEvent, handlerCoAPRequest, handlerCoAPResponse);
-    if (!coapPeer->reinitializeTransport()) {
+    if (!coapPeer->reinitialize()) {
       LOG(L_CLI, "ERROR - internal\r\n");
       return;
     }
@@ -1471,7 +1501,7 @@ class CoAPPeerSend : public OwlModemCLIExecutor {
     if (cmd.argc >= 6) content_format = str_to_uint32_t(cmd.argv[5], 10);
     str payload                       = {0};
     if (cmd.argc >= 7) payload        = cmd.argv[6];
-    CoAPMessage *msg                  = new CoAPMessage(type, code_class, code_detail, coapPeer->getNextMessageId());
+    CoAPMessage *msg                  = owl_new CoAPMessage(type, code_class, code_detail, coapPeer->getNextMessageId());
     if (!msg) GOTOERR(error);
     if (uri_path.len) {
       str uri_path_token = {0};
@@ -1664,7 +1694,7 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
     }
     if (data) {
       str_free(*data);
-      free(data);
+      owl_free(data);
     }
   }
 
@@ -1696,7 +1726,7 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
       memcpy(command.s, cmd.args.s, command.len);
       is_binary = false;
     }
-    data = (str *)malloc(sizeof(str));
+    data = (str *)owl_malloc(sizeof(str));
     if (!data) goto out_of_memory;
     str_dup(*data, cmd.args);
     code = breakout->sendCommandWithReceiptRequest(command, callbackOnDeliveryReceipt, data, is_binary);
@@ -1726,7 +1756,7 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
     LOG(L_CLI, "ERROR - allocating memory for callback parameter\r\n");
     if (data) {
       str_free(*data);
-      free(data);
+      owl_free(data);
     }
   }
 };
@@ -1760,7 +1790,7 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
 
 class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
  public:
-  BreakoutHasWaitingCommand(char * commandName = "breakout.hasWaitingCommand")
+  BreakoutHasWaitingCommand(char *commandName = "breakout.hasWaitingCommand")
       : OwlModemCLIExecutor(commandName, "Check if we have a waiting command received") {
   }
 
@@ -1775,13 +1805,6 @@ class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
       LOG(L_CLI, "OK commands are waiting\r\n");
     else
       LOG(L_CLI, "OK no commands waiting\r\n");
-  }
-};
-
-class BreakoutICanHazWaitingCommand : public BreakoutHasWaitingCommand {
- public:
-  BreakoutICanHazWaitingCommand()
-      : BreakoutHasWaitingCommand("breakout.iCanHazWaitingCommand") {
   }
 };
 
@@ -1892,104 +1915,106 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   this->debugPort = debug_port;
   if (debug_port) debug_port->enableBlockingTx();  // reliably write to it
 
-  executors = (OwlModemCLIExecutor **)malloc(MAX_COMMANDS * sizeof(OwlModemCLIExecutor *));
+  executors = (OwlModemCLIExecutor **)owl_malloc(MAX_COMMANDS * sizeof(OwlModemCLIExecutor *));
 
   int cnt          = 0;
-  executors[cnt++] = new SetDebugLevel();
-  executors[cnt++] = new SoftReset();
+  executors[cnt++] = owl_new SetDebugLevel();
+  executors[cnt++] = owl_new SoftReset();
 
-  executors[cnt++] = new RawBypass();
-  executors[cnt++] = new RawGNSSBypass();
+  executors[cnt++] = owl_new RawBypass();
+  executors[cnt++] = owl_new RawGNSSBypass();
 
-  executors[cnt++] = new GetProductIdentification();
-  executors[cnt++] = new GetManufacturer();
-  executors[cnt++] = new GetModel();
-  executors[cnt++] = new GetVersion();
-  executors[cnt++] = new GetIMEI();
-  executors[cnt++] = new GetBatteryChargeLevels();
-  executors[cnt++] = new GetIndicators();
-  executors[cnt++] = new GetIndicatorsHelp();
+  executors[cnt++] = owl_new PowerOn();
+  executors[cnt++] = owl_new PowerOff();
 
-
-  executors[cnt++] = new GetICCID();
-  executors[cnt++] = new GetIMSI();
-  executors[cnt++] = new GetMSISDN();
-  executors[cnt++] = new GetPINStatus();
-  executors[cnt++] = new VerifyPIN();
-  executors[cnt++] = new VerifyPUK();
+  executors[cnt++] = owl_new GetProductIdentification();
+  executors[cnt++] = owl_new GetManufacturer();
+  executors[cnt++] = owl_new GetModel();
+  executors[cnt++] = owl_new GetVersion();
+  executors[cnt++] = owl_new GetIMEI();
+  executors[cnt++] = owl_new GetBatteryChargeLevels();
+  executors[cnt++] = owl_new GetIndicators();
+  executors[cnt++] = owl_new GetIndicatorsHelp();
 
 
-  executors[cnt++] = new GetModemFunctionality();
-  executors[cnt++] = new SetModemFunctionality();
-
-  executors[cnt++] = new GetModemMNOProfile();
-  executors[cnt++] = new SetModemMNOProfile();
-
-  executors[cnt++] = new GetOperatorSelection();
-  executors[cnt++] = new SetOperatorSelection();
-  executors[cnt++] = new GetOperatorList();
-
-  executors[cnt++] = new GetNetworkRegistrationStatus();
-  executors[cnt++] = new SetNetworkRegistrationURC();
-  executors[cnt++] = new GetGPRSRegistrationStatus();
-  executors[cnt++] = new SetGPRSRegistrationURC();
-  executors[cnt++] = new GetEPSRegistrationStatus();
-  executors[cnt++] = new SetEPSRegistrationURC();
-
-  executors[cnt++] = new GetSignalQuality();
+  executors[cnt++] = owl_new GetICCID();
+  executors[cnt++] = owl_new GetIMSI();
+  executors[cnt++] = owl_new GetMSISDN();
+  executors[cnt++] = owl_new GetPINStatus();
+  executors[cnt++] = owl_new VerifyPIN();
+  executors[cnt++] = owl_new VerifyPUK();
 
 
-  executors[cnt++] = new GetAPNIPAddress();
+  executors[cnt++] = owl_new GetModemFunctionality();
+  executors[cnt++] = owl_new SetModemFunctionality();
+
+  executors[cnt++] = owl_new GetModemMNOProfile();
+  executors[cnt++] = owl_new SetModemMNOProfile();
+
+  executors[cnt++] = owl_new GetOperatorSelection();
+  executors[cnt++] = owl_new SetOperatorSelection();
+  executors[cnt++] = owl_new GetOperatorList();
+
+  executors[cnt++] = owl_new GetNetworkRegistrationStatus();
+  executors[cnt++] = owl_new SetNetworkRegistrationURC();
+  executors[cnt++] = owl_new GetGPRSRegistrationStatus();
+  executors[cnt++] = owl_new SetGPRSRegistrationURC();
+  executors[cnt++] = owl_new GetEPSRegistrationStatus();
+  executors[cnt++] = owl_new SetEPSRegistrationURC();
+
+  executors[cnt++] = owl_new GetSignalQuality();
 
 
-  executors[cnt++] = new OpenSocket();
-  executors[cnt++] = new CloseSocket();
-  executors[cnt++] = new GetSocketError();
-  executors[cnt++] = new ConnectSocket();
-  executors[cnt++] = new SendUDP();
-  executors[cnt++] = new SendTCP();
-  executors[cnt++] = new SendToUDP();
-  executors[cnt++] = new GetQueuedForReceive();
-  executors[cnt++] = new ReceiveUDP();
-  executors[cnt++] = new ReceiveTCP();
-  executors[cnt++] = new ReceiveFromUDP();
-  executors[cnt++] = new ListenUDP();
-  executors[cnt++] = new ListenTCP();
-  executors[cnt++] = new AcceptTCP();
-
-  executors[cnt++] = new OpenSocketListenUDP();
-  executors[cnt++] = new OpenSocketListenConnectUDP();
-  executors[cnt++] = new OpenSocketListenConnectTCP();
-  executors[cnt++] = new OpenSocketAcceptTCP();
+  executors[cnt++] = owl_new GetAPNIPAddress();
 
 
-  executors[cnt++] = new GetGNSSData();
+  executors[cnt++] = owl_new OpenSocket();
+  executors[cnt++] = owl_new CloseSocket();
+  executors[cnt++] = owl_new GetSocketError();
+  executors[cnt++] = owl_new ConnectSocket();
+  executors[cnt++] = owl_new SendUDP();
+  executors[cnt++] = owl_new SendTCP();
+  executors[cnt++] = owl_new SendToUDP();
+  executors[cnt++] = owl_new GetQueuedForReceive();
+  executors[cnt++] = owl_new ReceiveUDP();
+  executors[cnt++] = owl_new ReceiveTCP();
+  executors[cnt++] = owl_new ReceiveFromUDP();
+  executors[cnt++] = owl_new ListenUDP();
+  executors[cnt++] = owl_new ListenTCP();
+  executors[cnt++] = owl_new AcceptTCP();
+
+  executors[cnt++] = owl_new OpenSocketListenUDP();
+  executors[cnt++] = owl_new OpenSocketListenConnectUDP();
+  executors[cnt++] = owl_new OpenSocketListenConnectTCP();
+  executors[cnt++] = owl_new OpenSocketAcceptTCP();
 
 
-  executors[cnt++] = new DTLSClientCreate();
-  executors[cnt++] = new DTLSClientGetStatus();
-  executors[cnt++] = new DTLSClientSend();
-  executors[cnt++] = new DTLSClientRenegotiate();
-  executors[cnt++] = new DTLSClientRehandshake();
-  executors[cnt++] = new DTLSClientDestroy();
+  executors[cnt++] = owl_new GetGNSSData();
 
-  executors[cnt++] = new CoAPPeerCreate();
-  executors[cnt++] = new CoAPPeerGetTransportIsReady();
-  executors[cnt++] = new CoAPPeerSend();
-  executors[cnt++] = new CoAPPeerLogClientTransactions();
-  executors[cnt++] = new CoAPPeerLogServerTransactions();
-  executors[cnt++] = new CoAPPeerStopRetransmissions();
-  executors[cnt++] = new CoAPPeerDestroy();
 
-  executors[cnt++] = new BreakoutSendCommand();
-  executors[cnt++] = new BreakoutSendCommandWithReceiptRequest();
-  executors[cnt++] = new BreakoutSetHandlerCommand();
-  executors[cnt++] = new BreakoutHasWaitingCommand();
-  executors[cnt++] = new BreakoutICanHazWaitingCommand();
-  executors[cnt++] = new BreakoutReceiveCommand();
-  executors[cnt++] = new BreakoutCheckForCommands();
-  executors[cnt++] = new BreakoutSetPollingInterval();
-  executors[cnt++] = new BreakoutReinitTransport();
+  executors[cnt++] = owl_new DTLSClientCreate();
+  executors[cnt++] = owl_new DTLSClientGetStatus();
+  executors[cnt++] = owl_new DTLSClientSend();
+  executors[cnt++] = owl_new DTLSClientRenegotiate();
+  executors[cnt++] = owl_new DTLSClientRehandshake();
+  executors[cnt++] = owl_new DTLSClientDestroy();
+
+  executors[cnt++] = owl_new CoAPPeerCreate();
+  executors[cnt++] = owl_new CoAPPeerGetTransportIsReady();
+  executors[cnt++] = owl_new CoAPPeerSend();
+  executors[cnt++] = owl_new CoAPPeerLogClientTransactions();
+  executors[cnt++] = owl_new CoAPPeerLogServerTransactions();
+  executors[cnt++] = owl_new CoAPPeerStopRetransmissions();
+  executors[cnt++] = owl_new CoAPPeerDestroy();
+
+  executors[cnt++] = owl_new BreakoutSendCommand();
+  executors[cnt++] = owl_new BreakoutSendCommandWithReceiptRequest();
+  executors[cnt++] = owl_new BreakoutSetHandlerCommand();
+  executors[cnt++] = owl_new BreakoutHasWaitingCommand();
+  executors[cnt++] = owl_new BreakoutReceiveCommand();
+  executors[cnt++] = owl_new BreakoutCheckForCommands();
+  executors[cnt++] = owl_new BreakoutSetPollingInterval();
+  executors[cnt++] = owl_new BreakoutReinitTransport();
 
   executors[cnt++] = 0;
   if (cnt > MAX_COMMANDS) {
@@ -2009,7 +2034,7 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
 OwlModemCLI::~OwlModemCLI() {
   for (int i = 0; executors[i]; i++)
     delete executors[i];
-  free(executors);
+  owl_free(executors);
 }
 
 

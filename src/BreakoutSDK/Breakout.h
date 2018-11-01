@@ -35,8 +35,9 @@
 
 
 #define MAX_PENDING_COMMANDS 100
-#define BREAKOUT_POLLING_INTERVAL_MINIMUM 5
+#define BREAKOUT_POLLING_INTERVAL_MINIMUM 60 // Temporary minimum interval; expect this to be 10 minutes in the future.
 #define BREAKOUT_INIT_CONNECTION_TIMEOUT 60
+#define BREAKOUT_INIT_CONNECTION_RETRIES 2
 #define BREAKOUT_REINIT_CONNECTION_INTERVAL 600
 
 
@@ -119,7 +120,7 @@ typedef struct {
   do {                                                                                                                 \
     if (x) {                                                                                                           \
       str_free((x)->command);                                                                                          \
-      free(x);                                                                                                         \
+      owl_free(x);                                                                                                     \
       (x) = 0;                                                                                                         \
     }                                                                                                                  \
   } while (0)
@@ -352,7 +353,6 @@ class Breakout {
 
   bool initModem();
   bool initCoAPPeer();
-  bool reinitCoAPPeer();
 
   at_cereg_stat_e eps_registration_status = AT_CEREG__Stat__Not_Registered;
   bool coap_status                        = false;

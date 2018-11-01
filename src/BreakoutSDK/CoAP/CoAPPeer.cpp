@@ -37,7 +37,7 @@ CoAPPeer::CoAPPeer(OwlModem *modem, uint16_t local_port, str remote_ip, uint16_t
   last_message_id = random(0xFFFFu);
   last_token      = random(0xFFFFFF);
   str_dup(this->remote_ip, remote_ip);
-  if (!addInstance()) {
+  if (!CoAPPeer::addInstance(this)) {
     LOG(L_ERR, "Error adding instance in list\r\n");
     goto out_of_memory;
   }
@@ -59,7 +59,7 @@ CoAPPeer::CoAPPeer(OwlModem *modem, str psk_id, str psk_key, uint16_t local_port
   str_dup(this->remote_ip, remote_ip);
   str_dup(this->psk_id, psk_id);
   str_dup(this->psk_key, psk_key);
-  if (!addInstance()) {
+  if (!CoAPPeer::addInstance(this)) {
     LOG(L_ERR, "Error adding instance in list\r\n");
     goto out_of_memory;
   }
@@ -70,11 +70,14 @@ out_of_memory:
 }
 
 CoAPPeer::~CoAPPeer() {
-  removeInstance();
+  this->close();
+  CoAPPeer::removeInstance(this);
+  str_free(this->remote_ip);
+  str_free(this->psk_id);
+  str_free(this->psk_key);
   WL_FREE_ALL(&client_transactions, coap_client_transaction_list_t);
   WL_FREE_ALL(&server_transactions, coap_server_transaction_list_t);
   if (owlDTLSClient) {
-    owlDTLSClient->close();
     delete owlDTLSClient;
     owlDTLSClient = 0;
   }
@@ -88,7 +91,7 @@ int CoAPPeer::initDTLSClient() {
     delete owlDTLSClient;
     owlDTLSClient = 0;
   }
-  owlDTLSClient = new OwlDTLSClient(psk_id, psk_key);
+  owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
   if (!owlDTLSClient) {
     LOG(L_ERR, "Error creating DTLS instance\r\n");
     return 0;
@@ -172,14 +175,14 @@ void CoAPPeer::handlerDTLSEvent(OwlDTLSClient *owlDTLSClient, session_t *session
   if (peer->handler_dtls_event)
     (peer->handler_dtls_event)(peer, level, code);
   else
-    LOG(L_WARN, "No handler set remote_ip=%.*s:%u - received DTLS event %d - %s / %d - %s\r\n",
-        peer->remote_ip.len, peer->remote_ip.s, peer->remote_port, level, dtls_alert_level_text(level), code,
+    LOG(L_WARN, "No handler set remote_ip=%.*s:%u - received DTLS event %d - %s / %d - %s\r\n", peer->remote_ip.len,
+        peer->remote_ip.s, peer->remote_port, level, dtls_alert_level_text(level), code,
         dtls_alert_description_text(code));
 }
 
 
 
-int CoAPPeer::reinitializeTransport() {
+int CoAPPeer::reinitialize() {
   switch (this->transport_type) {
     case CoAP_Transport__plaintext:
       if (socket_id != 255) owlModem->socket.close(socket_id);
@@ -197,6 +200,7 @@ int CoAPPeer::reinitializeTransport() {
       CoAPPeer::socketMappings[socket_id] = this;
       return 1;
       break;
+
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient) {
         if (!initDTLSClient()) {
@@ -206,18 +210,32 @@ int CoAPPeer::reinitializeTransport() {
         }
       }
       switch (owlDTLSClient->getCurrentStatus()) {
-        case DTLS_Alert_Description__tinydtls_event_connected:
-          // TODO: support
-          if (!owlDTLSClient->renegotiate()) {
-            LOG(L_ERR, "Error re-negotiating DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s,
-                remote_port);
+        case DTLS_Alert_Description__close_notify:  // Initial state
+          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+                owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
             return 0;
           }
           break;
-        case DTLS_Alert_Description__tinydtls_event_renegotiate:
+        case DTLS_Alert_Description__tinydtls_event_connected:  // Up and ready state
           // TODO: support
+          LOG(L_NOTICE, "remote_ip=%.*s:%u - already connected - cycling everything\r\n", remote_ip.len, remote_ip.s,
+              remote_port);
+          // Cycle everything
+          if (!initDTLSClient()) {
+            LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
+                remote_port);
+            return 0;
+          }
+          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+            return 0;
+          }
           break;
-        case DTLS_Alert_Description__tinydtls_event_connect:
+        //        case DTLS_Alert_Description__tinydtls_event_renegotiate:
+        //          // TODO: support
+        //          break;
+        case DTLS_Alert_Description__tinydtls_event_connect:  // In-Handshake state
           // TODO: support
           // Cycle everything
           if (!initDTLSClient()) {
@@ -231,10 +249,13 @@ int CoAPPeer::reinitializeTransport() {
           }
           break;
         default:
-          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
-            return 0;
-          }
+          LOG(L_ERR, "remote_ip=%.*s:%u - not handled status %d\r\n", remote_ip.len, remote_ip.s, remote_port,
+              owlDTLSClient->getCurrentStatus());
+          //          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
+          //            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+          //                owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
+          //            return 0;
+          //          }
           break;
       }
       return 1;
@@ -248,10 +269,11 @@ int CoAPPeer::reinitializeTransport() {
 int CoAPPeer::close() {
   switch (this->transport_type) {
     case CoAP_Transport__plaintext:
-      if (!owlModem->socket.close(socket_id)) {
+      if (socket_id != 255 && !owlModem->socket.close(socket_id)) {
         LOG(L_ERR, "Error closing local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       }
+      socket_id = 255;
       return 1;
       break;
     case CoAP_Transport__DTLS_PSK:
@@ -424,26 +446,33 @@ int CoAPPeer::stopRetransmissions(coap_message_id_t message_id) {
   return dropClientTransaction(&t);
 }
 
-int CoAPPeer::addInstance() {
-  for (int i = 0; i < instances_cnt; i++)
-    if (!instances[i]) {
-      instances[i] = this;
+int CoAPPeer::addInstance(CoAPPeer *x) {
+  for (int i = 0; i < CoAPPeer::instances_cnt; i++)
+    if (CoAPPeer::instances[i] == 0) {
+      CoAPPeer::instances[i] = x;
       return 1;
     }
-  CoAPPeer **new_instances = (CoAPPeer **)realloc(instances, sizeof(CoAPPeer *) * (instances_cnt + 1));
+  CoAPPeer **new_instances = (CoAPPeer **)owl_realloc(instances, sizeof(CoAPPeer *) * (instances_cnt + 1));
   if (!new_instances) return 0;
-  instances                  = new_instances;
-  instances[instances_cnt++] = this;
+  CoAPPeer::instances                            = new_instances;
+  CoAPPeer::instances[CoAPPeer::instances_cnt++] = x;
   return 1;
 }
 
-int CoAPPeer::removeInstance() {
-  int cnt = 0;
-  for (int i = 0; i < instances_cnt; i++)
-    if (instances[i] == this) {
-      instances[i] = 0;
+int CoAPPeer::removeInstance(CoAPPeer *x) {
+  int cnt = 0, others = 0;
+  for (int i = 0; i < CoAPPeer::instances_cnt; i++)
+    if (CoAPPeer::instances[i] == x) {
+      CoAPPeer::instances[i] = 0;
       cnt++;
+    } else {
+      others++;
     }
+  if (!others) {
+    owl_free(CoAPPeer::instances);
+    CoAPPeer::instances     = 0;
+    CoAPPeer::instances_cnt = 0;
+  }
   return cnt;
 }
 
@@ -975,6 +1004,8 @@ void CoAPPeer::logServerTransactions(log_level_t level) {
   }
   LOGF(level, "--------------------------------\r\n");
 }
+
+
 
 coap_message_id_t CoAPPeer::getNextMessageId() {
   return ++last_message_id;

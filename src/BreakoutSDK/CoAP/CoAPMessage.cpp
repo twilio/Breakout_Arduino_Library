@@ -241,7 +241,7 @@ int CoAPMessage::decode(bin_t *src) {
 
   /* Options */
   while (src->idx < src->max && src->s[src->idx] != 0xff) {
-    opt = new CoAPOption();
+    opt = owl_new CoAPOption();
     if (!opt) {
       LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
       goto error;
@@ -321,7 +321,7 @@ int CoAPMessage::testCodec(CoAPMessage &msg, uint8_t *buffer, int len) {
 
 
 CoAPOption *CoAPMessage::addOptionEmpty(coap_option_number_e number) {
-  CoAPOption *opt = new CoAPOption(number), *last_opt = 0;
+  CoAPOption *opt = owl_new CoAPOption(number), *last_opt = 0;
   if (!opt) {
     LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
     return 0;
@@ -336,7 +336,7 @@ CoAPOption *CoAPMessage::addOptionEmpty(coap_option_number_e number) {
 }
 
 CoAPOption *CoAPMessage::addOptionOpaque(coap_option_number_e number, str opaque) {
-  CoAPOption *opt = new CoAPOption(number, opaque), *last_opt = 0;
+  CoAPOption *opt = owl_new CoAPOption(number, opaque), *last_opt = 0;
   if (!opt) {
     LOG(L_ERR, "Error creating a new opaque CoAPOption\r\n");
     return 0;
@@ -351,7 +351,7 @@ CoAPOption *CoAPMessage::addOptionOpaque(coap_option_number_e number, str opaque
 }
 
 CoAPOption *CoAPMessage::addOptionUint(coap_option_number_e number, uint64_t uint) {
-  CoAPOption *opt = new CoAPOption(number, uint), *last_opt = 0;
+  CoAPOption *opt = owl_new CoAPOption(number, uint), *last_opt = 0;
   if (!opt) {
     LOG(L_ERR, "Error creating a new uint CoAPOption\r\n");
     return 0;
@@ -366,7 +366,7 @@ CoAPOption *CoAPMessage::addOptionUint(coap_option_number_e number, uint64_t uin
 }
 
 CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, char *string) {
-  CoAPOption *opt = new CoAPOption(number, string), *last_opt = 0;
+  CoAPOption *opt = owl_new CoAPOption(number, string), *last_opt = 0;
   if (!opt) {
     LOG(L_ERR, "Error creating a new string CoAPOption\r\n");
     return 0;
@@ -381,7 +381,7 @@ CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, char *stri
 }
 
 CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, str string) {
-  CoAPOption *opt = new CoAPOption(number, string), *last_opt = 0;
+  CoAPOption *opt = owl_new CoAPOption(number, string), *last_opt = 0;
   if (!opt) {
     LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
     return 0;

@@ -197,7 +197,17 @@ static inline void free_context(dtls_context_t *context) {
   memarray_free(&dtlscontext_storage, context);
 }
 
-#elif defined(WITH_ARDUINO) || defined(WITH_POSIX)
+#elif defined(WITH_ARDUINO)
+static inline dtls_context_t *
+malloc_context(void) {
+  return (dtls_context_t *)owl_malloc(sizeof(dtls_context_t));
+}
+
+static inline void
+free_context(dtls_context_t *context) {
+  owl_free(context);
+}
+#elif defined(WITH_POSIX)
 
 static inline dtls_context_t *
 malloc_context(void) {
@@ -4059,6 +4069,8 @@ dtls_free_context(dtls_context_t *ctx) {
   if (!ctx) {
     return;
   }
+
+  netq_delete_all(&ctx->sendqueue);
 
   if (ctx->peers) {
 #ifdef DTLS_PEERS_NOHASH
