@@ -52,6 +52,9 @@ typedef enum {
   COMMAND_STATUS_COMMAND_TOO_LONG,   /**< Returned if provided Command is too long. */
 } command_status_code_e;
 
+/**
+ * Enumeration for Command receipt result codes.
+ */
 typedef enum {
   COMMAND_RECEIPT_CONFIRMED_DELIVERY, /**< The Command was confirmed as received on the server side. */
   COMMAND_RECEIPT_SERVER_ERROR,       /**< The Command was rejected and/or the server returned an error. */
@@ -127,6 +130,11 @@ typedef struct {
 
 
 
+/**
+ * Breakout SDK for Arduino main class.
+ *
+ * Currently supports the sending and receipt of Twilio Commands.
+ */
 class Breakout {
  public:
   /**
@@ -214,6 +222,7 @@ class Breakout {
 
   /**
    * Manually reinitialize the connection with Twilio.
+   * @return Returns a boolean indicating the status of the peer connection with Twilio
    */
   bool reinitializeTransport();
 
