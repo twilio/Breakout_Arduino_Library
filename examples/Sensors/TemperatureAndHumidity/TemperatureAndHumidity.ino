@@ -18,7 +18,8 @@ static const char *psk_key = "00112233445566778899aabbccddeeff";
 Breakout *breakout = &Breakout::getInstance();
 
 #define SENSOR_PIN (D38)
-#define INTERVAL   (10000)
+#define LOOP_INTERVAL (1 * 1000)
+#define SEND_INTERVAL (10 * 60 * 1000)
 #define DHTTYPE DHT11   // DHT 11 
 
 DHT dht(SENSOR_PIN, DHTTYPE);
@@ -60,16 +61,22 @@ void sendCommand(const char * command) {
 
 void loop()
 {
-  float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();
+  static unsigned long last_send = 0;
+
+  if ((last_send == 0) || (millis() - last_send >= SEND_INTERVAL)) {
+    last_send = millis();
+
+    float temperature = dht.readTemperature();
+    float humidity = dht.readHumidity();
   
-  LOG(L_INFO, "Current temperature [%f] degrees celcius\r\n", temperature);
-  LOG(L_INFO, "Current humidity [%f]\r\n", humidity);
-  char commandText[512];
-  snprintf(commandText, 512, "Current humidity [%4.2f] and current temp [%4.2f]", humidity, temperature);
-  sendCommand(commandText);
+    LOG(L_INFO, "Current temperature [%f] degrees celcius\r\n", temperature);
+    LOG(L_INFO, "Current humidity [%f]\r\n", humidity);
+    char commandText[512];
+    snprintf(commandText, 512, "Current humidity [%4.2f] and current temp [%4.2f]", humidity, temperature);
+    sendCommand(commandText);
+  }
 
   breakout->spin();
 
-  delay(INTERVAL);
+  delay(LOOP_INTERVAL);
 }
