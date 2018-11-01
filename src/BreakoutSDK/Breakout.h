@@ -283,7 +283,7 @@ class Breakout {
    * If both polling interval is enabled, the polling timer is reset on manual calls to this method.
    * @return - true if the operation was successful, query `hasWaitingCommands()` for result.
    */
-  bool checkForCommands(bool isRetry = false);
+  bool checkForCommands();
 
   /**
    * Indicates the presence of at least one waiting Command. This is an alternative to setting a handler for Breakout
@@ -353,6 +353,7 @@ class Breakout {
 
   bool initModem();
   bool initCoAPPeer();
+  bool checkForCommands(bool isRetry);
 
   at_cereg_stat_e eps_registration_status = AT_CEREG__Stat__Not_Registered;
   bool coap_status                        = false;

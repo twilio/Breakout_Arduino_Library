@@ -592,6 +592,10 @@ void Breakout::callback_checkForCommands(CoAPPeer *peer, coap_message_id_t messa
   }
 }
 
+bool Breakout::checkForCommands() {
+  return this->checkForCommands(false);
+}
+
 bool Breakout::checkForCommands(bool isRetry) {
   owl_time_t now = owl_time();
   if (getConnectionStatus() != CONNECTION_STATUS_REGISTERED_AND_CONNECTED) {
