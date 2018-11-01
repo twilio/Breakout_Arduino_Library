@@ -79,9 +79,9 @@ void Breakout::setPollingInterval(uint32_t interval_seconds) {
   } else if (interval_seconds == 0) {
     polling_interval = 0;
   } else {
-    LOG(L_WARN, "Interval %u seconds less than minimum of %u. Polling will be disabled.\r\n", interval_seconds,
+    LOG(L_WARN, "Interval %u seconds less than minimum of %u but not 0. Using minimum polling interval.\r\n", interval_seconds,
         BREAKOUT_POLLING_INTERVAL_MINIMUM);
-    polling_interval = 0;
+    polling_interval = BREAKOUT_POLLING_INTERVAL_MINIMUM;
   }
 
   if (polling_interval == 0) {
