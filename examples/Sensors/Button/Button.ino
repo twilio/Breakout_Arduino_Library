@@ -58,12 +58,16 @@ void sendCommand(const char * command) {
 
 void loop()
 {
+  static bool pressed=true;
+  
   int buttonState = digitalRead(BUTTON_PIN);
-  if (buttonState){
+  if (!pressed && buttonState){
+    pressed = true;
     char message[] = "You Pressed The Button";
     sendCommand(message);
-  } else {
-    LOG(L_INFO, "Button is not Pressed\r\n");
+  } else if (pressed && !buttonState) {
+    LOG(L_INFO, "Button is not currently pressed\r\n");
+    pressed = false;
   }
   
   breakout->spin();

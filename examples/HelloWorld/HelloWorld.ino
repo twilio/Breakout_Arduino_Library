@@ -1,5 +1,5 @@
 /*
- * BreakoutSDK.ino
+ * HelloWorld.ino
  * Twilio Breakout SDK
  *
  * Copyright (c) 2018 Twilio, Inc.
@@ -18,7 +18,7 @@
  */
 
 /**
- * \file BreakoutSDK.ino - Default BreakoutSDK example
+ * \file HelloWorld.ino - Default BreakoutSDK example
  */
 
 #include <Seeed_ws2812.h>

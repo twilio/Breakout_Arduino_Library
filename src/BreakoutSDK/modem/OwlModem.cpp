@@ -337,7 +337,10 @@ int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {
 
   if ((testing_variant & Testing__Skip_Set_Host_Device_Information) != 0) return 1;
 
-  if (!setHostDeviceInformation(purpose)) return 0;
+  if (!setHostDeviceInformation(purpose)) {
+      LOG(L_WARN, "Error setting HostDeviceInformation.  If this persists, please inform Twilio support.\r\n");
+      // TODO: set a flag to report to Twilio Object-16 registration timed out or failed
+  }
 
   return 1;
 }
