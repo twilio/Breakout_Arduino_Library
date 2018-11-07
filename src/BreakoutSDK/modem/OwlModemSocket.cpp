@@ -124,7 +124,7 @@ int OwlModemSocket::processURCClosed(str urc, str data) {
     this->status[socket].is_connected = 0;
     if (!this->status[socket].handler_SocketClosed)
       LOG(L_NOTICE,
-          "Received URC socket-closed for socket %d [%.*s]. Set a handler when you call connect(), acceptTCP(), etc"
+          "Received URC socket-closed for socket %d. Set a handler when you call connect(), acceptTCP(), etc"
           " if you wish to receive this event in your application\r\n",
           socket);
     else
@@ -432,7 +432,7 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       snprintf(buf, 64, "AT+USOCO=%u,\"%.*s\",%u", socket, remote_ip.len, remote_ip.s, remote_port);
       break;
     default:
-      LOG(L_ERR, "Socket %d has unsupported protocol %d\r\n", this->status[socket].protocol);
+      LOG(L_ERR, "Socket %u has unsupported protocol %d\r\n", socket, this->status[socket].protocol);
       return 0;
   }
   int result =
