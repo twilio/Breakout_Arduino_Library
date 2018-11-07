@@ -516,7 +516,7 @@ int OwlModem::sendData(str data) {
 }
 
 int OwlModem::sendData(char *data) {
-  str s = {.s = data, .len = strlen(data)};
+  str s = {.s = data, .len = (int)strlen(data)};
   return sendData(s);
 }
 
@@ -900,7 +900,7 @@ failure:
 }
 
 at_result_code_e OwlModem::doCommand(char *command, uint32_t timeout_millis, str *out_response, int max_response_len) {
-  str s = {.s = command, .len = strlen(command)};
+  str s = {.s = command, .len = (int)strlen(command)};
   return doCommand(s, timeout_millis, out_response, max_response_len);
 }
 

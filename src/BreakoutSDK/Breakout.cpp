@@ -103,7 +103,7 @@ bool Breakout::setPSKKey(char const *hex_key) {
     LOG(L_ERR, "Can only set PSK-Key before initialization\r\n");
     return false;
   }
-  str input = {.s = (char *)hex_key, .len = strlen(hex_key)};
+  str input = {.s = (char *)hex_key, .len = (int)strlen(hex_key)};
   // c_psk_key is aliased with psk_key.s
   psk_key.len = hex_to_str(c_psk_key, sizeof(c_psk_key), input);
   if (psk_key.len * 2 != input.len) {
@@ -402,12 +402,12 @@ void Breakout::spin() {
 
 
 command_status_code_e Breakout::sendTextCommand(const char *buf) {
-  str payload = {.s = (char *)buf, .len = strlen(buf)};
+  str payload = {.s = (char *)buf, .len = (int)strlen(buf)};
   return sendCommand(payload, false);
 }
 
 command_status_code_e Breakout::sendBinaryCommand(const char *buf, size_t bufSize) {
-  str payload = {.s = (char *)buf, .len = bufSize};
+  str payload = {.s = (char *)buf, .len = (int)bufSize};
   return sendCommand(payload, true);
 }
 
@@ -460,14 +460,14 @@ error:
 command_status_code_e Breakout::sendTextCommandWithReceiptRequest(const char *buf,
                                                                   BreakoutCommandReceiptCallback_f callback,
                                                                   void *callback_parameter) {
-  str payload = {.s = (char *)buf, .len = strlen(buf)};
+  str payload = {.s = (char *)buf, .len = (int)strlen(buf)};
   return sendCommandWithReceiptRequest(payload, callback, callback_parameter, false);
 }
 
 command_status_code_e Breakout::sendBinaryCommandWithReceiptRequest(const char *buf, size_t bufSize,
                                                                     BreakoutCommandReceiptCallback_f callback,
                                                                     void *callback_parameter) {
-  str payload = {.s = (char *)buf, .len = bufSize};
+  str payload = {.s = (char *)buf, .len = (int)bufSize};
   return sendCommandWithReceiptRequest(payload, callback, callback_parameter, true);
 }
 

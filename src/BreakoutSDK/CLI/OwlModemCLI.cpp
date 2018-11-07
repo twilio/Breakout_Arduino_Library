@@ -1772,7 +1772,7 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
 
   static void commandHandler(const char *buf, size_t bufSize, bool isBinary) {
     LOG(L_CLI, "Received To-SIM Command as %s:\r\n", isBinary ? "binary" : "text");
-    str data = {.s = (char *)buf, .len = bufSize};
+    str data = {.s = (char *)buf, .len = (int)bufSize};
     LOGSTR(L_CLI, data);
   }
 

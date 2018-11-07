@@ -62,7 +62,7 @@ static int sendToPeer(struct dtls_context_t *ctx, session_t *session, uint8 *buf
   }
   OwlDTLSClient *owlDTLS = (OwlDTLSClient *)dtls_get_app_data(ctx);
 
-  str data = {.s = (char *)buf, .len = len};
+  str data = {.s = (char *)buf, .len = (int)len};
   int cnt = owlDTLS->sendRawData(data);
   if (cnt != len) {
     LOG(L_ERR, "Error on sending data\r\n");
@@ -89,7 +89,7 @@ static int readFromPeer(struct dtls_context_t *ctx, session_t *session, uint8 *b
 
   LOG(L_NOTICE, "Received %d bytes over DTLS\r\n", len);
 
-  str data = {.s = (char *)buf, .len = len};
+  str data = {.s = (char *)buf, .len = (int)len};
 
   if (!owlDTLS->fireHandlerData(session, data)) {
     LOG(L_NOTICE, "Received DTLS data of %d bytes - No handler - set one to receive this data in your application\r\n",
