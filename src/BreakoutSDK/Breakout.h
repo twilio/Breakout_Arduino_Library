@@ -351,7 +351,7 @@ class Breakout {
   OwlModem *owlModem = 0;
   CoAPPeer *coapPeer = 0;
 
-#ifdef TESTING_WITH_CLI == 1
+#if TESTING_WITH_CLI == 1
   OwlModemCLI *owlModemCLI = 0;
   int cli_resume           = 0;
 #endif

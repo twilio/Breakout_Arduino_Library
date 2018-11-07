@@ -29,16 +29,16 @@
 #ifndef DTLS_CONF_ECC
 #define DTLS_CONF_ECC 1
 #endif
-#if DTLS_CONF_ECC
-#define DTLS_ECC
+#if DTLS_CONF_ECC && !defined(DTLS_ECC)
+#define DTLS_ECC 1
 #endif
 
 /* support for TLS_PSK_WITH_AES_128_CCM_8 */
 #ifndef DTLS_CONF_PSK
 #define DTLS_CONF_PSK 1
 #endif
-#if DTLS_CONF_PSK
-#define DTLS_PSK
+#if DTLS_CONF_PSK && !defined(DTLS_PSK)
+#define DTLS_PSK 1
 #endif
 
 /* Disable all debug output and assertions */
