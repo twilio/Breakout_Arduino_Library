@@ -437,7 +437,7 @@ error:
 int OwlDTLSClient::sendData(str plaintext) {
   int res;
   if (this->last_status != DTLS_Alert_Description__tinydtls_event_connected) {
-    LOG(L_WARN, "Will try to send, but last status was %d (%.*s) != connected\r\n", this->last_status,
+    LOG(L_WARN, "Will try to send, but last status was %d (%s) != connected\r\n", this->last_status,
         dtls_alert_description_text(this->last_status));
   }
   res = dtls_write(this->dtls_context, &this->dtls_dst, (uint8 *)plaintext.s, plaintext.len);
