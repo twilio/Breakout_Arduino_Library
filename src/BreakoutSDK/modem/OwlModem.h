@@ -113,6 +113,10 @@ class OwlModem {
    */
   int waitForNetworkRegistration(char *purpose, int testing_variant = 0);
 
+  /**
+   * Handle incoming modem events. This function must be called periodically to ensure correct functionality.
+   */
+  void spin();
 
   /**
    * Bypass the modem serial to the debug serial, so that you can directly issue AT commands yourself.

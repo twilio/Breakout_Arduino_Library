@@ -395,6 +395,14 @@ void OwlModem::bypassGNSSCLI() {
   }
 }
 
+void OwlModem::spin() {
+  /* Take care of async modem events */
+  handleRxOnTimer();
+
+  /* Take care of UDP/TCP data from the modem */
+  this->socket.handleWaitingData();
+}
+
 void OwlModem::bypass() {
   while (modem_port->available())
     debug_port->write(modem_port->read());

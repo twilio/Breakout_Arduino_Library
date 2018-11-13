@@ -214,8 +214,8 @@ bool Breakout::initCoAPPeer() {
   LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
   while (!coapPeer->transportIsReady()) {
-    // Need to spin, because otherwise tinydtls things don't get properly initialized.
-    spin();
+    // Need to spin modem, because otherwise tinydtls doesn't get properly initialized.
+    owlModem->spin();
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
@@ -331,8 +331,8 @@ bool Breakout::reinitializeTransport() {
   LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
   while (!coapPeer->transportIsReady()) {
-    // Need to spin, because otherwise tinydtls things don't get properly initialized.
-    spin();
+    // Need to spin modem, because otherwise tinydtls doesn't get properly initialized.
+    owlModem->spin();
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
@@ -383,11 +383,8 @@ void Breakout::spin() {
   /* Triggering polling on interval expiration */
   if (next_polling != 0 && next_polling <= owl_time()) checkForCommands();
 
-  /* Take care of async modem events */
-  owlModem->handleRxOnTimer();
-
-  /* Take care of UDP/TCP data from the modem */
-  owlModem->socket.handleWaitingData();
+  /* Take care of modem operations */
+  owlModem->spin();
 
   /* Take care of CoAP (and also tinydtls) retransmissions */
   CoAPPeer::triggerPeriodicRetransmit();
