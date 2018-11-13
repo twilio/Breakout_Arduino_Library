@@ -121,7 +121,7 @@ session_t *
 dtls_new_session(ip_address_u *addr, socklen_t addrlen) {
   session_t *sess;
 
-  sess = owl_malloc(sizeof(session_t));
+  sess = (session_t *)owl_malloc(sizeof(session_t));
   if (!sess) return NULL;
   dtls_session_init(sess);
 
