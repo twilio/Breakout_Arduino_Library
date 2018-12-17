@@ -18,7 +18,7 @@
  */
 
 /**
- * \file OwlModemTest.ino - Example for testing out functionality of the modem.
+ * \file OwlCLI.ino - Example for testing out functionality of the modem.
  */
 
 #include <board.h>
@@ -50,7 +50,7 @@ OwlModemCLI *owlModemCLI = 0;
 
 void setup() {
   // This is a good place to make sure the port is initialized properly.
-  SerialDebugPort.enableBlockingTx();  // reliably write to it
+  SerialDebugPort.enableSmartBlockingTx(10000);  // reliably write to it
 
   owl_log_set_level(L_INFO);
   LOG(L_NOTICE, "Arduino setup() starting up\r\n");

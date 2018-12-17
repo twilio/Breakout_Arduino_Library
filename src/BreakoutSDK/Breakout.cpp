@@ -32,7 +32,6 @@ Breakout::Breakout() {
   // strip->begin();
   // strip->brightness = 20;
 
-  SerialDebugPort.enableBlockingTx();  // reliably write to it
   owl_log_set_level(L_ISSUE);
 
   setPurpose("Dev-Kit");
@@ -244,6 +243,8 @@ bool Breakout::initCoAPPeer() {
   LOG(L_NOTICE, "                               \r\n");
   LOG(L_NOTICE, "               ⚪               \r\n");
   LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  LOG(L_NOTICE, "\r\n");
+  LOG(L_NOTICE, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
   if (!coap_status) {
     coap_status = true;
     notifyConnectionStatusChanged();
@@ -361,6 +362,8 @@ bool Breakout::reinitializeTransport() {
   LOG(L_NOTICE, "                               \r\n");
   LOG(L_NOTICE, "               ⚪               \r\n");
   LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  LOG(L_NOTICE, "\r\n");
+  LOG(L_NOTICE, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
   if (!coap_status) {
     coap_status = true;
     notifyConnectionStatusChanged();

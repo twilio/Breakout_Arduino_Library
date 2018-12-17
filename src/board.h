@@ -65,6 +65,7 @@ typedef enum {
                        // is unfortunately on Grove A6 port, so if used, change this maybe
 } board_pin_e;
 
+#define TWILIO_SDK_VERSION "0.1.1"
 
 
 #define TESTING_VARIANT_INIT 0

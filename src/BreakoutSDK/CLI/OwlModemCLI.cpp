@@ -1913,7 +1913,6 @@ class BreakoutReinitTransport : public OwlModemCLIExecutor {
 OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
   this->owlModem  = modem;
   this->debugPort = debug_port;
-  if (debug_port) debug_port->enableBlockingTx();  // reliably write to it
 
   executors = (OwlModemCLIExecutor **)owl_malloc(MAX_COMMANDS * sizeof(OwlModemCLIExecutor *));
 

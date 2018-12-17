@@ -32,7 +32,7 @@
 
 OwlModem::OwlModem(HardwareSerial *modem_port, USBSerial *debug_port, HardwareSerial *gnss_port)
     : modem_port(modem_port), debug_port(debug_port), gnss_port(gnss_port) {
-  if (debug_port) debug_port->enableBlockingTx();  // reliably write to it
+  if (debug_port) debug_port->enableSmartBlockingTx(10000);  // reliably write to it
   // Seed the random
   pinMode(ANALOG_RND_PIN, INPUT);
   randomSeed(analogRead(ANALOG_RND_PIN));
@@ -435,7 +435,6 @@ void OwlModem::computeHostDeviceInformation(str purpose) {
   char *hostDeviceID      = "Twilio-Alfa";
   char *hostDeviceIDShort = "alfa";
   char *board_name        = "WioLTE-Cat-NB1";
-  char *sdk_ver           = "0.1.0";
 
   // Param 2: Twilio_Seeed_(AT+CGMI -> u-blox) // OwlModemInformation::getManufacturer()
   char module_mfgr_buffer[64];
@@ -457,12 +456,12 @@ void OwlModem::computeHostDeviceInformation(str purpose) {
   hostdevice_information.len =
       snprintf(hostdevice_information.s, MODEM_HOSTDEVICE_INFORMATION_SIZE,
                "\"%s_%.*s\",\"Twilio_%.*s\",\"%s_%.*s\",\"twilio-v%s_%.*s-v%.*s\"", hostDeviceID, purpose.len,
-               purpose.s, module_mfgr.len, module_mfgr.s, board_name, module_model.len, module_model.s, sdk_ver,
+               purpose.s, module_mfgr.len, module_mfgr.s, board_name, module_model.len, module_model.s, TWILIO_SDK_VERSION,
                module_mfgr.len, module_mfgr.s, module_ver.len, module_ver.s);
 
   /* v<sdk_version>/<hostDeviceID> */
   short_hostdevice_information.len =
-      snprintf(short_hostdevice_information.s, MODEM_HOSTDEVICE_INFORMATION_SIZE, "v%s/%s", sdk_ver, hostDeviceIDShort);
+      snprintf(short_hostdevice_information.s, MODEM_HOSTDEVICE_INFORMATION_SIZE, "v%s/%s", TWILIO_SDK_VERSION, hostDeviceIDShort);
 }
 
 int OwlModem::setHostDeviceInformation(str purpose) {
