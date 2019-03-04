@@ -31,22 +31,22 @@ void setup() {
   SerialDebugPort.enableSmartBlockingTx(10000);  // reliably write to it
 
   owl_log_set_level(L_INFO);
-  LOG(L_NOTICE, "Arduino setup() starting up\r\n");
+  LOG(L_INFO, "Arduino setup() starting up\r\n");
 
   owlModem    = new OwlModem(&SerialModule, &SerialDebugPort);
 
-  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
+  LOG(L_INFO, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
   if (!owlModem->powerOn()) {
-    LOG(L_ERR, ".. WioLTE Cat.NB-IoT - ... modem failed to power on\r\n");
+    LOG(L_ERROR, ".. WioLTE Cat.NB-IoT - ... modem failed to power on\r\n");
     return;
   }
-  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - now powered on.\r\n");
+  LOG(L_INFO, ".. WioLTE Cat.NB-IoT - now powered on.\r\n");
 
-  LOG(L_NOTICE, "Entering AT bypass\r\n");
+  LOG(L_INFO, "Entering AT bypass\r\n");
   owlModem->bypassCLI();
 
-  LOG(L_NOTICE, "Arduino setup() done\r\n");
-  LOG(L_NOTICE, "Arduino loop() starting\r\n");
+  LOG(L_INFO, "Arduino setup() done\r\n");
+  LOG(L_INFO, "Arduino loop() starting\r\n");
   return;
 }
 

@@ -39,7 +39,7 @@ static str s_cpin = {.s = "+CPIN", .len = 5};
 int OwlModemSIM::handleCPIN(str urc, str data) {
   if (!str_equal(urc, s_cpin)) return 0;
   if (!this->handler_cpin) {
-    LOG(L_NOTICE,
+    LOG(L_INFO,
         "Received URC for PIN [%.*s]. Set a handler with setHandlerPIN() if you wish to receive this event "
         "in your application\r\n",
         data.len, data.s);

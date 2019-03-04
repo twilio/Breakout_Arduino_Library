@@ -53,50 +53,50 @@ void setup() {
   SerialDebugPort.enableSmartBlockingTx(10000);  // reliably write to it
 
   owl_log_set_level(L_INFO);
-  LOG(L_NOTICE, "Arduino setup() starting up\r\n");
+  LOG(L_INFO, "Arduino setup() starting up\r\n");
 
   owlModem    = new OwlModem(&SerialModule, &SerialDebugPort);
   owlModemCLI = new OwlModemCLI(owlModem, &SerialDebugPort);
 
-  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
+  LOG(L_INFO, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
   if (!owlModem->powerOn()) {
-    LOG(L_ERR, ".. WioLTE Cat.NB-IoT - ... modem failed to power on\r\n");
+    LOG(L_ERROR, ".. WioLTE Cat.NB-IoT - ... modem failed to power on\r\n");
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - now powered on.\r\n");
+  LOG(L_INFO, ".. WioLTE Cat.NB-IoT - now powered on.\r\n");
 
   /* Initialize modem configuration to something we can trust. */
-  LOG(L_NOTICE, ".. OwlModem - initializing modem\r\n");
+  LOG(L_INFO, ".. OwlModem - initializing modem\r\n");
 
   if (!owlModem->initModem(TESTING_VARIANT_INIT)) {
-    LOG(L_NOTICE, "..   - failed initializing modem! - resetting in 30 seconds\r\n");
+    LOG(L_INFO, "..   - failed initializing modem! - resetting in 30 seconds\r\n");
     delay(30000);
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. OwlModem - initialization successfully completed\r\n");
+  LOG(L_INFO, ".. OwlModem - initialization successfully completed\r\n");
 
 
-  LOG(L_NOTICE, ".. Setting handlers for SIM-PIN and NetworkRegistration Unsolicited Response Codes\r\n");
+  LOG(L_INFO, ".. Setting handlers for SIM-PIN and NetworkRegistration Unsolicited Response Codes\r\n");
   owlModem->SIM.setHandlerPIN(handler_PIN);
   owlModem->network.setHandlerNetworkRegistrationURC(handler_NetworkRegistrationStatusChange);
   owlModem->network.setHandlerGPRSRegistrationURC(handler_GPRSRegistrationStatusChange);
   owlModem->network.setHandlerEPSRegistrationURC(handler_EPSRegistrationStatusChange);
 
   if (!owlModem->waitForNetworkRegistration("devkit", TESTING_VARIANT_REG)) {
-    LOG(L_ERR, ".. WioLTE Cat.NB-IoT - ... modem failed to register to the network\r\n");
+    LOG(L_ERROR, ".. WioLTE Cat.NB-IoT - ... modem failed to register to the network\r\n");
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. OwlModem - registered to network\r\n");
+  LOG(L_INFO, ".. OwlModem - registered to network\r\n");
 
 
 
-  LOG(L_NOTICE, "Arduino setup() done\r\n");
-  LOG(L_NOTICE, "Arduino loop() starting\r\n");
+  LOG(L_INFO, "Arduino setup() done\r\n");
+  LOG(L_INFO, "Arduino loop() starting\r\n");
   return;
 error_stop:
   // TODO - find something which does work on this board to software reset it
   //    (softwareResetFunc)();
-  //  LOG(L_NOTICE, "TODO - try to find a way to software-reset the board. Until then, you are in bypass mode now\r\n");
+  //  LOG(L_INFO, "TODO - try to find a way to software-reset the board. Until then, you are in bypass mode now\r\n");
   //  while (1) {
   //    owlModem->bypass();
   //    delay(100);
@@ -176,20 +176,20 @@ static void handler_SocketClosed(uint8_t socket) {
 static int pin_count = 0;
 
 void handler_PIN(str message) {
-  LOG(L_CLI, "\r\n>>>\r\n>>>PIN>>> %.*s\r\n>>>\r\n\r\n", message.len, message.s);
+  LOG(L_BYPASS, "\r\n>>>\r\n>>>PIN>>> %.*s\r\n>>>\r\n\r\n", message.len, message.s);
   if (str_equalcase_char(message, "READY")) {
     /* Seems fine */
   } else if (str_equalcase_char(message, "SIM PIN")) {
     /* The card needs the PIN */
     pin_count++;
     if (pin_count > 1) {
-      LOG(L_CLI, "Trying to avoid a PIN lock - too many attempts to enter the PIN\r\n");
+      LOG(L_BYPASS, "Trying to avoid a PIN lock - too many attempts to enter the PIN\r\n");
     } else {
-      LOG(L_CLI, "Verifying PIN...\r\n");
+      LOG(L_BYPASS, "Verifying PIN...\r\n");
       if (owlModem->SIM.verifyPIN(sim_pin)) {
-        LOG(L_CLI, "... PIN verification OK\r\n");
+        LOG(L_BYPASS, "... PIN verification OK\r\n");
       } else {
-        LOG(L_CLI, "... PIN verification Failed\r\n");
+        LOG(L_BYPASS, "... PIN verification Failed\r\n");
       }
     }
   } else if (str_equalcase_char(message, "SIM PUK")) {
@@ -200,7 +200,7 @@ void handler_PIN(str message) {
     /* and so on ... */
   } else if (str_equalcase_char(message, "SIM not inserted")) {
     /* Panic mode :) */
-    LOG(L_CLI, "No SIM in, not much to do...\r\n");
+    LOG(L_BYPASS, "No SIM in, not much to do...\r\n");
   }
 }
 
@@ -219,25 +219,25 @@ void test_modem_bypass() {
 
 void test_modem_get_info() {
   if (!owlModem->information.getProductIdentification(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Product Information\r\n");
+    LOG(L_ERROR, "Error retrieving Product Information\r\n");
   } else {
     LOG(L_INFO, "Product Information:\r\n%.*s\r\n--------------------\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getManufacturer(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Manufacturer Information\r\n");
+    LOG(L_ERROR, "Error retrieving Manufacturer Information\r\n");
   } else {
     LOG(L_INFO, "Manufacturer Information:\r\n%.*s\r\n-------------------------\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getModel(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving ModelInformation\r\n");
+    LOG(L_ERROR, "Error retrieving ModelInformation\r\n");
   } else {
     LOG(L_INFO, "Model Information:\r\n%.*s\r\n-------------------------\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getVersion(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Version Information\r\n");
+    LOG(L_ERROR, "Error retrieving Version Information\r\n");
   } else {
     LOG(L_INFO, "Version Information:\r\n%.*s\r\n-------------------------\r\n", modem_result.len, modem_result.s);
   }
@@ -245,43 +245,43 @@ void test_modem_get_info() {
 
 
   if (!owlModem->information.getIMEI(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving IMEI\r\n");
+    LOG(L_ERROR, "Error retrieving IMEI\r\n");
   } else {
     LOG(L_INFO, "IMEI: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->SIM.getICCID(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving ICCID\r\n");
+    LOG(L_ERROR, "Error retrieving ICCID\r\n");
   } else {
     LOG(L_INFO, "ICCID: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->SIM.getIMSI(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving IMSI\r\n");
+    LOG(L_ERROR, "Error retrieving IMSI\r\n");
   } else {
     LOG(L_INFO, "IMSI: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->SIM.getMSISDN(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving IMSI\r\n");
+    LOG(L_ERROR, "Error retrieving IMSI\r\n");
   } else {
     LOG(L_INFO, "MSISDN: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getBatteryChargeLevels(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Battery Charge Levels\r\n");
+    LOG(L_ERROR, "Error retrieving Battery Charge Levels\r\n");
   } else {
     LOG(L_INFO, "Battery Charge Levels: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getIndicatorsHelp(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Indicators-Help\r\n");
+    LOG(L_ERROR, "Error retrieving Indicators-Help\r\n");
   } else {
     LOG(L_INFO, "Indicators-Help: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
 
   if (!owlModem->information.getIndicators(&modem_result, MODEM_RESULT_LEN)) {
-    LOG(L_ERR, "Error retrieving Indicators\r\n");
+    LOG(L_ERROR, "Error retrieving Indicators\r\n");
   } else {
     LOG(L_INFO, "Indicators: [%.*s]\r\n", modem_result.len, modem_result.s);
   }
@@ -295,7 +295,7 @@ void test_modem_network_management() {
 
   LOG(L_INFO, "Retrieving modem functionality mode (AT+CFUN?)\r\n");
   if (!owlModem->network.getModemFunctionality(&mode, 0)) {
-    LOG(L_ERR, "Error retrieving modem functionality mode\r\n");
+    LOG(L_ERROR, "Error retrieving modem functionality mode\r\n");
     delay(500000000);
   }
 
@@ -313,11 +313,11 @@ void test_modem_network_management() {
       mode = AT_CFUN__POWER_MODE__Minimum_Functionality;
       break;
     default:
-      LOG(L_ERR, "Unexpected functionality mode %d\r\n", mode);
+      LOG(L_ERROR, "Unexpected functionality mode %d\r\n", mode);
       delay(500000000);
   }
   if (!owlModem->network.setModemFunctionality((at_cfun_fun_e)mode, 0)) {
-    LOG(L_ERR, "Error setting modem functionality mode\r\n");
+    LOG(L_ERROR, "Error setting modem functionality mode\r\n");
     delay(500000000);
   }
 

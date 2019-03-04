@@ -80,7 +80,7 @@ void OwlModemNetwork::parseNetworkRegistrationStatus(str response, at_creg_n_e *
         if (out_act) *out_act = (at_creg_act_e)str_to_long_int(token, 16);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
     }
     cnt++;
   }
@@ -156,7 +156,7 @@ void OwlModemNetwork::parseGPRSRegistrationStatus(str response, at_cgreg_n_e *ou
         if (out_rac) *out_rac = (uint8_t)str_to_long_int(token, 16);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
     }
     cnt++;
   }
@@ -235,7 +235,7 @@ void OwlModemNetwork::parseEPSRegistrationStatus(str response, at_cereg_n_e *out
         if (out_reject_cause) *out_reject_cause = (uint32_t)str_to_uint32_t(token, 10);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s] data was [%.*s]\r\n", cnt, token.len, token.s, data.len, data.s);
     }
     cnt++;
   }
@@ -289,7 +289,7 @@ int OwlModemNetwork::getModemFunctionality(at_cfun_power_mode_e *out_power_mode,
         if (out_stk_mode) *out_stk_mode = (at_cfun_stk_mode_e)str_to_long_int(token, 10);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
     }
     cnt++;
   }
@@ -361,7 +361,7 @@ int OwlModemNetwork::getOperatorSelection(at_cops_mode_e *out_mode, at_cops_form
         if (out_act) *out_act = (at_cops_act_e)str_to_long_int(token, 10);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
     }
     cnt++;
   }
@@ -371,11 +371,11 @@ int OwlModemNetwork::getOperatorSelection(at_cops_mode_e *out_mode, at_cops_form
 int OwlModemNetwork::setOperatorSelection(at_cops_mode_e mode, at_cops_format_e *opt_format, str *opt_oper,
                                           at_cops_act_e *opt_act) {
   if (opt_oper && !opt_format) {
-    LOG(L_ERR, " - when opt_oper is specific, opt_format must be also specified\r\n");
+    LOG(L_ERROR, " - when opt_oper is specific, opt_format must be also specified\r\n");
     return 0;
   }
   if (opt_act && !opt_oper) {
-    LOG(L_ERR, " - when opt_act is specific, opt_format and opt_oper must be also specified\r\n");
+    LOG(L_ERROR, " - when opt_act is specific, opt_format and opt_oper must be also specified\r\n");
     return 0;
   }
   char buf[64];
@@ -523,7 +523,7 @@ int OwlModemNetwork::getSignalQuality(at_csq_rssi_e *out_rssi, at_csq_qual_e *ou
         if (out_qual) *out_qual = (at_csq_qual_e)str_to_long_int(token, 10);
         break;
       default:
-        LOG(L_ERR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
+        LOG(L_ERROR, "Not handled %d(-th) token [%.*s]\r\n", cnt, token.len, token.s);
     }
     cnt++;
   }

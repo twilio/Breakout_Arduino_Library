@@ -81,26 +81,26 @@ void dtls_set_log_level(log_t level);
   do {                                                                       \
     switch (level) {                                                         \
       case DTLS_LOG_EMERG:                                                   \
-        LOG(L_ALERT, format, ##args);                                        \
+        LOG(L_ERROR, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_ALERT:                                                   \
-        LOG(L_CRIT, format, ##args);                                         \
+        LOG(L_ERROR, format, ##args);                                         \
         break;                                                               \
       case DTLS_LOG_CRIT:                                                    \
-        LOG(L_ERR, format, ##args);                                          \
+        LOG(L_ERROR, format, ##args);                                          \
         break;                                                               \
       case DTLS_LOG_WARN:                                                    \
         LOG(L_WARN, format, ##args);                                         \
         break;                                                               \
       case DTLS_LOG_NOTICE:                                                  \
       default:                                                               \
-        LOG(L_NOTICE, format, ##args);                                       \
+        LOG(L_INFO, format, ##args);                                       \
         break;                                                               \
       case DTLS_LOG_INFO:                                                    \
         LOG(L_INFO, format, ##args);                                         \
         break;                                                               \
       case DTLS_LOG_DEBUG:                                                   \
-        LOG(L_DBG, format, ##args);                                          \
+        LOG(L_DEBUG, format, ##args);                                          \
         break;                                                               \
     }                                                                        \
   } while (0)
@@ -109,26 +109,26 @@ void dtls_set_log_level(log_t level);
   do {                                                                       \
     switch (level) {                                                         \
       case DTLS_LOG_EMERG:                                                   \
-        LOGF(L_ALERT, format, ##args);                                       \
+        LOGF(L_ERROR, format, ##args);                                       \
         break;                                                               \
       case DTLS_LOG_ALERT:                                                   \
-        LOGF(L_CRIT, format, ##args);                                        \
+        LOGF(L_ERROR, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_CRIT:                                                    \
-        LOGF(L_ERR, format, ##args);                                         \
+        LOGF(L_ERROR, format, ##args);                                         \
         break;                                                               \
       case DTLS_LOG_WARN:                                                    \
         LOGF(L_WARN, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_NOTICE:                                                  \
       default:                                                               \
-        LOGF(L_NOTICE, format, ##args);                                      \
+        LOGF(L_INFO, format, ##args);                                      \
         break;                                                               \
       case DTLS_LOG_INFO:                                                    \
         LOGF(L_INFO, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_DEBUG:                                                   \
-        LOGF(L_DBG, format, ##args);                                         \
+        LOGF(L_DEBUG, format, ##args);                                         \
         break;                                                               \
     }                                                                        \
   } while (0)
@@ -137,26 +137,26 @@ void dtls_set_log_level(log_t level);
   do {                                                                       \
     switch (level) {                                                         \
       case DTLS_LOG_EMERG:                                                   \
-        LOGE(L_ALERT, format, ##args);                                       \
+        LOGE(L_ERROR, format, ##args);                                       \
         break;                                                               \
       case DTLS_LOG_ALERT:                                                   \
-        LOGE(L_CRIT, format, ##args);                                        \
+        LOGE(L_ERROR, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_CRIT:                                                    \
-        LOGE(L_ERR, format, ##args);                                         \
+        LOGE(L_ERROR, format, ##args);                                         \
         break;                                                               \
       case DTLS_LOG_WARN:                                                    \
         LOGE(L_WARN, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_NOTICE:                                                  \
       default:                                                               \
-        LOGE(L_NOTICE, format, ##args);                                      \
+        LOGE(L_INFO, format, ##args);                                      \
         break;                                                               \
       case DTLS_LOG_INFO:                                                    \
         LOGE(L_INFO, format, ##args);                                        \
         break;                                                               \
       case DTLS_LOG_DEBUG:                                                   \
-        LOGE(L_DBG, format, ##args);                                         \
+        LOGE(L_DEBUG, format, ##args);                                         \
         break;                                                               \
     }                                                                        \
   } while (0)

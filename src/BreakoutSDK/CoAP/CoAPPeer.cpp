@@ -38,12 +38,12 @@ CoAPPeer::CoAPPeer(OwlModem *modem, uint16_t local_port, str remote_ip, uint16_t
   last_token      = random(0xFFFFFF);
   str_dup(this->remote_ip, remote_ip);
   if (!CoAPPeer::addInstance(this)) {
-    LOG(L_ERR, "Error adding instance in list\r\n");
+    LOG(L_ERROR, "Error adding instance in list\r\n");
     goto out_of_memory;
   }
   return;
 out_of_memory:
-  LOG(L_ERR, "Reached maximum number of supported concurrent CoAP clients.\r\n");
+  LOG(L_ERROR, "Reached maximum number of supported concurrent CoAP clients.\r\n");
   return;
 }
 
@@ -60,12 +60,12 @@ CoAPPeer::CoAPPeer(OwlModem *modem, str psk_id, str psk_key, uint16_t local_port
   str_dup(this->psk_id, psk_id);
   str_dup(this->psk_key, psk_key);
   if (!CoAPPeer::addInstance(this)) {
-    LOG(L_ERR, "Error adding instance in list\r\n");
+    LOG(L_ERROR, "Error adding instance in list\r\n");
     goto out_of_memory;
   }
   return;
 out_of_memory:
-  LOG(L_ERR, "Reached maximum number of supported concurrent CoAP clients.\r\n");
+  LOG(L_ERROR, "Reached maximum number of supported concurrent CoAP clients.\r\n");
   return;
 }
 
@@ -93,11 +93,11 @@ int CoAPPeer::initDTLSClient() {
   }
   owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
   if (!owlDTLSClient) {
-    LOG(L_ERR, "Error creating DTLS instance\r\n");
+    LOG(L_ERROR, "Error creating DTLS instance\r\n");
     return 0;
   }
   if (!owlDTLSClient->init(owlModem)) {
-    LOG(L_CLI, "ERROR - internal\r\n");
+    LOG(L_BYPASS, "ERROR - internal\r\n");
     return 0;
   }
   owlDTLSClient->setDataHandler(CoAPPeer::handlerDTLSData);
@@ -110,16 +110,16 @@ CoAPPeer *CoAPPeer::socketMappings[] = {0};
 
 void CoAPPeer::handlePlaintextData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
   if (socket < 0 || socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket_id %d returned\r\n", socket);
+    LOG(L_ERROR, "Bad socket_id %d returned\r\n", socket);
     return;
   }
   CoAPPeer *peer = CoAPPeer::socketMappings[socket];
   if (!peer) {
-    LOG(L_ERR, "Socket Mappings for socket_id %d not initialized correctly\r\n", socket);
+    LOG(L_ERROR, "Socket Mappings for socket_id %d not initialized correctly\r\n", socket);
     return;
   }
   if (peer->socket_id != socket) {
-    LOG(L_ERR, "Received data on incorrect socket %d != saved %d 0 - ignoring\r\n", socket, peer->socket_id);
+    LOG(L_ERROR, "Received data on incorrect socket %d != saved %d 0 - ignoring\r\n", socket, peer->socket_id);
     return;
   }
   if (remote_ip.len) {
@@ -131,13 +131,13 @@ void CoAPPeer::handlePlaintextData(uint8_t socket, str remote_ip, uint16_t remot
     }
   }
   if (remote_ip.len && (!str_equalcase(remote_ip, peer->remote_ip) || remote_port != peer->remote_port)) {
-    LOG(L_ERR, "CoAP-Rx Ignoring data coming from %.*s:%u, instead of expected %.*s:%u\r\n", remote_ip.len, remote_ip.s,
+    LOG(L_ERROR, "CoAP-Rx Ignoring data coming from %.*s:%u, instead of expected %.*s:%u\r\n", remote_ip.len, remote_ip.s,
         remote_port, peer->remote_ip.len, peer->remote_ip.s, peer->remote_port);
   }
   if (!peer->handleRx(data)) {
     LOG(L_WARN, "CoAP-Rx Failure - err handling Rx message\r\n");
   } else {
-    LOG(L_DBG, "CoAP-Rx OK - handled Rx message successfully\r\n");
+    LOG(L_DEBUG, "CoAP-Rx OK - handled Rx message successfully\r\n");
   }
 }
 
@@ -149,14 +149,14 @@ void CoAPPeer::handlerDTLSData(OwlDTLSClient *owlDTLSClient, session_t *session,
       break;
     }
   if (!peer) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "Instances mapping for owlDTLSClient not initialized correctly, or old DTLSClient instance sending this\r\n");
     return;
   }
   if (!peer->handleRx(plaintext)) {
     LOG(L_WARN, "CoAP-Rx Failure - err handling Rx message\r\n");
   } else {
-    LOG(L_DBG, "CoAP-Rx OK - handled Rx message successfully\r\n");
+    LOG(L_DEBUG, "CoAP-Rx OK - handled Rx message successfully\r\n");
   }
 }
 
@@ -169,7 +169,7 @@ void CoAPPeer::handlerDTLSEvent(OwlDTLSClient *owlDTLSClient, session_t *session
       break;
     }
   if (!peer) {
-    LOG(L_ERR, "Instances mapping for owlDTLSClient not initialized correctly\r\n");
+    LOG(L_ERROR, "Instances mapping for owlDTLSClient not initialized correctly\r\n");
     return;
   }
   if (peer->handler_dtls_event)
@@ -189,7 +189,7 @@ int CoAPPeer::reinitialize() {
       if (!owlModem->socket.openListenConnectUDP(local_port, remote_ip, remote_port, CoAPPeer::handlePlaintextData,
                                                  &socket_id)) {
         if (!owlModem->socket.openConnectUDP(remote_ip, remote_port, CoAPPeer::handlePlaintextData, &socket_id)) {
-          LOG(L_ERR, "Error opening local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+          LOG(L_ERROR, "Error opening local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
           return 0;
         } else {
           LOG(L_WARN,
@@ -204,7 +204,7 @@ int CoAPPeer::reinitialize() {
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient) {
         if (!initDTLSClient()) {
-          LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient initialization failed\r\n", remote_ip.len, remote_ip.s,
+          LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient initialization failed\r\n", remote_ip.len, remote_ip.s,
               remote_port);
           return 0;
         }
@@ -212,23 +212,23 @@ int CoAPPeer::reinitialize() {
       switch (owlDTLSClient->getCurrentStatus()) {
         case DTLS_Alert_Description__close_notify:  // Initial state
           if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+            LOG(L_ERROR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
                 owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
             return 0;
           }
           break;
         case DTLS_Alert_Description__tinydtls_event_connected:  // Up and ready state
           // TODO: support
-          LOG(L_NOTICE, "remote_ip=%.*s:%u - already connected - cycling everything\r\n", remote_ip.len, remote_ip.s,
+          LOG(L_INFO, "remote_ip=%.*s:%u - already connected - cycling everything\r\n", remote_ip.len, remote_ip.s,
               remote_port);
           // Cycle everything
           if (!initDTLSClient()) {
-            LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
+            LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
                 remote_port);
             return 0;
           }
           if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+            LOG(L_ERROR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
             return 0;
           }
           break;
@@ -239,20 +239,20 @@ int CoAPPeer::reinitialize() {
           // TODO: support
           // Cycle everything
           if (!initDTLSClient()) {
-            LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
+            LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient re-initialization failed\r\n", remote_ip.len, remote_ip.s,
                 remote_port);
             return 0;
           }
           if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-            LOG(L_ERR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+            LOG(L_ERROR, "Error opening DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
             return 0;
           }
           break;
         default:
-          LOG(L_ERR, "remote_ip=%.*s:%u - not handled status %d\r\n", remote_ip.len, remote_ip.s, remote_port,
+          LOG(L_ERROR, "remote_ip=%.*s:%u - not handled status %d\r\n", remote_ip.len, remote_ip.s, remote_port,
               owlDTLSClient->getCurrentStatus());
           //          if (!owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-          //            LOG(L_ERR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
+          //            LOG(L_ERROR, "status %d - Error opening DTLS connection towards %.*s:%u\r\n",
           //                owlDTLSClient->getCurrentStatus(), remote_ip.len, remote_ip.s, remote_port);
           //            return 0;
           //          }
@@ -261,7 +261,7 @@ int CoAPPeer::reinitialize() {
       return 1;
       break;
     default:
-      LOG(L_ERR, "Not implemented for transport_type %d\r\n", this->transport_type);
+      LOG(L_ERROR, "Not implemented for transport_type %d\r\n", this->transport_type);
       return 0;
   }
 }
@@ -270,7 +270,7 @@ int CoAPPeer::close() {
   switch (this->transport_type) {
     case CoAP_Transport__plaintext:
       if (socket_id != 255 && !owlModem->socket.close(socket_id)) {
-        LOG(L_ERR, "Error closing local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+        LOG(L_ERROR, "Error closing local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       }
       socket_id = 255;
@@ -278,18 +278,18 @@ int CoAPPeer::close() {
       break;
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient) {
-        LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
+        LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       } else {
         if (!owlDTLSClient->close()) {
-          LOG(L_ERR, "Error closing DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+          LOG(L_ERROR, "Error closing DTLS connection towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
           return 0;
         }
       }
       return 1;
       break;
     default:
-      LOG(L_ERR, "Not implemented for transport_type %d\r\n", this->transport_type);
+      LOG(L_ERROR, "Not implemented for transport_type %d\r\n", this->transport_type);
       return 0;
   }
 }
@@ -301,7 +301,7 @@ int CoAPPeer::transportIsReady() {
       break;
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient) {
-        //        LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient is not initialized\r\n", remote_ip.len, remote_ip.s,
+        //        LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient is not initialized\r\n", remote_ip.len, remote_ip.s,
         //        remote_port);
         return 0;
       } else {
@@ -309,7 +309,7 @@ int CoAPPeer::transportIsReady() {
       }
       break;
     default:
-      LOG(L_ERR, "Not implemented for transport_type %d\r\n", this->transport_type);
+      LOG(L_ERROR, "Not implemented for transport_type %d\r\n", this->transport_type);
       return 0;
   }
 }
@@ -327,11 +327,11 @@ int CoAPPeer::sendUnreliably(CoAPMessage *message, int probing_rate, int max_tra
   bin_t b = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
   int is_ackrst = 0;
   if (!message) {
-    LOG(L_ERR, "Null parameter\r\n");
+    LOG(L_ERROR, "Null parameter\r\n");
     return 0;
   }
   if (!transportIsReady()) {
-    LOG(L_ERR, "Transport is not ready\r\n");
+    LOG(L_ERROR, "Transport is not ready\r\n");
     return 0;
   }
   switch (message->type) {
@@ -354,7 +354,7 @@ int CoAPPeer::sendUnreliably(CoAPMessage *message, int probing_rate, int max_tra
       break;
   }
   if (!message->encode(&b)) {
-    LOG(L_ERR, "Error encoding message\r\n");
+    LOG(L_ERROR, "Error encoding message\r\n");
     return 0;
   }
   str data = bin_to_str(b);
@@ -364,13 +364,13 @@ int CoAPPeer::sendUnreliably(CoAPMessage *message, int probing_rate, int max_tra
 
   if (probing_rate != 0) {
     if (!putClientTransactionNON(message->message_id, data, probing_rate, max_transmit_span)) {
-      LOG(L_ERR, "remote=%.*s:%u message_id=%d - error creating client transaction\r\n", remote_ip.len, remote_ip.s,
+      LOG(L_ERROR, "remote=%.*s:%u message_id=%d - error creating client transaction\r\n", remote_ip.len, remote_ip.s,
           remote_port, message->message_id);
       goto error;
     }
   }
   if (!handleTx(data)) {
-    LOG(L_ERR, "Error sending data of %d bytes\r\n", data.len);
+    LOG(L_ERROR, "Error sending data of %d bytes\r\n", data.len);
     goto error;
   }
   LOG(L_INFO, "remote=%.*s:%u - sent %d bytes\r\n", remote_ip.len, remote_ip.s, remote_port, data.len);
@@ -386,11 +386,11 @@ int CoAPPeer::sendReliably(CoAPMessage *message, CoAPPeer_ClientTransactionCallb
   bin_t b = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
   coap_client_transaction_t *t = 0;
   if (!message) {
-    LOG(L_ERR, "Null parameter\r\n");
+    LOG(L_ERROR, "Null parameter\r\n");
     return 0;
   }
   if (!transportIsReady()) {
-    LOG(L_ERR, "Transport is not ready\r\n");
+    LOG(L_ERROR, "Transport is not ready\r\n");
     return 0;
   }
   switch (message->type) {
@@ -409,19 +409,19 @@ int CoAPPeer::sendReliably(CoAPMessage *message, CoAPPeer_ClientTransactionCallb
       break;
   }
   if (!message->encode(&b)) {
-    LOG(L_ERR, "Error encoding message\r\n");
+    LOG(L_ERROR, "Error encoding message\r\n");
     return 0;
   }
   str data = bin_to_str(b);
 
   if (!putClientTransactionCON(message->message_id, data, cb, cb_param, max_retransmit, max_transmit_span)) {
-    LOG(L_ERR, "remote=%.*s:%u message_id=%d - error creating client transaction\r\n", remote_ip.len, remote_ip.s,
+    LOG(L_ERROR, "remote=%.*s:%u message_id=%d - error creating client transaction\r\n", remote_ip.len, remote_ip.s,
         remote_port, message->message_id);
     goto error;
   }
 
   if (!this->handleTx(data)) {
-    LOG(L_ERR, "Error sending data of %d bytes\r\n", data.len);
+    LOG(L_ERROR, "Error sending data of %d bytes\r\n", data.len);
     return 0;
   }
   LOG(L_INFO, "remote=%.*s:%u - sent %d bytes\r\n", remote_ip.len, remote_ip.s, remote_port, data.len);
@@ -432,11 +432,11 @@ error:
 }
 
 int CoAPPeer::stopRetransmissions(coap_message_id_t message_id) {
-  LOG(L_ERR, "Not yet implemented fully\r\n");
+  LOG(L_ERROR, "Not yet implemented fully\r\n");
 
   coap_client_transaction_t *t = getClientTransaction(message_id);
   if (!t) {
-    LOG(L_ERR, "message_id=%u - not found client transaction\r\n", message_id);
+    LOG(L_ERROR, "message_id=%u - not found client transaction\r\n", message_id);
     return 0;
   }
 
@@ -491,7 +491,7 @@ int CoAPPeer::handleTx(str data) {
       break;
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient) {
-        LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
+        LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
         return 0;
       } else {
         return owlDTLSClient->sendData(data);
@@ -499,7 +499,7 @@ int CoAPPeer::handleTx(str data) {
       return 1;
       break;
     default:
-      LOG(L_ERR, "Not implemented for transport_type %d\r\n", this->transport_type);
+      LOG(L_ERROR, "Not implemented for transport_type %d\r\n", this->transport_type);
       return 0;
   }
 }
@@ -513,8 +513,8 @@ int CoAPPeer::handleRx(str data) {
   CoAPMessage message                = CoAPMessage();
   bin_t b                            = str_to_bin(data);
   if (!message.decode(&b)) {
-    LOG(L_ERR, "Error decoding message\r\n");
-    LOGBIN(L_ERR, b);
+    LOG(L_ERROR, "Error decoding message\r\n");
+    LOGBIN(L_ERROR, b);
   }
 
   /* Step 0 - internal short-cuts */
@@ -552,7 +552,7 @@ int CoAPPeer::handleRx(str data) {
       }
       break;
     default:
-      LOG(L_ERR, "Invalid type %d\r\n", message.type);
+      LOG(L_ERROR, "Invalid type %d\r\n", message.type);
       goto error;
       break;
   }
@@ -568,10 +568,10 @@ int CoAPPeer::handleRx(str data) {
       if (ts) {
         if (ts->ack_rst.len) {
           if (handleTx(ts->ack_rst))
-            LOG(L_DBG, "remote=%.*s:%u message_id=%u old ACK/RST of bytes=%d resent\r\n", remote_ip.len, remote_ip.s,
+            LOG(L_DEBUG, "remote=%.*s:%u message_id=%u old ACK/RST of bytes=%d resent\r\n", remote_ip.len, remote_ip.s,
                 remote_port, ts->message_id, ts->ack_rst.len);
           else
-            LOG(L_ERR, "remote=%.*s:%u message_id=%u old ACK/RST of bytes=%d failure to re-send\r\n", remote_ip.len,
+            LOG(L_ERROR, "remote=%.*s:%u message_id=%u old ACK/RST of bytes=%d failure to re-send\r\n", remote_ip.len,
                 remote_ip.s, remote_port, ts->message_id, ts->ack_rst.len);
         } else {
           LOG(L_INFO, "remote=%.*s:%u message_id=%u - silently ignoring retransmission\r\n", remote_ip.len, remote_ip.s,
@@ -581,7 +581,7 @@ int CoAPPeer::handleRx(str data) {
         goto done;
       } else {
         if (!putServerTransaction(message.message_id, message.type)) {
-          LOG(L_ERR, "remote=%.*s:%u message_id=%u - error saving server transactions\r\n", remote_ip.len, remote_ip.s,
+          LOG(L_ERROR, "remote=%.*s:%u message_id=%u - error saving server transactions\r\n", remote_ip.len, remote_ip.s,
               remote_port, ts->message_id);
         }
       }
@@ -589,7 +589,7 @@ int CoAPPeer::handleRx(str data) {
     case CoAP_Type__Acknowledgement:
       tc = getClientTransaction(message.message_id);
       if (tc) {
-        LOG(L_DBG, "message_id=%u - received ACK\r\n", message.message_id);
+        LOG(L_DEBUG, "message_id=%u - received ACK\r\n", message.message_id);
         /* Event: ACK */
         if (tc->cb) (tc->cb)(this, tc->message_id, tc->cb_param, CoAP_Client_Transaction_Event__ACK, &message);
         dropClientTransaction(&tc);
@@ -604,7 +604,7 @@ int CoAPPeer::handleRx(str data) {
     case CoAP_Type__Reset:
       tc = getClientTransaction(message.message_id);
       if (tc) {
-        LOG(L_DBG, "message_id=%u - received RST\r\n", message.message_id);
+        LOG(L_DEBUG, "message_id=%u - received RST\r\n", message.message_id);
         /* Event: RST */
         if (tc->cb) (tc->cb)(this, tc->message_id, tc->cb_param, CoAP_Client_Transaction_Event__RST, &message);
         dropClientTransaction(&tc);
@@ -661,7 +661,7 @@ int CoAPPeer::handleRx(str data) {
       }
       break;
     default:
-      LOG(L_ERR, "Invalid type %d\r\n", message.type);
+      LOG(L_ERROR, "Invalid type %d\r\n", message.type);
       goto error;
   }
 
@@ -679,7 +679,7 @@ int CoAPPeer::handleRx(str data) {
       break;
     }
     default:
-      LOG(L_ERR, "Not implemented for follow_up %d\r\n", follow_up);
+      LOG(L_ERROR, "Not implemented for follow_up %d\r\n", follow_up);
       goto error;
   }
 
@@ -725,12 +725,12 @@ int CoAPPeer::triggerClientTransactionRetransmissions() {
       break;
     case CoAP_Transport__DTLS_PSK:
       if (!owlDTLSClient)
-        LOG(L_ERR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
+        LOG(L_ERROR, "remote_ip=%.*s:%u - owlDTLSClient is null\r\n", remote_ip.len, remote_ip.s, remote_port);
       else
         owlDTLSClient->triggerPeriodicRetransmit();
       break;
     default:
-      LOG(L_ERR, "Not handled transport_type %d\r\n", transport_type);
+      LOG(L_ERROR, "Not handled transport_type %d\r\n", transport_type);
   }
 
   dropExpiredClientTransactions();
@@ -746,7 +746,7 @@ int CoAPPeer::triggerClientTransactionRetransmissions() {
       LOG(L_INFO, "message_id=%u re-transmitted bytes=%d\r\n", t->message_id, t->message.len);
       cnt++;
     } else {
-      LOG(L_ERR, "message_id=%u failed to re-transmit bytes=%d\r\n", t->message_id, t->message.len);
+      LOG(L_ERROR, "message_id=%u failed to re-transmit bytes=%d\r\n", t->message_id, t->message.len);
     }
 
     if (t->type == CoAP_Type__Confirmable) t->retransmission_interval *= 2;
@@ -766,12 +766,12 @@ int CoAPPeer::putClientTransactionCON(coap_message_id_t message_id, str message,
 
   WL_FOREACH (&client_transactions, t)
     if (t->message_id == message_id) {
-      LOG(L_ERR, "message_id=%u - Transaction already saved\r\n", message_id);
+      LOG(L_ERROR, "message_id=%u - Transaction already saved\r\n", message_id);
       return 0;
     }
 
   if (client_transactions.space_left == 0) {
-    LOG(L_ERR, "message_id=%u - No space left for client transaction (too many in parallel)\r\n", message_id);
+    LOG(L_ERROR, "message_id=%u - No space left for client transaction (too many in parallel)\r\n", message_id);
     return 0;
   }
 
@@ -787,7 +787,7 @@ int CoAPPeer::putClientTransactionCON(coap_message_id_t message_id, str message,
 
   WL_APPEND(&client_transactions, t);
   client_transactions.space_left--;
-  //  logClientTransactions(L_NOTICE);
+  //  logClientTransactions(L_INFO);
 
   return 1;
 out_of_memory:
@@ -803,12 +803,12 @@ int CoAPPeer::putClientTransactionNON(coap_message_id_t message_id, str message,
 
   WL_FOREACH (&client_transactions, t)
     if (t->message_id == message_id) {
-      LOG(L_ERR, "message_id=%u - Transaction already saved\r\n", message_id);
+      LOG(L_ERROR, "message_id=%u - Transaction already saved\r\n", message_id);
       return 0;
     }
 
   if (client_transactions.space_left == 0) {
-    LOG(L_ERR, "message_id=%u - No space left for client transaction (too many in parallel)\r\n", message_id);
+    LOG(L_ERROR, "message_id=%u - No space left for client transaction (too many in parallel)\r\n", message_id);
     return 0;
   }
 
@@ -843,7 +843,7 @@ coap_client_transaction_t *CoAPPeer::getClientTransaction(coap_message_id_t mess
 int CoAPPeer::dropClientTransaction(coap_client_transaction_t **t) {
   if (!t || !*t) return 0;
   WL_DELETE(&client_transactions, *t);
-  LOG(L_DBG, "remote_ip=%.*s:%u message_id=%d - client transaction dropped\r\n", remote_ip.len, remote_ip.s,
+  LOG(L_DEBUG, "remote_ip=%.*s:%u message_id=%d - client transaction dropped\r\n", remote_ip.len, remote_ip.s,
       remote_port, (*t)->message_id);
   WL_FREE(*t, coap_client_transaction_list_t);
   client_transactions.space_left++;
@@ -857,7 +857,7 @@ int CoAPPeer::dropClientTransaction(coap_message_id_t message_id) {
   WL_FOREACH_SAFE (&client_transactions, t, nt) {
     if (t->message_id != message_id) continue;
     WL_DELETE(&client_transactions, t);
-    LOG(L_DBG, "remote_ip=%.*s:%u message_id=%d - client transaction dropped\r\n", remote_ip.len, remote_ip.s,
+    LOG(L_DEBUG, "remote_ip=%.*s:%u message_id=%d - client transaction dropped\r\n", remote_ip.len, remote_ip.s,
         remote_port, t->message_id);
     WL_FREE(t, coap_client_transaction_list_t);
     client_transactions.space_left++;
@@ -920,7 +920,7 @@ int CoAPPeer::putServerTransaction(coap_message_id_t message_id, coap_type_e typ
       expires = owl_time() + NON_LIFETIME * 1000;
       break;
     default:
-      LOG(L_ERR, "Not handled for type %d\r\n", type);
+      LOG(L_ERROR, "Not handled for type %d\r\n", type);
       return 0;
   }
 
@@ -928,7 +928,7 @@ int CoAPPeer::putServerTransaction(coap_message_id_t message_id, coap_type_e typ
 
   WL_FOREACH (&server_transactions, t)
     if (t->message_id == message_id) {
-      LOG(L_ERR, "Transaction for message_id=%u already saved\r\n", message_id);
+      LOG(L_ERROR, "Transaction for message_id=%u already saved\r\n", message_id);
       return 0;
     }
 
@@ -940,7 +940,7 @@ int CoAPPeer::putServerTransaction(coap_message_id_t message_id, coap_type_e typ
       WL_FREE(t, coap_server_transaction_list_t);
       server_transactions.space_left++;
     } else {
-      LOG(L_ERR, "Server transactions list empty - badly configured or bug\r\n");
+      LOG(L_ERROR, "Server transactions list empty - badly configured or bug\r\n");
       return 0;
     }
   }

@@ -150,7 +150,7 @@
   do {                                                                                                                 \
     (el) = (struct _##list_type##_slot *)owl_malloc(sizeof(struct _##list_type##_slot));                               \
     if (!(el)) {                                                                                                       \
-      LOG(L_ERR, "Unable to allocate %ld bytes\r\n", (long int)sizeof(struct _##list_type##_slot));                    \
+      LOG(L_ERROR, "Unable to allocate %ld bytes\r\n", (long int)sizeof(struct _##list_type##_slot));                    \
       goto out_of_memory;                                                                                              \
     }                                                                                                                  \
     bzero((el), sizeof(struct _##list_type##_slot));                                                                   \

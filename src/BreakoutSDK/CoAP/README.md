@@ -58,7 +58,7 @@ void your_function_MessageHandler(CoAPPeer *peer, CoAPMessage *message) {
   bin_t buffer = { .s = input_data_ptr, .idx = 0, .max = input_data_len };
   CoAPMessage *request = new CoAPMessage();
   if (request) {
-    if (!request->decode(&bin_t_buffer)) LOG(L_ERR, "Error decoding\r\n");
+    if (!request->decode(&bin_t_buffer)) LOG(L_ERROR, "Error decoding\r\n");
     request->log(L_INFO);
   }
 ```
@@ -79,9 +79,9 @@ Adding options can be done through built-in methods. Two types of methods are av
  - Directly, by using one of the known CoAP options. E.g.:
 
 ```C
-  if (!message.addOptionUriHost("host")) LOG(L_ERR, "Error adding UriHost option\r\n");
+  if (!message.addOptionUriHost("host")) LOG(L_ERROR, "Error adding UriHost option\r\n");
   if (!message.addOptionContentFormat(CoAP_Content_Format__application_json)) 
-    LOG(L_ERR, "Error adding ContentFormat option\r\n");
+    LOG(L_ERROR, "Error adding ContentFormat option\r\n");
 ```
 ```C
   CoAPOption *i = 0;
@@ -95,7 +95,7 @@ Adding options can be done through built-in methods. Two types of methods are av
 
 ```C
   CoAPOption *o;
-  if (!(o = message.addOptionUint(42, 43))) LOG(L_ERR, "Error adding option 42 with value 43\r\n");
+  if (!(o = message.addOptionUint(42, 43))) LOG(L_ERROR, "Error adding option 42 with value 43\r\n");
 ```
 ```C
   CoAPOption *i = 0;
@@ -161,7 +161,7 @@ Next, as DTLS has to perform the handshake, but also for plaintext, several oper
 
  - Step 1: Initialize the transport.
 ```C
-  if (!peer->reinitializeTransport()) LOG(L_ERR, "Error opening connection\r\n");
+  if (!peer->reinitializeTransport()) LOG(L_ERROR, "Error opening connection\r\n");
 ```
 
  - Step 2: Be patient until the DTLS handshake completes. It's not a good idea to spin here, as control shall be
@@ -184,9 +184,9 @@ Once the `CoAPPeer` is initialize and the transport is ready, messages can be se
  
 ```C
   // Send once
-  if (!peer->sendUnreliably(message_once)) LOG(L_ERR, "Error sending NON/ACK/RST message\r\n");
+  if (!peer->sendUnreliably(message_once)) LOG(L_ERROR, "Error sending NON/ACK/RST message\r\n");
   // Or send multiple times, with probing_rate = 2 bytes / second and a MAX_TRANSMIT_SPAN of 60 seconds
-  if (!peer->sendUnreliably(message_repeated, 2, 60)) LOG(L_ERR, "Error sending NON message\r\n"); 
+  if (!peer->sendUnreliably(message_repeated, 2, 60)) LOG(L_ERROR, "Error sending NON message\r\n"); 
 ```
 **Note:** Non-confirmable messages (NON) do not have a corresponding ACK to stop the retransmissions. Hence in case the
 retransmission is enabled, this will continue regardless of replies. This mechanism then should be used for messages
@@ -197,10 +197,10 @@ without a follow-up, which need a better reliability model than fire-once-and-fo
 ```C
   // Send with default retransmission parameters
   if (!peer->sendReliably(message, your_function_ClientTrasactionCallback, your_param_ptr)) 
-    LOG(L_ERR, "Error sending CON message\r\n");
+    LOG(L_ERROR, "Error sending CON message\r\n");
   // Send without a callback, but with custom retransmission parameters: MAX RETRANSMIT 3, MAX_TRANSMIT_SPAN 90 sec
   if (!peer->sendReliably(message, 0, 0, 3, 90)) 
-    LOG(L_ERR, "Error sending CON message\r\n");
+    LOG(L_ERROR, "Error sending CON message\r\n");
 ```
 
    The Client Transaction callback allows the CoAP peer to notify the application when this particular message was 
@@ -224,7 +224,7 @@ void your_function_ClientTransactionCallback(CoAPPeer *peer, coap_message_id_t m
       LOG(L_INFO, "Message retransmissions stopped\r\n");
       break;
     default:
-      LOG(L_ERR, "Not handled event %d\r\n", event);
+      LOG(L_ERROR, "Not handled event %d\r\n", event);
   }
 }
 ```

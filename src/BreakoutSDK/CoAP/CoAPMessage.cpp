@@ -116,26 +116,26 @@ int CoAPMessage::encode(bin_t *dst) {
   coap_option_number_e previous_number  = CoAP_Option__unknown;
   CoAPOption *opt                       = 0;
 
-  this->log(L_DBG);
+  this->log(L_DEBUG);
 
   if (this->version > 3 || this->version < 0) {
-    LOG(L_ERR, "Invalid version %d - must be 2-bit long\r\n", this->version);
+    LOG(L_ERROR, "Invalid version %d - must be 2-bit long\r\n", this->version);
     goto error;
   }
   if (this->type > 3 || this->type < 0) {
-    LOG(L_ERR, "Invalid type %d - must be 2-bit long\r\n", this->type);
+    LOG(L_ERROR, "Invalid type %d - must be 2-bit long\r\n", this->type);
     goto error;
   }
   if (this->token_length > 8 || this->token_length < 0) {
-    LOG(L_ERR, "Invalid token_length %d - must be between 0 and 8\r\n", this->token_length);
+    LOG(L_ERROR, "Invalid token_length %d - must be between 0 and 8\r\n", this->token_length);
     goto error;
   }
   if (this->code_class > 7) {
-    LOG(L_ERR, "Invalid code class %d - must be 3-bit long\r\n", this->code_class);
+    LOG(L_ERROR, "Invalid code class %d - must be 3-bit long\r\n", this->code_class);
     goto error;
   }
   if (this->code_detail > 31) {
-    LOG(L_ERR, "Invalid code detail %d - must be 5-bit long\r\n", this->code_detail);
+    LOG(L_ERROR, "Invalid code detail %d - must be 5-bit long\r\n", this->code_detail);
     goto error;
   }
 
@@ -146,12 +146,12 @@ int CoAPMessage::encode(bin_t *dst) {
 
   if (this->code_class == CoAP_Code_Class__Empty_Message && this->code_detail == CoAP_Code_Detail__Empty_Message) {
     if (this->token_length) {
-      LOG(L_ERR, "Empty message can not contain token_len %d != 0 - this is a message format error\r\n",
+      LOG(L_ERROR, "Empty message can not contain token_len %d != 0 - this is a message format error\r\n",
           this->token_length);
       goto error;
     }
     if (this->options || this->payload.len) {
-      LOG(L_ERR, "Empty message can not contain Options or Payload - this is a message format error\r\n");
+      LOG(L_ERROR, "Empty message can not contain Options or Payload - this is a message format error\r\n");
       goto error;
     }
   }
@@ -167,7 +167,7 @@ int CoAPMessage::encode(bin_t *dst) {
     for (opt = this->options; opt; opt = opt->next)
       if (opt->number == this_step_number) {
         if (!opt->encode(previous_number, dst)) {
-          LOG(L_ERR, "Error encoding option with number %d\r\n", opt->number);
+          LOG(L_ERROR, "Error encoding option with number %d\r\n", opt->number);
           goto error;
         }
         previous_number = opt->number;
@@ -205,7 +205,7 @@ int CoAPMessage::decode(bin_t *src) {
     case CoAP_Version__1:
       break;
     default:
-      LOG(L_ERR, "Not supported version %d\r\n", this->version);
+      LOG(L_ERROR, "Not supported version %d\r\n", this->version);
       goto error;
   }
 
@@ -213,7 +213,7 @@ int CoAPMessage::decode(bin_t *src) {
 
   this->token_length = u8 & 0x0f;
   if (this->token_length > 8) {
-    LOG(L_ERR, "Token length %d > 8 is considered a formatting error\r\n", this->token_length);
+    LOG(L_ERROR, "Token length %d > 8 is considered a formatting error\r\n", this->token_length);
     goto error;
   }
 
@@ -226,12 +226,12 @@ int CoAPMessage::decode(bin_t *src) {
 
   if (this->code_class == CoAP_Code_Class__Empty_Message && this->code_detail == CoAP_Code_Detail__Empty_Message) {
     if (this->token_length) {
-      LOG(L_ERR, "Empty message received with token_len %d != 0 - this is a message format error\r\n",
+      LOG(L_ERROR, "Empty message received with token_len %d != 0 - this is a message format error\r\n",
           this->token_length);
       goto error;
     }
     if (src->idx < src->max) {
-      LOG(L_ERR, "Empty message received with extra bytes after header - this is a message format error\r\n");
+      LOG(L_ERROR, "Empty message received with extra bytes after header - this is a message format error\r\n");
       goto error;
     }
   }
@@ -243,15 +243,15 @@ int CoAPMessage::decode(bin_t *src) {
   while (src->idx < src->max && src->s[src->idx] != 0xff) {
     opt = owl_new CoAPOption();
     if (!opt) {
-      LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
+      LOG(L_ERROR, "Error creating a new empty CoAPOption\r\n");
       goto error;
     } else if (!opt->decode(previous_number, src)) {
-      LOG(L_ERR, "Error decoding next option. Consumed and left buffers are:\r\n");
+      LOG(L_ERROR, "Error decoding next option. Consumed and left buffers are:\r\n");
       str data = {.s = (char *)src->s, .len = src->idx};
-      LOGSTR(L_ERR, data);
+      LOGSTR(L_ERROR, data);
       data.s   = (char *)src->s + src->idx;
       data.len = src->max - src->idx;
-      LOGSTR(L_ERR, data);
+      LOGSTR(L_ERROR, data);
       delete opt;
       goto error;
     }
@@ -268,14 +268,14 @@ int CoAPMessage::decode(bin_t *src) {
   if (src->idx < src->max && src->s[src->idx] == 0xff) {
     src->idx++;
     if (src->idx >= src->max) {
-      LOG(L_ERR,
+      LOG(L_ERROR,
           "Message format error - Options end marker found, but no data after it. Consumed and left buffers are:\r\n");
       goto error;
       str data = {.s = (char *)src->s, .len = src->idx};
-      LOGSTR(L_ERR, data);
+      LOGSTR(L_ERROR, data);
       data.s   = (char *)src->s + src->idx;
       data.len = src->max - src->idx;
-      LOGSTR(L_ERR, data);
+      LOGSTR(L_ERROR, data);
       goto error;
     }
     this->payload.s   = (char *)src->s + src->idx;
@@ -295,24 +295,24 @@ int CoAPMessage::testCodec(CoAPMessage &msg, uint8_t *buffer, int len) {
   bin_t dst = {.s = buf, .idx = 0, .max = 256};
 
   if (!msg.decode(&src)) {
-    LOG(L_ERR, "Error decoding CoAP test message\r\n");
-    LOGBIN(L_ERR, src);
+    LOG(L_ERROR, "Error decoding CoAP test message\r\n");
+    LOGBIN(L_ERROR, src);
     return 0;
   } else {
-    msg.log(L_NOTICE);
+    msg.log(L_INFO);
     if (!msg.encode(&dst)) {
-      LOG(L_ERR, "Error encoding CoAP test message 2\r\n");
-      LOGBIN(L_ERR, dst);
+      LOG(L_ERROR, "Error encoding CoAP test message 2\r\n");
+      LOGBIN(L_ERROR, dst);
       return 0;
     } else {
       if (dst.idx != src.max || memcmp(dst.s, src.s, src.max) != 0) {
-        LOG(L_ERR, "Re-encoded message as:\r\n");
-        LOGBIN(L_ERR, dst);
-        LOG(L_ERR, "  which is different than the source:\r\n");
-        LOGBIN(L_ERR, src);
+        LOG(L_ERROR, "Re-encoded message as:\r\n");
+        LOGBIN(L_ERROR, dst);
+        LOG(L_ERROR, "  which is different than the source:\r\n");
+        LOGBIN(L_ERROR, src);
         return 0;
       }
-      LOG(L_NOTICE, "Message bootstrap test successful\r\n");
+      LOG(L_INFO, "Message bootstrap test successful\r\n");
     }
   }
   return 1;
@@ -323,7 +323,7 @@ int CoAPMessage::testCodec(CoAPMessage &msg, uint8_t *buffer, int len) {
 CoAPOption *CoAPMessage::addOptionEmpty(coap_option_number_e number) {
   CoAPOption *opt = owl_new CoAPOption(number), *last_opt = 0;
   if (!opt) {
-    LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
+    LOG(L_ERROR, "Error creating a new empty CoAPOption\r\n");
     return 0;
   }
   for (last_opt = this->options; last_opt != 0 && last_opt->next != 0; last_opt = last_opt->next)
@@ -338,7 +338,7 @@ CoAPOption *CoAPMessage::addOptionEmpty(coap_option_number_e number) {
 CoAPOption *CoAPMessage::addOptionOpaque(coap_option_number_e number, str opaque) {
   CoAPOption *opt = owl_new CoAPOption(number, opaque), *last_opt = 0;
   if (!opt) {
-    LOG(L_ERR, "Error creating a new opaque CoAPOption\r\n");
+    LOG(L_ERROR, "Error creating a new opaque CoAPOption\r\n");
     return 0;
   }
   for (last_opt = this->options; last_opt != 0 && last_opt->next != 0; last_opt = last_opt->next)
@@ -353,7 +353,7 @@ CoAPOption *CoAPMessage::addOptionOpaque(coap_option_number_e number, str opaque
 CoAPOption *CoAPMessage::addOptionUint(coap_option_number_e number, uint64_t uint) {
   CoAPOption *opt = owl_new CoAPOption(number, uint), *last_opt = 0;
   if (!opt) {
-    LOG(L_ERR, "Error creating a new uint CoAPOption\r\n");
+    LOG(L_ERROR, "Error creating a new uint CoAPOption\r\n");
     return 0;
   }
   for (last_opt = this->options; last_opt != 0 && last_opt->next != 0; last_opt = last_opt->next)
@@ -368,7 +368,7 @@ CoAPOption *CoAPMessage::addOptionUint(coap_option_number_e number, uint64_t uin
 CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, char *string) {
   CoAPOption *opt = owl_new CoAPOption(number, string), *last_opt = 0;
   if (!opt) {
-    LOG(L_ERR, "Error creating a new string CoAPOption\r\n");
+    LOG(L_ERROR, "Error creating a new string CoAPOption\r\n");
     return 0;
   }
   for (last_opt = this->options; last_opt != 0 && last_opt->next != 0; last_opt = last_opt->next)
@@ -383,7 +383,7 @@ CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, char *stri
 CoAPOption *CoAPMessage::addOptionString(coap_option_number_e number, str string) {
   CoAPOption *opt = owl_new CoAPOption(number, string), *last_opt = 0;
   if (!opt) {
-    LOG(L_ERR, "Error creating a new empty CoAPOption\r\n");
+    LOG(L_ERROR, "Error creating a new empty CoAPOption\r\n");
     return 0;
   }
   opt->format = CoAP_Option_Format__string;

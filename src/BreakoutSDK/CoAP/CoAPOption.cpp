@@ -84,14 +84,14 @@ void CoAPOption::log(log_level_t level) {
 
 int CoAPOption::encode(coap_option_number_e previous_number, bin_t *dst) {
   if (!dst) {
-    LOG(L_ERR, "Null parameter(s)\r\n");
+    LOG(L_ERROR, "Null parameter(s)\r\n");
     return 0;
   }
   int delta = this->number - previous_number;
   int len   = 0;
   uint8_t *first_byte;
   if (delta < 0) {
-    LOG(L_ERR, "Invalid order of calling this function previous %d > this %d - the option numbers must be ordered\r\n",
+    LOG(L_ERROR, "Invalid order of calling this function previous %d > this %d - the option numbers must be ordered\r\n",
         previous_number, this->number);
     goto error;
   }
@@ -125,7 +125,7 @@ int CoAPOption::encode(coap_option_number_e previous_number, bin_t *dst) {
       len = this->value.string.len;
       break;
     default:
-      LOG(L_ERR, "Not implemented for format %d\r\n", this->format);
+      LOG(L_ERROR, "Not implemented for format %d\r\n", this->format);
       goto error;
   }
 
@@ -142,13 +142,13 @@ int CoAPOption::encode(coap_option_number_e previous_number, bin_t *dst) {
     *first_byte = 14 << 4;
     bin_t_encode_uint16(dst, delta - 269);
   } else {
-    LOG(L_ERR, "Can not encode delta %d > %d\r\n", delta, 269 + 65335);
+    LOG(L_ERROR, "Can not encode delta %d > %d\r\n", delta, 269 + 65335);
     goto error;
   }
 
   /* Option Length */
   if (len < 0) {
-    LOG(L_ERR, "Invalid length %d\r\n", len);
+    LOG(L_ERROR, "Invalid length %d\r\n", len);
     goto error;
   }
   if (len <= 12) {
@@ -160,7 +160,7 @@ int CoAPOption::encode(coap_option_number_e previous_number, bin_t *dst) {
     *first_byte |= 14;
     bin_t_encode_uint16(dst, len - 269);
   } else {
-    LOG(L_ERR, "Can not encode len %d > %d\r\n", len, 269 + 65335);
+    LOG(L_ERROR, "Can not encode len %d > %d\r\n", len, 269 + 65335);
     goto error;
   }
 
@@ -178,7 +178,7 @@ int CoAPOption::encode(coap_option_number_e previous_number, bin_t *dst) {
       bin_t_encode_mem(dst, this->value.string.s, this->value.string.len);
       break;
     default:
-      LOG(L_ERR, "Not implemented for format %d\r\n", this->format);
+      LOG(L_ERROR, "Not implemented for format %d\r\n", this->format);
       goto error;
   }
 
@@ -201,7 +201,7 @@ int CoAPOption::decode(coap_option_number_e previous_number, bin_t *src) {
   } else if (delta == 14) {
     delta = bin_t_decode_uint16(src) + 269;
   } else if (delta == 15) {
-    LOG(L_ERR, "Found Option Delta set to 15 - this is an error, or indicator for payload\r\n");
+    LOG(L_ERROR, "Found Option Delta set to 15 - this is an error, or indicator for payload\r\n");
     goto error;
   }
   this->number = (coap_option_number_e)(previous_number + delta);
@@ -214,7 +214,7 @@ int CoAPOption::decode(coap_option_number_e previous_number, bin_t *src) {
   } else if (len == 14) {
     len = bin_t_decode_uint16(src) + 269;
   } else if (len == 15) {
-    LOG(L_ERR, "Found Option Len set to 15 - this is an error, or for future use\r\n");
+    LOG(L_ERROR, "Found Option Len set to 15 - this is an error, or for future use\r\n");
     goto error;
   }
 

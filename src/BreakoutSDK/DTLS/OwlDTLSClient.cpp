@@ -55,7 +55,7 @@ OwlDTLSClient::~OwlDTLSClient() {
  * @return
  */
 static int sendToPeer(struct dtls_context_t *ctx, session_t *session, uint8 *buf, size_t len) {
-  LOG(L_DBG, "Called to send out %d bytes\r\n", len);
+  LOG(L_DEBUG, "Called to send out %d bytes\r\n", len);
   if (!ctx || !session || !dtls_get_app_data(ctx)) {
     LOG(L_WARN, "Null parameter(s)\r\n");
     return 0;
@@ -65,7 +65,7 @@ static int sendToPeer(struct dtls_context_t *ctx, session_t *session, uint8 *buf
   str data = {.s = (char *)buf, .len = (int)len};
   int cnt = owlDTLS->sendRawData(data);
   if (cnt != len) {
-    LOG(L_ERR, "Error on sending data\r\n");
+    LOG(L_ERROR, "Error on sending data\r\n");
     return 0;
   }
 
@@ -87,14 +87,14 @@ static int readFromPeer(struct dtls_context_t *ctx, session_t *session, uint8 *b
   }
   OwlDTLSClient *owlDTLS = (OwlDTLSClient *)dtls_get_app_data(ctx);
 
-  LOG(L_NOTICE, "Received %d bytes over DTLS\r\n", len);
+  LOG(L_INFO, "Received %d bytes over DTLS\r\n", len);
 
   str data = {.s = (char *)buf, .len = (int)len};
 
   if (!owlDTLS->fireHandlerData(session, data)) {
-    LOG(L_NOTICE, "Received DTLS data of %d bytes - No handler - set one to receive this data in your application\r\n",
+    LOG(L_INFO, "Received DTLS data of %d bytes - No handler - set one to receive this data in your application\r\n",
         data.len);
-    LOGSTR(L_NOTICE, data);
+    LOGSTR(L_INFO, data);
   }
   return 1; /* ignored */
 }
@@ -123,7 +123,7 @@ static int handleEvent(struct dtls_context_t *ctx, session_t *session, dtls_aler
 
 
   if (!owlDTLS->fireHandlerEvent(session, (dtls_alert_level_e)level, (dtls_alert_description_e)code)) {
-    LOG(L_NOTICE,
+    LOG(L_INFO,
         "Received DTLS event level %d (%s) code %d (%s) - No handler - set one to receive this event in your "
         "application\r\n",
         level, dtls_alert_level_text((dtls_alert_level_e)level), code,
@@ -177,9 +177,9 @@ int OwlDTLSClient::getPSKInfo(const session_t *session, dtls_credentials_type_t 
                               size_t desc_len, unsigned char *result, size_t result_length) {
   switch (type) {
     case DTLS_PSK_IDENTITY:
-      if (desc_len) LOG(L_DBG, "got psk_identity_hint: '%.*s'\r\n", desc_len, desc);
+      if (desc_len) LOG(L_DEBUG, "got psk_identity_hint: '%.*s'\r\n", desc_len, desc);
       if (result_length < psk_id.len) {
-        LOG(L_ERR, "Cannot set psk_identity -- buffer too short %d < %d\r\n", result_length, psk_id.len);
+        LOG(L_ERROR, "Cannot set psk_identity -- buffer too short %d < %d\r\n", result_length, psk_id.len);
         return dtls_alert_fatal_create(DTLS_ALERT_INTERNAL_ERROR);
       }
       memcpy(result, psk_id.s, psk_id.len);
@@ -187,17 +187,17 @@ int OwlDTLSClient::getPSKInfo(const session_t *session, dtls_credentials_type_t 
       break;
     case DTLS_PSK_KEY:
       if (desc_len != psk_id.len || memcmp(psk_id.s, desc, desc_len) != 0) {
-        LOG(L_ERR, "PSK for unknown id [%.*s] != [%.*s] requested, exiting\r\n", desc_len, desc, psk_id.len, psk_id.s);
+        LOG(L_ERROR, "PSK for unknown id [%.*s] != [%.*s] requested, exiting\r\n", desc_len, desc, psk_id.len, psk_id.s);
         return dtls_alert_fatal_create(DTLS_ALERT_ILLEGAL_PARAMETER);
       } else if (result_length < psk_key.len) {
-        LOG(L_ERR, "Cannot set psk_key -- buffer too short %d < %d\r\n", result_length, psk_key.len);
-        return dtls_alert_fatal_create(DTLS_ALERT_INTERNAL_ERROR);
+        LOG(L_ERROR, "Cannot set psk_key -- buffer too short %d < %d\r\n", result_length, psk_key.len);
       }
       memcpy(result, psk_key.s, psk_key.len);
+        return dtls_alert_fatal_create(DTLS_ALERT_INTERNAL_ERROR);
       return psk_key.len;
       break;
     default:
-      LOG(L_ERR, "Unsupported request type: %d\r\n", type);
+      LOG(L_ERROR, "Unsupported request type: %d\r\n", type);
   }
 
   return dtls_alert_fatal_create(DTLS_ALERT_INTERNAL_ERROR); /* number of bytes written to result, or < 0 on error */
@@ -257,14 +257,14 @@ dtls_handler_t OwlDTLS_callbacks = {
 int OwlDTLSClient::init(OwlModem *owlModem) {
   dtls_context = dtls_new_context((void *)this);
   if (!dtls_context) {
-    LOG(L_ERR, "Error creating DTLS context\r\n");
+    LOG(L_ERROR, "Error creating DTLS context\r\n");
     return 0;
   }
 
   dtls_set_handler(dtls_context, &OwlDTLS_callbacks);
 
   if (!owlModem) {
-    LOG(L_ERR, "Need the OwlModem link for communication purposes\r\n");
+    LOG(L_ERROR, "Need the OwlModem link for communication purposes\r\n");
     return 0;
   }
   this->owlModem = owlModem;
@@ -276,7 +276,7 @@ int OwlDTLSClient::init(OwlModem *owlModem) {
 
 int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_port) {
   if (!this->owlModem) {
-    LOG(L_ERR, "Not initialized correctly - owlModem is null\r\n");
+    LOG(L_ERROR, "Not initialized correctly - owlModem is null\r\n");
     return 0;
   }
 
@@ -290,7 +290,7 @@ int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_p
     /* IPv6 */
     this->dtls_dst.size = IP_Address__IPv6;
     int x               = 0;
-    LOG(L_ERR, "Not yet implemented a proper parsing for IPv6 - TODO\r\n");
+    LOG(L_ERROR, "Not yet implemented a proper parsing for IPv6 - TODO\r\n");
     return 0;
   }
   this->dtls_dst.port    = remote_port;
@@ -307,7 +307,7 @@ int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_p
   if (!owlModem->socket.openListenConnectUDP(local_port, remote_ip, remote_port, OwlDTLSClient::handleRawData,
                                              &this->socket_id)) {
     if (!owlModem->socket.openConnectUDP(remote_ip, remote_port, OwlDTLSClient::handleRawData, &this->socket_id)) {
-      LOG(L_ERR, "Error opening local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
+      LOG(L_ERROR, "Error opening local socket towards %.*s:%u\r\n", remote_ip.len, remote_ip.s, remote_port);
       goto error;
     } else {
       LOG(L_WARN, "Potential error opening local socket towards %.*s:%u - listen failed, model wasn't blacklisted\r\n",
@@ -315,13 +315,13 @@ int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_p
     }
   }
   if (this->socket_id < 0 || this->socket_id >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket_id %d returned\r\n", this->socket_id);
+    LOG(L_ERROR, "Bad socket_id %d returned\r\n", this->socket_id);
     goto error;
   }
   OwlDTLSClient::socketMappings[this->socket_id] = this;
 
   if (dtls_connect(this->dtls_context, &this->dtls_dst) < 0) {
-    LOG(L_ERR, "Error on dtls_connect()\r\n");
+    LOG(L_ERROR, "Error on dtls_connect()\r\n");
     goto error;
   }
 
@@ -333,10 +333,10 @@ error:
 
 int OwlDTLSClient::close() {
   if (!this->dtls_context) {
-    LOG(L_DBG, "DTLS context not created yet\r\n");
+    LOG(L_DEBUG, "DTLS context not created yet\r\n");
   } else {
     int err = dtls_close(this->dtls_context, &this->dtls_dst);
-    LOG(L_NOTICE, "Close error=%d\r\n", err);
+    LOG(L_INFO, "Close error=%d\r\n", err);
     dtls_free_context(this->dtls_context);
     this->dtls_context = 0;
   }
@@ -344,7 +344,7 @@ int OwlDTLSClient::close() {
   this->remote_port   = 0;
   if (socket_id != 255) {
     if (this->socket_id < 0 || this->socket_id >= MODEM_MAX_SOCKETS) {
-      LOG(L_ERR, "Bad socket_id %d returned\r\n", this->socket_id);
+      LOG(L_ERROR, "Bad socket_id %d returned\r\n", this->socket_id);
     } else {
       OwlDTLSClient::socketMappings[this->socket_id] = 0;
     }
@@ -356,35 +356,35 @@ int OwlDTLSClient::close() {
 
 int OwlDTLSClient::renegotiate() {
   if (!this->dtls_context) {
-    LOG(L_ERR, "DTLS context not created yet\r\n");
+    LOG(L_ERROR, "DTLS context not created yet\r\n");
     return 0;
   }
   int err = dtls_renegotiate(this->dtls_context, &this->dtls_dst);
-  LOG(L_NOTICE, "Renegotiate error=%d\r\n", err);
+  LOG(L_INFO, "Renegotiate error=%d\r\n", err);
   return err >= 0;
 }
 
 int OwlDTLSClient::rehandshake() {
   if (!this->dtls_context) {
-    LOG(L_ERR, "DTLS context not created yet\r\n");
+    LOG(L_ERROR, "DTLS context not created yet\r\n");
     return 0;
   }
   int err = dtls_connect(this->dtls_context, &this->dtls_dst);
-  LOG(L_NOTICE, "Rehandshake error=%d\r\n", err);
+  LOG(L_INFO, "Rehandshake error=%d\r\n", err);
   return err >= 0;
 }
 
 int OwlDTLSClient::sendRawData(str data) {
   if (!this->owlModem) {
-    LOG(L_ERR, "Not initialized correctly - owlModem is null\r\n");
+    LOG(L_ERROR, "Not initialized correctly - owlModem is null\r\n");
     return 0;
   }
   if (this->socket_id == 255) {
-    LOG(L_ERR, "Socket not opened\r\n");
+    LOG(L_ERROR, "Socket not opened\r\n");
     return 0;
   }
   int out_bytes_sent = 0;
-  if (!owlModem->socket.sendUDP(socket_id, data, &out_bytes_sent)) LOG(L_ERR, "Error sending data out\r\n");
+  if (!owlModem->socket.sendUDP(socket_id, data, &out_bytes_sent)) LOG(L_ERROR, "Error sending data out\r\n");
   return out_bytes_sent;
 }
 
@@ -393,16 +393,16 @@ OwlDTLSClient *OwlDTLSClient::socketMappings[] = {0};
 
 void OwlDTLSClient::handleRawData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
   if (socket < 0 || socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket_id %d returned\r\n", socket);
+    LOG(L_ERROR, "Bad socket_id %d returned\r\n", socket);
     return;
   }
   OwlDTLSClient *owlDTLS = OwlDTLSClient::socketMappings[socket];
   if (!owlDTLS) {
-    LOG(L_ERR, "Socket Mappings for socket_id %d not initialized correctly\r\n", socket);
+    LOG(L_ERROR, "Socket Mappings for socket_id %d not initialized correctly\r\n", socket);
     return;
   }
   if (owlDTLS->socket_id != socket) {
-    LOG(L_ERR, "Received data on incorrect socket %d != saved %d 0 - ignoring\r\n", socket, owlDTLS->socket_id);
+    LOG(L_ERROR, "Received data on incorrect socket %d != saved %d 0 - ignoring\r\n", socket, owlDTLS->socket_id);
     return;
   }
   if (remote_ip.len) {
@@ -417,9 +417,9 @@ void OwlDTLSClient::handleRawData(uint8_t socket, str remote_ip, uint16_t remote
   /* Pass to tinydtls */
   int err = dtls_handle_message(owlDTLS->dtls_context, &owlDTLS->dtls_dst, (uint8 *)data.s, data.len);
   if (err < 0) {
-    LOG(L_NOTICE, "DTLS-Rx Failure - err %d handling Rx message\r\n", err);
+    LOG(L_INFO, "DTLS-Rx Failure - err %d handling Rx message\r\n", err);
   } else {
-    LOG(L_DBG, "DTLS-Rx OK - handled Rx message successfully\r\n");
+    LOG(L_DEBUG, "DTLS-Rx OK - handled Rx message successfully\r\n");
   }
 }
 
@@ -442,10 +442,10 @@ int OwlDTLSClient::sendData(str plaintext) {
   }
   res = dtls_write(this->dtls_context, &this->dtls_dst, (uint8 *)plaintext.s, plaintext.len);
   if (res >= 0) {
-    LOG(L_DBG, "Successfully sent %d bytes\r\n", plaintext.len);
+    LOG(L_DEBUG, "Successfully sent %d bytes\r\n", plaintext.len);
     return 1;
   } else {
-    LOG(L_ERR, "Failed to send %d bytes\r\n", plaintext.len);
+    LOG(L_ERROR, "Failed to send %d bytes\r\n", plaintext.len);
     return 0;
   }
 }

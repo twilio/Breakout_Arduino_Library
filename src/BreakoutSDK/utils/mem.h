@@ -32,7 +32,7 @@
 #include "log.h"
 
 #define L_MEMDBG L_WARN
-//#define L_MEMDBG L_MEM
+//#define L_MEMDBG L_DEBUG
 
 
 #define owl_malloc(s) owl_internal_malloc((s), __FILE__, __FUNCTION__, __LINE__)

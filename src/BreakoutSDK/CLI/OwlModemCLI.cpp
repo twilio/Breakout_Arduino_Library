@@ -64,7 +64,7 @@ int OwlModemCLIExecutor::checkParams(const OwlModemCLICommand &command) {
 }
 
 void OwlModemCLIExecutor::executor(OwlModemCLI &cli, OwlModemCLICommand &command) {
-  LOGF(L_CLI, "Not implemented for %.*s\r\n", name.len, name.s);
+  LOGF(L_BYPASS, "Not implemented for %.*s\r\n", name.len, name.s);
 }
 
 OwlModemCLI *OwlModemCLIExecutor::savedCLI = 0;
@@ -81,7 +81,7 @@ class SetDebugLevel : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     int level = str_to_long_int(cmd.argv[0], 10);
     cli.owlModem->setDebugLevel(level);
-    LOGF(L_CLI, "OK level=%d\r\n", level);
+    LOGF(L_BYPASS, "OK level=%d\r\n", level);
   }
 };
 
@@ -163,9 +163,9 @@ class GetProductIdentification : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getProductIdentification(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK product_identification=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK product_identification=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -177,9 +177,9 @@ class GetManufacturer : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getManufacturer(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK manufacturer=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK manufacturer=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -191,9 +191,9 @@ class GetModel : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getModel(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK model=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK model=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -205,9 +205,9 @@ class GetVersion : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getVersion(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK version=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK version=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -219,9 +219,9 @@ class GetIMEI : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getIMEI(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK IMEI=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK IMEI=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -234,9 +234,9 @@ class GetBatteryChargeLevels : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getBatteryChargeLevels(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -248,9 +248,9 @@ class GetIndicators : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getIndicators(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -263,9 +263,9 @@ class GetIndicatorsHelp : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->information.getIndicatorsHelp(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -279,9 +279,9 @@ class GetICCID : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->SIM.getICCID(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK ICCID=%.*s\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK ICCID=%.*s\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -293,9 +293,9 @@ class GetIMSI : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->SIM.getIMSI(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK IMSI=%.*s\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK IMSI=%.*s\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -307,9 +307,9 @@ class GetMSISDN : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->SIM.getMSISDN(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK MSISDN=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK MSISDN=[%.*s]\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "ERROR status=[%.*s]\r\n", response.len, response.s);
     }
   }
 };
@@ -321,16 +321,16 @@ class GetPINStatus : public OwlModemCLIExecutor {
 
   static void handlerPIN(str cpin) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "Received CPIN [%.*s]\r\n", cpin.len, cpin.s);
+    LOGF(L_BYPASS, "Received CPIN [%.*s]\r\n", cpin.len, cpin.s);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     cli.owlModem->SIM.setHandlerPIN(GetPINStatus::handlerPIN);
     GetPINStatus::savedCLI = &cli;
     if (cli.owlModem->SIM.getPINStatus()) {
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -342,9 +342,9 @@ class VerifyPIN : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->SIM.verifyPIN(cmd.argv[0])) {
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -358,9 +358,9 @@ class VerifyPUK : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->SIM.verifyPUK(cmd.argv[0], cmd.argv[1])) {
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -377,10 +377,10 @@ class GetModemFunctionality : public OwlModemCLIExecutor {
     at_cfun_power_mode_e power_mode;
     at_cfun_stk_mode_e stk_mode;
     if (cli.owlModem->network.getModemFunctionality(&power_mode, &stk_mode)) {
-      LOGF(L_CLI, "OK power_mode=%d(%s) stk_mode=%d(%s)\r\n", power_mode, at_cfun_power_mode_text(power_mode), stk_mode,
+      LOGF(L_BYPASS, "OK power_mode=%d(%s) stk_mode=%d(%s)\r\n", power_mode, at_cfun_power_mode_text(power_mode), stk_mode,
            at_cfun_stk_mode_text(stk_mode));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -398,9 +398,9 @@ class SetModemFunctionality : public OwlModemCLIExecutor {
     at_cfun_rst_e rst      = AT_CFUN__RST__No_Modem_Reset;
     if (cmd.argc >= 2) rst = (at_cfun_rst_e)str_to_long_int(cmd.argv[1], 10);
     if (cli.owlModem->network.setModemFunctionality(fun, cmd.argc >= 2 ? &rst : 0)) {
-      LOGF(L_CLI, "OK fun=%d(%s) rst=%d(%s)\r\n", fun, at_cfun_fun_text(fun), rst, at_cfun_rst_text(rst));
+      LOGF(L_BYPASS, "OK fun=%d(%s) rst=%d(%s)\r\n", fun, at_cfun_fun_text(fun), rst, at_cfun_rst_text(rst));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -416,9 +416,9 @@ class GetModemMNOProfile : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_umnoprof_mno_profile_e profile;
     if (cli.owlModem->network.getModemMNOProfile(&profile)) {
-      LOGF(L_CLI, "OK profile=%d(%s)\r\n", profile, at_umnoprof_mno_profile_text(profile));
+      LOGF(L_BYPASS, "OK profile=%d(%s)\r\n", profile, at_umnoprof_mno_profile_text(profile));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -435,9 +435,9 @@ class SetModemMNOProfile : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_umnoprof_mno_profile_e profile = (at_umnoprof_mno_profile_e)str_to_long_int(cmd.argv[0], 10);
     if (cli.owlModem->network.setModemMNOProfile(profile)) {
-      LOGF(L_CLI, "OK profile=%d(%s)\r\n", profile, at_umnoprof_mno_profile_text(profile));
+      LOGF(L_BYPASS, "OK profile=%d(%s)\r\n", profile, at_umnoprof_mno_profile_text(profile));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -456,10 +456,10 @@ class GetOperatorSelection : public OwlModemCLIExecutor {
     str oper = {.s = buf, .len = 0};
     at_cops_act_e act;
     if (cli.owlModem->network.getOperatorSelection(&mode, &format, &oper, 64, &act)) {
-      LOGF(L_CLI, "OK mode=%d(%s) format=%d(%s) oper=[%.*s] act=%d(%s)\r\n", mode, at_cops_mode_text(mode), format,
+      LOGF(L_BYPASS, "OK mode=%d(%s) format=%d(%s) oper=[%.*s] act=%d(%s)\r\n", mode, at_cops_mode_text(mode), format,
            at_cops_format_text(format), oper.len, oper.s, act, at_cops_act_text(act));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -484,10 +484,10 @@ class SetOperatorSelection : public OwlModemCLIExecutor {
     if (cmd.argc >= 4) act    = (at_cops_act_e)str_to_long_int(cmd.argv[3], 10);
     if (cli.owlModem->network.setOperatorSelection(mode, cmd.argc >= 2 ? &format : 0, cmd.argc >= 3 ? &oper : 0,
                                                    cmd.argc >= 4 ? &act : 0)) {
-      LOGF(L_CLI, "OK mode=%d(%s) format=%d(%s) oper=[%.*s] act=%d(%.*s)\r\n", mode, at_cops_mode_text(mode), format,
+      LOGF(L_BYPASS, "OK mode=%d(%s) format=%d(%s) oper=[%.*s] act=%d(%.*s)\r\n", mode, at_cops_mode_text(mode), format,
            at_cops_format_text(format), oper.len, oper.s, act, at_cops_act_text(act));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -500,9 +500,9 @@ class GetOperatorList : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (cli.owlModem->network.getOperatorList(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-      LOGF(L_CLI, "OK\r\n%.*s\r\n", response.len, response.s);
+      LOGF(L_BYPASS, "OK\r\n%.*s\r\n", response.len, response.s);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -521,10 +521,10 @@ class GetNetworkRegistrationStatus : public OwlModemCLIExecutor {
     uint32_t ci;
     at_creg_act_e act;
     if (cli.owlModem->network.getNetworkRegistrationStatus(&n, &stat, &lac, &ci, &act)) {
-      LOGF(L_CLI, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s)\r\n", n, at_creg_n_text(n), stat,
+      LOGF(L_BYPASS, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s)\r\n", n, at_creg_n_text(n), stat,
            at_creg_stat_text(stat), lac, ci, act, at_creg_act_text(act));
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -539,9 +539,9 @@ class SetNetworkRegistrationURC : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_creg_n_e n = (at_creg_n_e)str_to_long_int(cmd.argv[0], 10);
     if (cli.owlModem->network.setNetworkRegistrationURC(n))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -558,10 +558,10 @@ class GetGPRSRegistrationStatus : public OwlModemCLIExecutor {
     at_cgreg_act_e act;
     uint8_t rac;
     if (cli.owlModem->network.getGPRSRegistrationStatus(&n, &stat, &lac, &ci, &act, &rac)) {
-      LOGF(L_CLI, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s) RAC=%02x\r\n", n, at_cgreg_n_text(n), stat,
+      LOGF(L_BYPASS, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s) RAC=%02x\r\n", n, at_cgreg_n_text(n), stat,
            at_cgreg_stat_text(stat), lac, ci, act, at_cgreg_act_text(act), rac);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -576,9 +576,9 @@ class SetGPRSRegistrationURC : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_cgreg_n_e n = (at_cgreg_n_e)str_to_long_int(cmd.argv[0], 10);
     if (cli.owlModem->network.setGPRSRegistrationURC(n))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -597,11 +597,11 @@ class GetEPSRegistrationStatus : public OwlModemCLIExecutor {
     at_cereg_cause_type_e cause_type;
     uint32_t reject_cause;
     if (cli.owlModem->network.getEPSRegistrationStatus(&n, &stat, &lac, &ci, &act, &cause_type, &reject_cause)) {
-      LOGF(L_CLI, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s) Cause-Type=%d(%s) Reject-Cause=%u\r\n", n,
+      LOGF(L_BYPASS, "OK N=%d(%s) Status=%d(%s) LAC=0x%04x CI=0x%08x Act=%d(%s) Cause-Type=%d(%s) Reject-Cause=%u\r\n", n,
            at_cereg_n_text(n), stat, at_cereg_stat_text(stat), lac, ci, act, at_cereg_act_text(act), cause_type,
            at_cereg_cause_type_text(cause_type), reject_cause);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -618,9 +618,9 @@ class SetEPSRegistrationURC : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_cereg_n_e n = (at_cereg_n_e)str_to_long_int(cmd.argv[0], 10);
     if (cli.owlModem->network.setEPSRegistrationURC(n))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -642,10 +642,10 @@ class GetSignalQuality : public OwlModemCLIExecutor {
     if (cmd.argc >= 1) count = (int)str_to_long_int(cmd.argv[0], 10);
     do {
       if (!cli.owlModem->network.getSignalQuality(&rssi, &qual)) {
-        LOGF(L_CLI, "ERROR\r\n");
+        LOGF(L_BYPASS, "ERROR\r\n");
         break;
       }
-      LOGF(L_CLI, "RSSI=%3d Quality=%d\r\n", rssi, qual);
+      LOGF(L_BYPASS, "RSSI=%3d Quality=%d\r\n", rssi, qual);
       count--;
       for (int i = 0; i < 10 && count > 0; i++) {
         if (cli.debugPort->available()) {
@@ -674,12 +674,12 @@ class GetAPNIPAddress : public OwlModemCLIExecutor {
     uint8_t ipv4[4];
     uint8_t ipv6[16];
     if (cli.owlModem->pdn.getAPNIPAddress(cid, ipv4, ipv6)) {
-      LOGF(L_CLI,
+      LOGF(L_BYPASS,
            "OK ipv4=%d.%d.%d.%d ipv6=%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x\r\n",
            ipv4[0], ipv4[1], ipv4[2], ipv4[3], ipv6[0], ipv6[1], ipv6[2], ipv6[3], ipv6[4], ipv6[5], ipv6[6], ipv6[7],
            ipv6[8], ipv6[9], ipv6[10], ipv6[11], ipv6[12], ipv6[13], ipv6[14], ipv6[15]);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -700,9 +700,9 @@ class OpenSocket : public OwlModemCLIExecutor {
     uint8_t out_socket            = 0;
     if (cmd.argc >= 2) local_port = (int)str_to_long_int(cmd.argv[1], 10);
     if (cli.owlModem->socket.open(protocol, local_port, &out_socket))
-      LOGF(L_CLI, "OK socket=%u\r\n", out_socket);
+      LOGF(L_BYPASS, "OK socket=%u\r\n", out_socket);
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -714,9 +714,9 @@ class CloseSocket : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
     if (cli.owlModem->socket.close(socket))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -728,9 +728,9 @@ class GetSocketError : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     at_uso_error_e out_error = AT_USO_Error__Success;
     if (cli.owlModem->socket.getError(&out_error))
-      LOGF(L_CLI, "OK error=%d - %s\r\n", out_error, at_uso_error_text(out_error));
+      LOGF(L_BYPASS, "OK error=%d - %s\r\n", out_error, at_uso_error_text(out_error));
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -743,7 +743,7 @@ class ConnectSocket : public OwlModemCLIExecutor {
 
   static void handlerSocketClosed(uint8_t socket) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "Closed socket event for socket=%d\r\n", socket);
+    LOGF(L_BYPASS, "Closed socket event for socket=%d\r\n", socket);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -752,9 +752,9 @@ class ConnectSocket : public OwlModemCLIExecutor {
     uint16_t remote_port    = (uint16_t)str_to_uint32_t(cmd.argv[2], 10);
     ConnectSocket::savedCLI = &cli;
     if (cli.owlModem->socket.connect(socket, remote_ip, remote_port, this->handlerSocketClosed))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -769,7 +769,7 @@ class SendUDP : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
     if (cmd.argv[1].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[1].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[1].len);
       return;
     }
     char buf[512];
@@ -777,9 +777,9 @@ class SendUDP : public OwlModemCLIExecutor {
     data.len           = hex_to_str(data.s, 512, cmd.argv[1]);
     int out_bytes_sent = 0;
     if (cli.owlModem->socket.sendUDP(socket, data, &out_bytes_sent))
-      LOGF(L_CLI, "OK sent_bytes=%d\r\n", out_bytes_sent);
+      LOGF(L_BYPASS, "OK sent_bytes=%d\r\n", out_bytes_sent);
     else
-      LOGF(L_CLI, "ERROR sent_bytes=%d\r\n", out_bytes_sent);
+      LOGF(L_BYPASS, "ERROR sent_bytes=%d\r\n", out_bytes_sent);
   }
 };
 
@@ -794,7 +794,7 @@ class SendTCP : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
     if (cmd.argv[1].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[1].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[1].len);
       return;
     }
     char buf[512];
@@ -802,9 +802,9 @@ class SendTCP : public OwlModemCLIExecutor {
     data.len           = hex_to_str(data.s, 512, cmd.argv[1]);
     int out_bytes_sent = 0;
     if (cli.owlModem->socket.sendTCP(socket, data, &out_bytes_sent))
-      LOGF(L_CLI, "OK sent_bytes=%d\r\n", out_bytes_sent);
+      LOGF(L_BYPASS, "OK sent_bytes=%d\r\n", out_bytes_sent);
     else
-      LOGF(L_CLI, "ERROR sent_bytes=%d\r\n", out_bytes_sent);
+      LOGF(L_BYPASS, "ERROR sent_bytes=%d\r\n", out_bytes_sent);
   }
 };
 
@@ -821,16 +821,16 @@ class SendToUDP : public OwlModemCLIExecutor {
     str remote_ip        = cmd.argv[1];
     uint16_t remote_port = (uint16_t)str_to_uint32_t(cmd.argv[2], 10);
     if (cmd.argv[3].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
       return;
     }
     char buf[512];
     str data = {.s = buf, .len = 0};
     data.len = hex_to_str(data.s, 512, cmd.argv[3]);
     if (cli.owlModem->socket.sendToUDP(socket, remote_ip, remote_port, data))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -847,10 +847,10 @@ class GetQueuedForReceive : public OwlModemCLIExecutor {
     int out_receive_udp;
     int out_receivefrom_udp;
     if (cli.owlModem->socket.getQueuedForReceive(socket, &out_receive_tcp, &out_receive_udp, &out_receivefrom_udp)) {
-      LOGF(L_CLI, "OK receive_tcp=%d receive_udp=%d receivefrom_udp=%d\r\n", out_receive_tcp, out_receive_udp,
+      LOGF(L_BYPASS, "OK receive_tcp=%d receive_udp=%d receivefrom_udp=%d\r\n", out_receive_tcp, out_receive_udp,
            out_receivefrom_udp);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -869,16 +869,16 @@ class ReceiveUDP : public OwlModemCLIExecutor {
     if (cmd.argc >= 2) len = str_to_long_int(cmd.argv[1], 10);
     char buf_ip[64];
     if (cmd.argv[3].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
       return;
     }
     char buf_bin[512];
     str data_bin = {.s = buf_bin, .len = 0};
     if (cli.owlModem->socket.receiveUDP(socket, len, &data_bin, 512)) {
-      LOGF(L_CLI, "OK len=%d\r\n", data_bin.len);
-      LOGSTR(L_CLI, data_bin);
+      LOGF(L_BYPASS, "OK len=%d\r\n", data_bin.len);
+      LOGSTR(L_BYPASS, data_bin);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -897,16 +897,16 @@ class ReceiveTCP : public OwlModemCLIExecutor {
     if (cmd.argc >= 2) len = str_to_long_int(cmd.argv[1], 10);
     char buf_ip[64];
     if (cmd.argv[3].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
       return;
     }
     char buf_bin[512];
     str data_bin = {.s = buf_bin, .len = 0};
     if (cli.owlModem->socket.receiveTCP(socket, len, &data_bin, 512)) {
-      LOGF(L_CLI, "OK len=%d\r\n", data_bin.len);
-      LOGSTR(L_CLI, data_bin);
+      LOGF(L_BYPASS, "OK len=%d\r\n", data_bin.len);
+      LOGSTR(L_BYPASS, data_bin);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -926,16 +926,16 @@ class ReceiveFromUDP : public OwlModemCLIExecutor {
     str remote_ip = {.s = buf_ip, .len = 0};
     uint16_t remote_port = 0;
     if (cmd.argv[3].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
       return;
     }
     char buf_bin[512];
     str data_bin = {.s = buf_bin, .len = 0};
     if (cli.owlModem->socket.receiveFromUDP(socket, len, &remote_ip, &remote_port, &data_bin, 512)) {
-      LOGF(L_CLI, "OK remote_ip=%.*s remote_port=%u len=%d\r\n", remote_ip.len, remote_ip.s, remote_port, data_bin.len);
-      LOGSTR(L_CLI, data_bin);
+      LOGF(L_BYPASS, "OK remote_ip=%.*s remote_port=%u len=%d\r\n", remote_ip.len, remote_ip.s, remote_port, data_bin.len);
+      LOGSTR(L_BYPASS, data_bin);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -949,9 +949,9 @@ class ListenUDP : public OwlModemCLIExecutor {
 
   static void handlerUDPData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "Received UDP data from socket=%d remote_ip=%.*s remote_port=%u of %d bytes\r\n", socket, remote_ip.len,
+    LOGF(L_BYPASS, "Received UDP data from socket=%d remote_ip=%.*s remote_port=%u of %d bytes\r\n", socket, remote_ip.len,
          remote_ip.s, remote_port, data.len);
-    LOGSTR(L_CLI, data);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -959,9 +959,9 @@ class ListenUDP : public OwlModemCLIExecutor {
     uint16_t local_port = (uint16_t)str_to_uint32_t(cmd.argv[1], 10);
     ListenUDP::savedCLI = &cli;
     if (cli.owlModem->socket.listenUDP(socket, local_port, this->handlerUDPData))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -974,8 +974,8 @@ class ListenTCP : public OwlModemCLIExecutor {
 
   static void handlerTCPData(uint8_t socket, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerTCPData socket=%d len=%d\r\n", socket, data.len);
-    LOGSTR(L_CLI, data);
+    LOGF(L_BYPASS, "URC handlerTCPData socket=%d len=%d\r\n", socket, data.len);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -983,9 +983,9 @@ class ListenTCP : public OwlModemCLIExecutor {
     uint16_t local_port = (uint16_t)str_to_uint32_t(cmd.argv[1], 10);
     ListenTCP::savedCLI = &cli;
     if (cli.owlModem->socket.listenTCP(socket, local_port, this->handlerTCPData))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1001,7 +1001,7 @@ class AcceptTCP : public OwlModemCLIExecutor {
   static void handlerTCPAccept(uint8_t new_socket, str remote_ip, uint16_t remote_port, uint8_t listening_socket,
                                str local_ip, uint16_t local_port) {
     if (!savedCLI) return;
-    LOGF(L_CLI,
+    LOGF(L_BYPASS,
          "URC handlerTCPAccept listening_socket=%u local_ip=%.*s local_port=%u new_socket=%u remote_ip=%.*s "
          "remote_port=%u\r\n",
          listening_socket, local_ip.len, local_ip.s, local_port, new_socket, remote_ip.len, remote_ip.s, remote_port);
@@ -1009,13 +1009,13 @@ class AcceptTCP : public OwlModemCLIExecutor {
 
   static void handlerSocketClosed(uint8_t socket) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerSocketClosed socket=%d\r\n", socket);
+    LOGF(L_BYPASS, "URC handlerSocketClosed socket=%d\r\n", socket);
   }
 
   static void handlerTCPData(uint8_t socket, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerTCPData socket=%d len=%d\r\n", socket, data.len);
-    LOGSTR(L_CLI, data);
+    LOGF(L_BYPASS, "URC handlerTCPData socket=%d len=%d\r\n", socket, data.len);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1024,9 +1024,9 @@ class AcceptTCP : public OwlModemCLIExecutor {
     AcceptTCP::savedCLI = &cli;
     if (cli.owlModem->socket.acceptTCP(socket, local_port, this->handlerTCPAccept, this->handlerSocketClosed,
                                        this->handlerTCPData))
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1042,9 +1042,9 @@ class OpenSocketListenUDP : public OwlModemCLIExecutor {
 
   static void handlerUDPData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerUDPData socket=%u remote_ip=%.*s remote_port=%u len=%d\r\n", socket, remote_ip.len,
+    LOGF(L_BYPASS, "URC handlerUDPData socket=%u remote_ip=%.*s remote_port=%u len=%d\r\n", socket, remote_ip.len,
          remote_ip.s, remote_port, data.len);
-    LOGSTR(L_CLI, data);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1052,9 +1052,9 @@ class OpenSocketListenUDP : public OwlModemCLIExecutor {
     uint8_t socket                = 0;
     OpenSocketListenUDP::savedCLI = &cli;
     if (cli.owlModem->socket.openListenUDP(local_port, this->handlerUDPData, &socket))
-      LOGF(L_CLI, "OK socket=%u\r\n", socket);
+      LOGF(L_BYPASS, "OK socket=%u\r\n", socket);
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1069,8 +1069,8 @@ class OpenSocketListenConnectUDP : public OwlModemCLIExecutor {
 
   static void handlerUDPData(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerUDPData socket=%u len=%d\r\n", socket, data.len);
-    LOGSTR(L_CLI, data);
+    LOGF(L_BYPASS, "URC handlerUDPData socket=%u len=%d\r\n", socket, data.len);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1080,9 +1080,9 @@ class OpenSocketListenConnectUDP : public OwlModemCLIExecutor {
     uint8_t socket                       = 0;
     OpenSocketListenConnectUDP::savedCLI = &cli;
     if (cli.owlModem->socket.openListenConnectUDP(local_port, remote_ip, remote_port, this->handlerUDPData, &socket))
-      LOGF(L_CLI, "OK socket=%u\r\n", socket);
+      LOGF(L_BYPASS, "OK socket=%u\r\n", socket);
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1097,13 +1097,13 @@ class OpenSocketListenConnectTCP : public OwlModemCLIExecutor {
 
   static void handlerSocketClosed(uint8_t socket) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerSocketClosed socket=%d\r\n", socket);
+    LOGF(L_BYPASS, "URC handlerSocketClosed socket=%d\r\n", socket);
   }
 
   static void handlerTCPData(uint8_t socket, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerTCPData socket=%u len=%d\r\n", socket, data.len);
-    LOGSTR(L_CLI, data);
+    LOGF(L_BYPASS, "URC handlerTCPData socket=%u len=%d\r\n", socket, data.len);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1114,9 +1114,9 @@ class OpenSocketListenConnectTCP : public OwlModemCLIExecutor {
     OpenSocketListenConnectTCP::savedCLI = &cli;
     if (cli.owlModem->socket.openListenConnectTCP(local_port, remote_ip, remote_port, this->handlerSocketClosed,
                                                   this->handlerTCPData, &socket))
-      LOGF(L_CLI, "OK socket=%u\r\n", socket);
+      LOGF(L_BYPASS, "OK socket=%u\r\n", socket);
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1132,7 +1132,7 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
   static void handlerTCPAccept(uint8_t new_socket, str remote_ip, uint16_t remote_port, uint8_t listening_socket,
                                str local_ip, uint16_t local_port) {
     if (!savedCLI) return;
-    LOG(L_NOTICE,
+    LOG(L_INFO,
         "URC handlerTCPAccept listening_socket=%u local_ip=%.*s local_port=%u new_socket=%u "
         "remote_ip=%.*s remote_port=%u\r\n",
         listening_socket, local_ip.len, local_ip.s, local_port, new_socket, remote_ip.len, remote_ip.s, remote_port);
@@ -1140,13 +1140,13 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
 
   static void handlerSocketClosed(uint8_t socket) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerSocketClosed socket=%d\r\n", socket);
+    LOGF(L_BYPASS, "URC handlerSocketClosed socket=%d\r\n", socket);
   }
 
   static void handlerTCPData(uint8_t socket, str data) {
     if (!savedCLI) return;
-    LOGF(L_CLI, "URC handlerTCPData socket=%u len=%d\r\n", socket, data.len);
-    LOGSTR(L_CLI, data);
+    LOGF(L_BYPASS, "URC handlerTCPData socket=%u len=%d\r\n", socket, data.len);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
@@ -1157,9 +1157,9 @@ class OpenSocketAcceptTCP : public OwlModemCLIExecutor {
     OpenSocketAcceptTCP::savedCLI = &cli;
     if (cli.owlModem->socket.openAcceptTCP(local_port, this->handlerTCPAccept, this->handlerSocketClosed,
                                            this->handlerTCPData, &socket))
-      LOGF(L_CLI, "OK socket=%u\r\n", socket);
+      LOGF(L_BYPASS, "OK socket=%u\r\n", socket);
     else
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1173,10 +1173,10 @@ class GetGNSSData : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     gnss_data_t data;
     if (cli.owlModem->gnss.getGNSSData(&data)) {
-      LOGF(L_CLI, "OK\r\n");
-      cli.owlModem->gnss.logGNSSData(L_CLI, data);
+      LOGF(L_BYPASS, "OK\r\n");
+      cli.owlModem->gnss.logGNSSData(L_BYPASS, data);
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -1195,13 +1195,13 @@ class DTLSClientCreate : public OwlModemCLIExecutor {
   }
 
   static void handlerData(OwlDTLSClient *owlDTLSClient, session_t *session, str plaintext) {
-    LOG(L_CLI, "DTLS Rx Data - decrypted %d bytes\r\n", plaintext.len);
-    LOGSTR(L_CLI, plaintext);
+    LOG(L_BYPASS, "DTLS Rx Data - decrypted %d bytes\r\n", plaintext.len);
+    LOGSTR(L_BYPASS, plaintext);
   }
 
   static void handlerEvent(OwlDTLSClient *owlDTLSClient, session_t *session, dtls_alert_level_e level,
                            dtls_alert_description_e code) {
-    LOG(L_CLI, "DTLS Event - level %d (%s) code %d (%s)\r\n", level, dtls_alert_level_text(level), code,
+    LOG(L_BYPASS, "DTLS Event - level %d (%s) code %d (%s)\r\n", level, dtls_alert_level_text(level), code,
         dtls_alert_description_text(code));
   }
 
@@ -1225,24 +1225,24 @@ class DTLSClientCreate : public OwlModemCLIExecutor {
       psk_key.len = 8;
     }
     if (owlDTLSClient) {
-      LOGF(L_CLI, "ERROR - already created - call dtls.client.destroy before calling this again\r\n");
+      LOGF(L_BYPASS, "ERROR - already created - call dtls.client.destroy before calling this again\r\n");
       return;
     }
     owlDTLSClient = owl_new OwlDTLSClient(psk_id, psk_key);
     if (!owlDTLSClient) {
-      LOGF(L_CLI, "ERROR - internal\r\n");
+      LOGF(L_BYPASS, "ERROR - internal\r\n");
       return;
     }
     if (!owlDTLSClient->init(cli.owlModem)) {
-      LOG(L_CLI, "ERROR - internal\r\n");
+      LOG(L_BYPASS, "ERROR - internal\r\n");
       return;
     }
     owlDTLSClient->setDataHandler(DTLSClientCreate::handlerData);
     owlDTLSClient->setEventHandler(DTLSClientCreate::handlerEvent);
     if (!owlDTLSClient || !owlDTLSClient->connect(local_port, remote_ip, remote_port)) {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     } else {
-      LOGF(L_CLI, "OK - events will follow\r\n");
+      LOGF(L_BYPASS, "OK - events will follow\r\n");
     }
   }
 };
@@ -1255,11 +1255,11 @@ class DTLSClientGetStatus : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!owlDTLSClient) {
-      LOG(L_CLI, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
+      LOG(L_BYPASS, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
       return;
     }
     dtls_alert_description_e status = owlDTLSClient->getCurrentStatus();
-    LOG(L_CLI, "OK status=%d status_text=%s\r\n", status, dtls_alert_description_text(status));
+    LOG(L_BYPASS, "OK status=%d status_text=%s\r\n", status, dtls_alert_description_text(status));
   }
 };
 
@@ -1273,20 +1273,20 @@ class DTLSClientSend : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!owlDTLSClient) {
-      LOG(L_CLI, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
+      LOG(L_BYPASS, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
       return;
     }
     if (cmd.argv[0].len > 512) {
-      LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[0].len);
+      LOGF(L_BYPASS, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[0].len);
       return;
     }
     char buf[512];
     str data = {.s = buf, .len = 0};
     data.len = hex_to_str(data.s, 512, cmd.argv[0]);
     if (owlDTLSClient->sendData(data)) {
-      LOGF(L_CLI, "OK\r\n");
+      LOGF(L_BYPASS, "OK\r\n");
     } else {
-      LOGF(L_CLI, "ERROR\r\n");
+      LOGF(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -1298,13 +1298,13 @@ class DTLSClientRenegotiate : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!owlDTLSClient) {
-      LOG(L_CLI, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
+      LOG(L_BYPASS, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
       return;
     }
     if (!owlDTLSClient->renegotiate()) {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     } else {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     }
   }
 };
@@ -1316,13 +1316,13 @@ class DTLSClientRehandshake : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!owlDTLSClient) {
-      LOG(L_CLI, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
+      LOG(L_BYPASS, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
       return;
     }
     if (!owlDTLSClient->rehandshake()) {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     } else {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     }
   }
 };
@@ -1334,13 +1334,13 @@ class DTLSClientDestroy : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!owlDTLSClient) {
-      LOG(L_CLI, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
+      LOG(L_BYPASS, "ERROR - no DTLS client context created - do first dtls.client.create\r\n");
       return;
     }
     if (!owlDTLSClient->close()) {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     } else {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     }
     delete owlDTLSClient;
     owlDTLSClient = 0;
@@ -1361,34 +1361,34 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
 
   static void handlerStatelessMessage(CoAPPeer *peer, CoAPMessage *message) {
     if (!message) {
-      LOG(L_CLI, "CoAP Rx Data - null ???\r\n");
+      LOG(L_BYPASS, "CoAP Rx Data - null ???\r\n");
     } else {
-      LOG(L_CLI, "CoAP Rx Message:\r\n");
-      message->log(L_CLI);
+      LOG(L_BYPASS, "CoAP Rx Message:\r\n");
+      message->log(L_BYPASS);
     }
   }
 
   static void handlerDTLSEvent(CoAPPeer *peer, dtls_alert_level_e level, dtls_alert_description_e code) {
-    LOG(L_CLI, "CoAP Event - level %d (%s) code %d (%s)\r\n", level, dtls_alert_level_text(level), code,
+    LOG(L_BYPASS, "CoAP Event - level %d (%s) code %d (%s)\r\n", level, dtls_alert_level_text(level), code,
         dtls_alert_description_text(code));
   }
 
   static coap_handler_follow_up_e handlerCoAPRequest(CoAPPeer *peer, CoAPMessage *message) {
     if (!message) {
-      LOG(L_CLI, "CoAP Rx Request - null ???\r\n");
+      LOG(L_BYPASS, "CoAP Rx Request - null ???\r\n");
     } else {
-      LOG(L_CLI, "CoAP Rx Request:\r\n");
-      message->log(L_CLI);
+      LOG(L_BYPASS, "CoAP Rx Request:\r\n");
+      message->log(L_BYPASS);
     }
     return CoAP__Handler_Followup__Send_Reset;
   }
 
   static coap_handler_follow_up_e handlerCoAPResponse(CoAPPeer *peer, CoAPMessage *message) {
     if (!message) {
-      LOG(L_CLI, "CoAP Rx Response - null ???\r\n");
+      LOG(L_BYPASS, "CoAP Rx Response - null ???\r\n");
     } else {
-      LOG(L_CLI, "CoAP Rx Response:\r\n");
-      message->log(L_CLI);
+      LOG(L_BYPASS, "CoAP Rx Response:\r\n");
+      message->log(L_BYPASS);
     }
     return CoAP__Handler_Followup__Send_Reset;
   }
@@ -1413,12 +1413,12 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
     }
 
     if (coapPeer) {
-      LOGF(L_CLI, "ERROR - already created - call coap.destroy before calling this again\r\n");
+      LOGF(L_BYPASS, "ERROR - already created - call coap.destroy before calling this again\r\n");
       return;
     }
 
     if (psk_key.len > 16) {
-      LOGF(L_CLI, "Invalid PSK key [%*s] - should be max 16 bytes", psk_key.len, psk_key.s);
+      LOGF(L_BYPASS, "Invalid PSK key [%*s] - should be max 16 bytes", psk_key.len, psk_key.s);
       return;
     }
     if (!psk_key.len || !psk_id.len) {
@@ -1428,12 +1428,12 @@ class CoAPPeerCreate : public OwlModemCLIExecutor {
     }
 
     if (!coapPeer) {
-      LOGF(L_CLI, "ERROR - internal\r\n");
+      LOGF(L_BYPASS, "ERROR - internal\r\n");
       return;
     }
     coapPeer->setHandlers(handlerStatelessMessage, handlerDTLSEvent, handlerCoAPRequest, handlerCoAPResponse);
     if (!coapPeer->reinitialize()) {
-      LOG(L_CLI, "ERROR - internal\r\n");
+      LOG(L_BYPASS, "ERROR - internal\r\n");
       return;
     }
   }
@@ -1447,10 +1447,10 @@ class CoAPPeerGetTransportIsReady : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
-    LOG(L_CLI, "OK transportIsReady=%d\r\n", coapPeer->transportIsReady());
+    LOG(L_BYPASS, "OK transportIsReady=%d\r\n", coapPeer->transportIsReady());
   }
 };
 
@@ -1468,26 +1468,26 @@ class CoAPPeerSend : public OwlModemCLIExecutor {
                                    coap_client_transaction_event_e event, CoAPMessage *message) {
     switch (event) {
       case CoAP_Client_Transaction_Event__ACK:
-        LOG(L_CLI, "Client-Transaction-Event: Received ACK\r\n");
+        LOG(L_BYPASS, "Client-Transaction-Event: Received ACK\r\n");
         break;
       case CoAP_Client_Transaction_Event__RST:
-        LOG(L_CLI, "Client-Transaction-Event: Received RST\r\n");
+        LOG(L_BYPASS, "Client-Transaction-Event: Received RST\r\n");
         break;
       case CoAP_Client_Transaction_Event__Timeout:
-        LOG(L_CLI, "Client-Transaction-Event: Timed out\r\n");
+        LOG(L_BYPASS, "Client-Transaction-Event: Timed out\r\n");
         break;
       case CoAP_Client_Transaction_Event__Canceled:
-        LOG(L_CLI, "Client-Transaction-Event: Canceled\r\n");
+        LOG(L_BYPASS, "Client-Transaction-Event: Canceled\r\n");
         break;
       default:
-        LOG(L_CLI, "Client-Transaction-Event: %d\r\n", event);
+        LOG(L_BYPASS, "Client-Transaction-Event: %d\r\n", event);
     }
-    if (message) message->log(L_CLI);
+    if (message) message->log(L_BYPASS);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
     coap_type_e type                  = (coap_type_e)str_to_uint32_t(cmd.argv[0], 10);
@@ -1525,13 +1525,13 @@ class CoAPPeerSend : public OwlModemCLIExecutor {
         break;
     }
 
-    msg->log(L_CLI);
-    LOGF(L_CLI, "OK\r\n");
+    msg->log(L_BYPASS);
+    LOGF(L_BYPASS, "OK\r\n");
     delete msg;
     return;
   error:
     delete msg;
-    LOGF(L_CLI, "ERROR\r\n");
+    LOGF(L_BYPASS, "ERROR\r\n");
   }
 };
 
@@ -1543,10 +1543,10 @@ class CoAPPeerLogClientTransactions : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
-    coapPeer->logClientTransactions(L_CLI);
+    coapPeer->logClientTransactions(L_BYPASS);
   }
 };
 
@@ -1558,10 +1558,10 @@ class CoAPPeerLogServerTransactions : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
-    coapPeer->logServerTransactions(L_CLI);
+    coapPeer->logServerTransactions(L_BYPASS);
   }
 };
 
@@ -1574,14 +1574,14 @@ class CoAPPeerStopRetransmissions : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP client context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP client context created - do first coap.create\r\n");
       return;
     }
     coap_message_id_t message_id = str_to_uint32_t(cmd.argv[0], 10);
     if (!coapPeer->stopRetransmissions(message_id)) {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     } else {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     }
   }
 };
@@ -1593,13 +1593,13 @@ class CoAPPeerDestroy : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     if (!coapPeer) {
-      LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
+      LOG(L_BYPASS, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
     if (!coapPeer->close()) {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     } else {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     }
     delete coapPeer;
     coapPeer = 0;
@@ -1620,7 +1620,7 @@ class BreakoutSendCommand : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     char buffer[140];
@@ -1630,13 +1630,13 @@ class BreakoutSendCommand : public OwlModemCLIExecutor {
       str input = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
       command.len = hex_to_str(command.s, 140, input);
       if (command.len * 2 != input.len) {
-        LOG(L_CLI, "ERROR bad input hex string or more than 140 bytes\r\n");
+        LOG(L_BYPASS, "ERROR bad input hex string or more than 140 bytes\r\n");
         return;
       }
       is_binary = true;
     } else {
       if (command.len > 140) {
-        LOG(L_CLI, "ERROR more than 140 bytes\r\n");
+        LOG(L_BYPASS, "ERROR more than 140 bytes\r\n");
         return;
       }
       command.len = cmd.args.len;
@@ -1646,19 +1646,19 @@ class BreakoutSendCommand : public OwlModemCLIExecutor {
     command_status_code_e code = breakout->sendCommand(command, is_binary);
     switch (code) {
       case COMMAND_STATUS_OK:
-        LOG(L_CLI, "OK\r\n");
+        LOG(L_BYPASS, "OK\r\n");
         break;
       case COMMAND_STATUS_ERROR:
-        LOG(L_CLI, "ERROR\r\n");
+        LOG(L_BYPASS, "ERROR\r\n");
         break;
       case COMMAND_STATUS_BUFFER_TOO_SMALL:
-        LOG(L_CLI, "BUFFER_TOO_SMALL\r\n");
+        LOG(L_BYPASS, "BUFFER_TOO_SMALL\r\n");
         break;
       case COMMAND_STATUS_NO_COMMAND_WAITING:
-        LOG(L_CLI, "NO_COMMAND_WAITING\r\n");
+        LOG(L_BYPASS, "NO_COMMAND_WAITING\r\n");
         break;
       default:
-        LOG(L_CLI, "ERROR %d\r\n", code);
+        LOG(L_BYPASS, "ERROR %d\r\n", code);
     }
   }
 };
@@ -1676,19 +1676,19 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
     str *data = (str *)cb_parameter;
     switch (receipt_code) {
       case COMMAND_RECEIPT_CONFIRMED_DELIVERY:
-        LOG(L_CLI, "Command [%.*s] delivery is confirmed\r\n", data ? data->len : 0, data ? data->s : 0);
+        LOG(L_BYPASS, "Command [%.*s] delivery is confirmed\r\n", data ? data->len : 0, data ? data->s : 0);
         break;
       case COMMAND_RECEIPT_SERVER_ERROR:
-        LOG(L_CLI, "Command [%.*s] server error or command rejected\r\n", data ? data->len : 0, data ? data->s : 0);
+        LOG(L_BYPASS, "Command [%.*s] server error or command rejected\r\n", data ? data->len : 0, data ? data->s : 0);
         break;
       case COMMAND_RECEIPT_CANCELED:
-        LOG(L_CLI, "Command [%.*s] delivery canceled\r\n", data ? data->len : 0, data ? data->s : 0);
+        LOG(L_BYPASS, "Command [%.*s] delivery canceled\r\n", data ? data->len : 0, data ? data->s : 0);
         break;
       case COMMAND_RECEIPT_TIMEOUT:
-        LOG(L_CLI, "Command [%.*s] delivery timeout\r\n", data ? data->len : 0, data ? data->s : 0);
+        LOG(L_BYPASS, "Command [%.*s] delivery timeout\r\n", data ? data->len : 0, data ? data->s : 0);
         break;
       default:
-        LOG(L_CLI, "Command [%.*s] unknown receipt code %d\r\n", data ? data->len : 0, data ? data->s : 0,
+        LOG(L_BYPASS, "Command [%.*s] unknown receipt code %d\r\n", data ? data->len : 0, data ? data->s : 0,
             receipt_code);
         break;
     }
@@ -1703,7 +1703,7 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
     Breakout *breakout = &Breakout::getInstance();
     command_status_code_e code;
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     char buffer[140];
@@ -1713,13 +1713,13 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
       str input = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
       command.len = hex_to_str(command.s, 140, input);
       if (command.len * 2 != input.len) {
-        LOG(L_CLI, "ERROR bad input hex string or more than 140 bytes\r\n");
+        LOG(L_BYPASS, "ERROR bad input hex string or more than 140 bytes\r\n");
         return;
       }
       is_binary = true;
     } else {
       if (command.len > 140) {
-        LOG(L_CLI, "ERROR more than 140 bytes\r\n");
+        LOG(L_BYPASS, "ERROR more than 140 bytes\r\n");
         return;
       }
       command.len = cmd.args.len;
@@ -1732,28 +1732,28 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
     code = breakout->sendCommandWithReceiptRequest(command, callbackOnDeliveryReceipt, data, is_binary);
     switch (code) {
       case COMMAND_STATUS_OK:
-        LOG(L_CLI, "OK\r\n");
+        LOG(L_BYPASS, "OK\r\n");
         break;
       case COMMAND_STATUS_ERROR:
-        LOG(L_CLI, "ERROR\r\n");
+        LOG(L_BYPASS, "ERROR\r\n");
         goto error;
         break;
       case COMMAND_STATUS_BUFFER_TOO_SMALL:
-        LOG(L_CLI, "BUFFER_TOO_SMALL\r\n");
+        LOG(L_BYPASS, "BUFFER_TOO_SMALL\r\n");
         goto error;
         break;
       case COMMAND_STATUS_NO_COMMAND_WAITING:
-        LOG(L_CLI, "NO_COMMAND_WAITING\r\n");
+        LOG(L_BYPASS, "NO_COMMAND_WAITING\r\n");
         goto error;
         break;
       default:
-        LOG(L_CLI, "ERROR %d\r\n", code);
+        LOG(L_BYPASS, "ERROR %d\r\n", code);
         goto error;
     }
     return;
   out_of_memory:
   error:
-    LOG(L_CLI, "ERROR - allocating memory for callback parameter\r\n");
+    LOG(L_BYPASS, "ERROR - allocating memory for callback parameter\r\n");
     if (data) {
       str_free(*data);
       owl_free(data);
@@ -1771,20 +1771,20 @@ class BreakoutSetHandlerCommand : public OwlModemCLIExecutor {
   }
 
   static void commandHandler(const char *buf, size_t bufSize, bool isBinary) {
-    LOG(L_CLI, "Received To-SIM Command as %s:\r\n", isBinary ? "binary" : "text");
+    LOG(L_BYPASS, "Received To-SIM Command as %s:\r\n", isBinary ? "binary" : "text");
     str data = {.s = (char *)buf, .len = (int)bufSize};
-    LOGSTR(L_CLI, data);
+    LOGSTR(L_BYPASS, data);
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     bool set = str_equalcase_char(cmd.argv[0], "on");
     breakout->setCommandHandler(set ? BreakoutSetHandlerCommand::commandHandler : 0);
-    LOG(L_CLI, "OK\r\n");
+    LOG(L_BYPASS, "OK\r\n");
   }
 };
 
@@ -1797,14 +1797,14 @@ class BreakoutHasWaitingCommand : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     bool result = breakout->hasWaitingCommand();
     if (result)
-      LOG(L_CLI, "OK commands are waiting\r\n");
+      LOG(L_BYPASS, "OK commands are waiting\r\n");
     else
-      LOG(L_CLI, "OK no commands waiting\r\n");
+      LOG(L_BYPASS, "OK no commands waiting\r\n");
   }
 };
 
@@ -1817,7 +1817,7 @@ class BreakoutReceiveCommand : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     size_t size                = 0;
@@ -1827,23 +1827,23 @@ class BreakoutReceiveCommand : public OwlModemCLIExecutor {
     switch (code) {
       case COMMAND_STATUS_OK:
         if (isBinary) {
-          LOG(L_CLI, "OK binary\r\n");
-          LOGSTR(L_CLI, response);
+          LOG(L_BYPASS, "OK binary\r\n");
+          LOGSTR(L_BYPASS, response);
         } else {
-          LOG(L_CLI, "OK text [%.*s]\r\n", response.len, response.s);
+          LOG(L_BYPASS, "OK text [%.*s]\r\n", response.len, response.s);
         }
         break;
       case COMMAND_STATUS_ERROR:
-        LOG(L_CLI, "ERROR\r\n");
+        LOG(L_BYPASS, "ERROR\r\n");
         break;
       case COMMAND_STATUS_BUFFER_TOO_SMALL:
-        LOG(L_CLI, "BUFFER_TOO_SMALL\r\n");
+        LOG(L_BYPASS, "BUFFER_TOO_SMALL\r\n");
         break;
       case COMMAND_STATUS_NO_COMMAND_WAITING:
-        LOG(L_CLI, "NO_COMMAND_WAITING\r\n");
+        LOG(L_BYPASS, "NO_COMMAND_WAITING\r\n");
         break;
       default:
-        LOG(L_CLI, "ERROR %d\r\n", code);
+        LOG(L_BYPASS, "ERROR %d\r\n", code);
     }
   }
 };
@@ -1857,11 +1857,11 @@ class BreakoutCheckForCommands : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     breakout->checkForCommands();
-    LOG(L_CLI, "OK\r\n");
+    LOG(L_BYPASS, "OK\r\n");
   }
 };
 
@@ -1876,7 +1876,7 @@ class BreakoutSetPollingInterval : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     uint32_t interval_seconds = str_to_uint32_t(cmd.argv[0], 10);
@@ -1896,13 +1896,13 @@ class BreakoutReinitTransport : public OwlModemCLIExecutor {
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     Breakout *breakout = &Breakout::getInstance();
     if (!breakout) {
-      LOG(L_CLI, "ERROR - Breakout not initialized\r\n");
+      LOG(L_BYPASS, "ERROR - Breakout not initialized\r\n");
       return;
     }
     if (breakout->reinitializeTransport()) {
-      LOG(L_CLI, "OK\r\n");
+      LOG(L_BYPASS, "OK\r\n");
     } else {
-      LOG(L_CLI, "ERROR\r\n");
+      LOG(L_BYPASS, "ERROR\r\n");
     }
   }
 };
@@ -2017,7 +2017,7 @@ OwlModemCLI::OwlModemCLI(OwlModem *modem, USBSerial *debug_port) {
 
   executors[cnt++] = 0;
   if (cnt > MAX_COMMANDS) {
-    LOG(L_CRIT, "Registered more commands than we have space for! %d > %d - Increase MAX_COMMANDS\r\n", cnt,
+    LOG(L_ERROR, "Registered more commands than we have space for! %d > %d - Increase MAX_COMMANDS\r\n", cnt,
         MAX_COMMANDS);
   }
 
@@ -2050,17 +2050,17 @@ int OwlModemCLI::handleUserInput(int resume) {
   if (!owlModem || !debugPort) return 0;
   char c;
   if (!resume) {
-    LOGF(L_CLI, "\r\n");
-    LOGF(L_CLI, "Welcome to the OwlModem simple CLI interface!\r\n");
-    LOGF(L_CLI, "  Type your commands to test the OwlModem API. Hit <TAB> for completion and fast help.\r\n");
-    LOGF(L_CLI, "  - use 'help' for a list of supported commands.\r\n");
-    LOGF(L_CLI, "  - use 'quit' to shut-down this CLI and return control to your own program.\r\n");
-    LOGF(L_CLI, "  - use 'history' print the command history (limited to %d entries).\r\n", MODEM_CLI_CMD_HISTORY);
-    LOGF(L_CLI, "  - use the Up and Down arrow to scroll through the command history\r\n");
-    LOGF(L_CLI, "  - pressing the Down Arrow key while not scrolling through history will clear\r\n");
-    LOGF(L_CLI, "    the current command.\r\n");
-    LOGF(L_CLI, "\r\n");
-    LOGF(L_CLI, CLI_PROMPT);
+    LOGF(L_BYPASS, "\r\n");
+    LOGF(L_BYPASS, "Welcome to the OwlModem simple CLI interface!\r\n");
+    LOGF(L_BYPASS, "  Type your commands to test the OwlModem API. Hit <TAB> for completion and fast help.\r\n");
+    LOGF(L_BYPASS, "  - use 'help' for a list of supported commands.\r\n");
+    LOGF(L_BYPASS, "  - use 'quit' to shut-down this CLI and return control to your own program.\r\n");
+    LOGF(L_BYPASS, "  - use 'history' print the command history (limited to %d entries).\r\n", MODEM_CLI_CMD_HISTORY);
+    LOGF(L_BYPASS, "  - use the Up and Down arrow to scroll through the command history\r\n");
+    LOGF(L_BYPASS, "  - pressing the Down Arrow key while not scrolling through history will clear\r\n");
+    LOGF(L_BYPASS, "    the current command.\r\n");
+    LOGF(L_BYPASS, "\r\n");
+    LOGF(L_BYPASS, CLI_PROMPT);
     command.len = 0;
   }
   while (debugPort->available()) {
@@ -2069,7 +2069,7 @@ int OwlModemCLI::handleUserInput(int resume) {
       case '\n':
       case '\r':
         if (command.len > 0) {
-          LOGE(L_CLI, "\r\n");
+          LOGE(L_BYPASS, "\r\n");
 
           if (cmdHistoryHead == -1) {
             cmdHistoryHead     = 0;
@@ -2097,7 +2097,7 @@ int OwlModemCLI::handleUserInput(int resume) {
           if (executor) {
             /* registered command */
             if (!executor->checkParams(cmd)) {
-              LOGF(L_CLI, "Invalid numbers of parameters %d. Must be between %d and %d.\r\n", cmd.argc,
+              LOGF(L_BYPASS, "Invalid numbers of parameters %d. Must be between %d and %d.\r\n", cmd.argc,
                    executor->minParams, executor->maxParams);
             } else {
               executor->executor(*this, cmd);
@@ -2110,7 +2110,7 @@ int OwlModemCLI::handleUserInput(int resume) {
             doHistory();
           } else if (str_equalcase(cmd.name, s_quit)) {
             /* exit */
-            LOGF(L_CLI, "\r\nBye-Bye!\r\n");
+            LOGF(L_BYPASS, "\r\nBye-Bye!\r\n");
             in_command_execution = false;
             return 0;
           } else if (str_equalcase_prefix_char(command, "AT")) {
@@ -2119,52 +2119,52 @@ int OwlModemCLI::handleUserInput(int resume) {
             at_result_code_e result_code =
                 owlModem->doCommand(command.s, 2 * 60 * 1000, &response, MODEM_RESPONSE_BUFFER_SIZE);
             if (!response.len)
-              LOGF(L_CLI, " Command [%.*s] returned with result code %s (%d)\r\n", command.len, command.s,
+              LOGF(L_BYPASS, " Command [%.*s] returned with result code %s (%d)\r\n", command.len, command.s,
                    at_result_code_text(result_code), result_code);
             else
-              LOGF(L_CLI, " Command [%.*s] returned with result code %s (%d) and output [%.*s]\r\n", command.len,
+              LOGF(L_BYPASS, " Command [%.*s] returned with result code %s (%d) and output [%.*s]\r\n", command.len,
                    command.s, at_result_code_text(result_code), result_code, response.len, response.s);
           } else {
             /* Invalid Command */
-            LOG(L_CLI, "Invalid command: [%.*s]\r\n", command.len, command.s);
+            LOG(L_BYPASS, "Invalid command: [%.*s]\r\n", command.len, command.s);
           }
 
           in_command_execution = false;
           command.len          = 0;
-          LOGE(L_CLI, "\r\n");
-          LOGF(L_CLI, CLI_PROMPT);
+          LOGE(L_BYPASS, "\r\n");
+          LOGF(L_BYPASS, CLI_PROMPT);
         } else {
           cmdHistoryIterator = -1;
-          LOGE(L_CLI, "\r\n");
-          LOGF(L_CLI, CLI_PROMPT);
+          LOGE(L_BYPASS, "\r\n");
+          LOGF(L_BYPASS, CLI_PROMPT);
         }
         break;
       case 127:
         /* backspace / delete */
         if (command.len > 0) {
           command.s[command.len - 1] = ' ';
-          LOGE(L_CLI, "\r");
-          LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+          LOGE(L_BYPASS, "\r");
+          LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
           command.len--;
         }
-        LOGE(L_CLI, "\r");
-        LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+        LOGE(L_BYPASS, "\r");
+        LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
         break;
 
       case 21:
         /* Ctrl-u   - Clear line */
-        LOGE(L_CLI, "\r");
-        LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
+        LOGE(L_BYPASS, "\r");
+        LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, empty_spaces);
         command.len  = 0;
         command.s[0] = 0;
-        LOGE(L_CLI, "\r");
-        LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+        LOGE(L_BYPASS, "\r");
+        LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
         break;
 
       case 23:
         /* Ctrl-w    - Delete last word */
-        LOGE(L_CLI, "\r");
-        LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
+        LOGE(L_BYPASS, "\r");
+        LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, empty_spaces);
         for (int i = command.len; i > 0; i--) {
           if (command.s[i - 1] == ' ') {
             command.len -= 1;
@@ -2174,8 +2174,8 @@ int OwlModemCLI::handleUserInput(int resume) {
           command.len -= 1;
           command.s[command.len] = 0;
         }
-        LOGE(L_CLI, "\r");
-        LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+        LOGE(L_BYPASS, "\r");
+        LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
         break;
 
       case 9:
@@ -2199,11 +2199,11 @@ int OwlModemCLI::handleUserInput(int resume) {
           }
 
           memcpy(command.s, cmdHistory[cmdHistoryIterator], cmdHistoryLen[cmdHistoryIterator]);
-          LOGE(L_CLI, "\r");
-          LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
+          LOGE(L_BYPASS, "\r");
+          LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, empty_spaces);
           command.len = cmdHistoryLen[cmdHistoryIterator];
-          LOGE(L_CLI, "\r");
-          LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+          LOGE(L_BYPASS, "\r");
+          LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
 
         } else {
           if (command.len < MODEM_CLI_CMD_LEN) command.s[command.len++] = c;
@@ -2221,19 +2221,19 @@ int OwlModemCLI::handleUserInput(int resume) {
               cmdHistoryIterator = (cmdHistoryIterator + 1) % MODEM_CLI_CMD_HISTORY;
             }
             memcpy(command.s, cmdHistory[cmdHistoryIterator], cmdHistoryLen[cmdHistoryIterator]);
-            LOGE(L_CLI, "\r");
-            LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
+            LOGE(L_BYPASS, "\r");
+            LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, empty_spaces);
             command.len = cmdHistoryLen[cmdHistoryIterator];
-            LOGE(L_CLI, "\r");
-            LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+            LOGE(L_BYPASS, "\r");
+            LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
           } else {
             /* Ignore Down Arrow if we are not browsing the history */
-            LOGE(L_CLI, "\r");
-            LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, empty_spaces);
+            LOGE(L_BYPASS, "\r");
+            LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, empty_spaces);
             command.len  = 0;
             command.s[0] = 0;
-            LOGE(L_CLI, "\r");
-            LOGF(L_CLI, CLI_PROMPT "%.*s", command.len, command.s);
+            LOGE(L_BYPASS, "\r");
+            LOGF(L_BYPASS, CLI_PROMPT "%.*s", command.len, command.s);
           }
         } else {
           if (command.len < MODEM_CLI_CMD_LEN) command.s[command.len++] = c;
@@ -2280,36 +2280,36 @@ OwlModemCLIExecutor *OwlModemCLI::findExecutor(str name) {
 
 void OwlModemCLI::doHelp(str *prefix) {
   if (!prefix) {
-    LOGE(L_CLI, "\r\n");
-    LOGE(L_CLI, "List of supported commands\r\n");
-    LOGE(L_CLI, "  - %.*s - print this output\r\n", s_help.len, s_help.s);
-    LOGE(L_CLI, "  - %.*s - print CLI command history\r\n", s_history.len, s_history.s);
-    LOGE(L_CLI, "  - %.*s - shut-down this CLI\r\n", s_quit.len, s_quit.s);
-    LOGE(L_CLI, "\r\n");
-    LOGE(L_CLI,
+    LOGE(L_BYPASS, "\r\n");
+    LOGE(L_BYPASS, "List of supported commands\r\n");
+    LOGE(L_BYPASS, "  - %.*s - print this output\r\n", s_help.len, s_help.s);
+    LOGE(L_BYPASS, "  - %.*s - print CLI command history\r\n", s_history.len, s_history.s);
+    LOGE(L_BYPASS, "  - %.*s - shut-down this CLI\r\n", s_quit.len, s_quit.s);
+    LOGE(L_BYPASS, "\r\n");
+    LOGE(L_BYPASS,
          "  - AT<something> - bypass an AT command; replace <something> with your bytes (max 2 minutes timeout)\r\n");
-    LOGE(L_CLI, "\r\n");
+    LOGE(L_BYPASS, "\r\n");
     for (int i = 0; executors[i] != 0; i++) {
       if (executors[i]->helpParameters.len == 0)
-        LOGE(L_CLI, "  - %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s, executors[i]->help.len,
+        LOGE(L_BYPASS, "  - %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s, executors[i]->help.len,
              executors[i]->help.s);
       else
-        LOGE(L_CLI, "  - %.*s %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s,
+        LOGE(L_BYPASS, "  - %.*s %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s,
              executors[i]->helpParameters.len, executors[i]->helpParameters.s, executors[i]->help.len,
              executors[i]->help.s);
     }
-    LOGE(L_CLI, "\r\n");
+    LOGE(L_BYPASS, "\r\n");
   } else {
-    LOGE(L_CLI, "\r\n");
-    if (str_equalcase_prefix(s_help, *prefix)) LOGE(L_CLI, "  - %.*s - print this output\r\n", s_help.len, s_help.s);
-    if (str_equalcase_prefix(s_quit, *prefix)) LOGE(L_CLI, "  - %.*s - shut-down this CLI\r\n", s_quit.len, s_quit.s);
+    LOGE(L_BYPASS, "\r\n");
+    if (str_equalcase_prefix(s_help, *prefix)) LOGE(L_BYPASS, "  - %.*s - print this output\r\n", s_help.len, s_help.s);
+    if (str_equalcase_prefix(s_quit, *prefix)) LOGE(L_BYPASS, "  - %.*s - shut-down this CLI\r\n", s_quit.len, s_quit.s);
     for (int i = 0; executors[i]; i++) {
       if (!str_equalcase_prefix(executors[i]->name, *prefix)) continue;
       if (executors[i]->helpParameters.len == 0)
-        LOGE(L_CLI, "  - %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s, executors[i]->help.len,
+        LOGE(L_BYPASS, "  - %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s, executors[i]->help.len,
              executors[i]->help.s);
       else
-        LOGE(L_CLI, "  - %.*s %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s,
+        LOGE(L_BYPASS, "  - %.*s %.*s - %.*s\r\n", executors[i]->name.len, executors[i]->name.s,
              executors[i]->helpParameters.len, executors[i]->helpParameters.s, executors[i]->help.len,
              executors[i]->help.s);
     }
@@ -2318,30 +2318,30 @@ void OwlModemCLI::doHelp(str *prefix) {
 
 void OwlModemCLI::doHistory() {
   if (cmdHistoryHead == -1) {
-    LOGF(L_CLI, "Empty\r\n");
+    LOGF(L_BYPASS, "Empty\r\n");
   } else if (cmdHistoryHead < cmdHistoryTail) {
     int i = 0;
     for (i = cmdHistoryHead + MODEM_CLI_CMD_HISTORY; i >= cmdHistoryTail; i--) {
 #ifdef MODEM_CLI_CMD_HISTORY_DEBUG
-      LOGF(L_CLI, "  %2d: %.*s\r\n", (i % MODEM_CLI_CMD_HISTORY), cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY],
+      LOGF(L_BYPASS, "  %2d: %.*s\r\n", (i % MODEM_CLI_CMD_HISTORY), cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY],
            cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
 #else
-      LOGF(L_CLI, "  %.*s\r\n", cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY], cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
+      LOGF(L_BYPASS, "  %.*s\r\n", cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY], cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
 #endif
     }
   } else {
     int i = 0;
     for (i = cmdHistoryHead; i >= cmdHistoryTail; i--) {
 #ifdef MODEM_CLI_CMD_HISTORY_DEBUG
-      LOGF(L_CLI, "  %2d: %.*s\r\n", (i % MODEM_CLI_CMD_HISTORY), cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY],
+      LOGF(L_BYPASS, "  %2d: %.*s\r\n", (i % MODEM_CLI_CMD_HISTORY), cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY],
            cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
 #else
-      LOGF(L_CLI, "  %.*s\r\n", cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY], cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
+      LOGF(L_BYPASS, "  %.*s\r\n", cmdHistoryLen[i % MODEM_CLI_CMD_HISTORY], cmdHistory[i % MODEM_CLI_CMD_HISTORY]);
 #endif
     }
   }
 #ifdef MODEM_CLI_CMD_HISTORY_DEBUG
-  LOGF(L_CLI, "Iterator: %d; Head: %d; Tail: %d\r\n", cmdHistoryIterator, cmdHistoryHead, cmdHistoryTail);
+  LOGF(L_BYPASS, "Iterator: %d; Head: %d; Tail: %d\r\n", cmdHistoryIterator, cmdHistoryHead, cmdHistoryTail);
 #endif
 }
 
@@ -2355,15 +2355,15 @@ void OwlModemCLI::commandCompletion(str *command) {
       command->len = i;
       doHelp(command);
       command->len = k;
-      LOGE(L_CLI, "\r\n");
-      LOGF(L_CLI, CLI_PROMPT "%.*s", command->len, command->s);
+      LOGE(L_BYPASS, "\r\n");
+      LOGF(L_BYPASS, CLI_PROMPT "%.*s", command->len, command->s);
       return;
     }
   /* if it's empty, do all help */
   if (command->len == 0) {
     doHelp(0);
-    LOGE(L_CLI, "\r\n");
-    LOGF(L_CLI, CLI_PROMPT "%.*s", command->len, command->s);
+    LOGE(L_BYPASS, "\r\n");
+    LOGF(L_BYPASS, CLI_PROMPT "%.*s", command->len, command->s);
     return;
   }
   /* count partial matches */
@@ -2414,6 +2414,6 @@ void OwlModemCLI::commandCompletion(str *command) {
     /* if multiple matches, list them */
     doHelp(command);
   }
-  LOGE(L_CLI, "\r\n");
-  LOGF(L_CLI, CLI_PROMPT "%.*s", command->len, command->s);
+  LOGE(L_BYPASS, "\r\n");
+  LOGF(L_BYPASS, CLI_PROMPT "%.*s", command->len, command->s);
 }

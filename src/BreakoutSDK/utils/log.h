@@ -44,23 +44,32 @@
 /*
  * Log levels
  */
-#define L_CLI -4
-#define L_ALERT -3
-#define L_CRIT -2
-#define L_ERR -1
-#define L_ISSUE 0
-#define L_WARN 1
-#define L_NOTICE 2
+#define L_OFF 0
+#define L_ERROR 1
+#define L_WARN 2
 #define L_INFO 3
-#define L_DB 4
-#define L_DBG 5
-#define L_MEM 6
+#define L_DEBUG 4
+
+// Special bypass level for CLI and any other necessary output
+#define L_BYPASS 0
+
+// Legacy log levels for compatibility - will be deprecated in a future major version bump.
+#define L_CLI L_BYPASS
+#define L_ALERT L_ERROR
+#define L_CRIT L_ERROR
+#define L_ERR L_ERROR
+#define L_ISSUE L_WARN
+#define L_NOTICE L_INFO
+#define L_DB L_DEBUG
+#define L_DBG L_DEBUG
+#define L_MEM L_DEBUG
+
 
 
 
 #if LOG_DISABLED == 0
 
-#define IS_PRINTABLE(level) (level <= debug_level || level == L_CLI)
+#define IS_PRINTABLE(level) (level <= debug_level || level == L_BYPASS)
 
 #define LOG(level, format, ...) owl_log(level, "%s():%d " format, __func__, __LINE__, ##__VA_ARGS__)
 #define LOGE(level, format, ...) owl_log_empty(level, format, ##__VA_ARGS__)
@@ -82,7 +91,7 @@
 
 #define GOTOERR(label)                                                                                                 \
   do {                                                                                                                 \
-    LOG(L_ERR, "Going to label " #label "\r\n");                                                                       \
+    LOG(L_ERROR, "Going to label " #label "\r\n");                                                                       \
     goto label;                                                                                                        \
   } while (0)
 

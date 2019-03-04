@@ -89,14 +89,14 @@ int OwlModemSocket::processURCConnected(str urc, str data) {
     }
   }
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
   } else {
     if (socket_error == 0) {
       this->status[socket].is_connected = 1;
       LOG(L_INFO, "Connected event on socket %d reported success\r\n", socket);
     } else {
       this->status[socket].is_connected = 0;
-      LOG(L_ERR, "Connected event on socket %d reported socket error %d\r\n", socket, socket_error);
+      LOG(L_ERROR, "Connected event on socket %d reported socket error %d\r\n", socket, socket_error);
     }
   }
   return 1;
@@ -119,11 +119,11 @@ int OwlModemSocket::processURCClosed(str urc, str data) {
     }
   }
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "handleClosed()  Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "handleClosed()  Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
   } else {
     this->status[socket].is_connected = 0;
     if (!this->status[socket].handler_SocketClosed)
-      LOG(L_NOTICE,
+      LOG(L_INFO,
           "Received URC socket-closed for socket %d. Set a handler when you call connect(), acceptTCP(), etc"
           " if you wish to receive this event in your application\r\n",
           socket);
@@ -178,9 +178,9 @@ int OwlModemSocket::processURCTCPAccept(str urc, str data) {
     }
   }
   if (new_socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad new_socket %d >= %d\r\n", new_socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad new_socket %d >= %d\r\n", new_socket, MODEM_MAX_SOCKETS);
   } else if (listening_socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad listening_socket %d >= %d\r\n", listening_socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad listening_socket %d >= %d\r\n", listening_socket, MODEM_MAX_SOCKETS);
   } else {
     this->status[new_socket].setOpened(AT_USO_Protocol__TCP);
     this->status[new_socket].is_connected         = 1;
@@ -188,7 +188,7 @@ int OwlModemSocket::processURCTCPAccept(str urc, str data) {
     this->status[new_socket].handler_SocketClosed = this->status[listening_socket].handler_SocketClosed;
 
     if (!this->status[listening_socket].handler_TCPAccept)
-      LOG(L_NOTICE,
+      LOG(L_INFO,
           "Received URC for TCP-Accept on listening-socket %d local-ip %.*s, from %.*s:%u new socket %d. Set a handler "
           "when calling acceptTCP(), openAcceptTCP(), etc if you wish to receive this event in your application\r\n",
           listening_socket, local_ip.len, local_ip.s, remote_ip.len, remote_ip.len, new_socket);
@@ -220,7 +220,7 @@ int OwlModemSocket::processURCReceive(str urc, str data) {
     }
   }
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
   } else {
     if (!this->status[socket].is_connected) {
       LOG(L_WARN, "Received +UUSORD event on socket %d which is not connected\r\n", socket);
@@ -252,7 +252,7 @@ int OwlModemSocket::processURCReceiveFrom(str urc, str data) {
     }
   }
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
   } else {
     this->status[socket].len_outstanding_receivefrom_data = len;
     LOG(L_INFO, "Receive URC for queued received-from data on socket %d of %d bytes\r\n", socket, len);
@@ -274,7 +274,7 @@ int OwlModemSocket::processURC(str urc, str data) {
 
 
 void OwlModemSocket::handleWaitingData() {
-  LOG(L_MEM, "Starting handleWaitingData\r\n");
+  LOG(L_DEBUG, "Starting handleWaitingData\r\n");
 
   char buf[64];
   str remote_ip = {.s = buf, .len = 0};
@@ -295,14 +295,14 @@ void OwlModemSocket::handleWaitingData() {
             if (status[socket].handler_UDPData)
               (status[socket].handler_UDPData)(socket, remote_ip, remote_port, udp_data);
             else
-              LOG(L_NOTICE, "ReceiveFrom on socket %u UDP Data of %u bytes without handler - ignored\r\n", socket,
+              LOG(L_INFO, "ReceiveFrom on socket %u UDP Data of %u bytes without handler - ignored\r\n", socket,
                   udp_data.len);
           } else {
             /* Should we reset the indicator here and retry? Maybe that's an infinite loop, so probably not */
           }
           break;
         default:
-          LOG(L_ERR, "Received on socket %u with bad protocol %d - ignored\r\n", socket, status[socket].protocol);
+          LOG(L_ERROR, "Received on socket %u with bad protocol %d - ignored\r\n", socket, status[socket].protocol);
           status[socket].len_outstanding_receivefrom_data = 0;
           break;
       }
@@ -321,7 +321,7 @@ void OwlModemSocket::handleWaitingData() {
             if (status[socket].handler_UDPData)
               (status[socket].handler_UDPData)(socket, remote_ip, remote_port, udp_data);
             else
-              LOG(L_NOTICE, "Receive on socket %u UDP Data of %u bytes without handler - ignored\r\n", socket,
+              LOG(L_INFO, "Receive on socket %u UDP Data of %u bytes without handler - ignored\r\n", socket,
                   udp_data.len);
           } else {
             /* Should we reset the indicator here and retry? Maybe that's an infinite loop, so probably not */
@@ -335,25 +335,25 @@ void OwlModemSocket::handleWaitingData() {
             if (status[socket].handler_TCPData)
               (status[socket].handler_TCPData)(socket, udp_data);
             else
-              LOG(L_NOTICE, "Received on socket %u TCP Data of %u bytes without handler - ignored\r\n", socket,
+              LOG(L_INFO, "Received on socket %u TCP Data of %u bytes without handler - ignored\r\n", socket,
                   udp_data.len);
 
             status[socket].len_outstanding_receive_data -= udp_data.len;
             if (status[socket].len_outstanding_receive_data < 0) {
-              LOG(L_ERR, "Bad len_outstanding_receive_data calculation %d < 0\r\n",
+              LOG(L_ERROR, "Bad len_outstanding_receive_data calculation %d < 0\r\n",
                   status[socket].len_outstanding_receive_data);
               status[socket].len_outstanding_receive_data = 0;
             }
           }
           break;
         default:
-          LOG(L_ERR, "Received on socket %u with bad protocol %d - ignored\r\n", socket, status[socket].protocol);
+          LOG(L_ERROR, "Received on socket %u with bad protocol %d - ignored\r\n", socket, status[socket].protocol);
           status[socket].len_outstanding_receive_data = 0;
           break;
       }
     }
   }
-  LOG(L_MEM, "Done handleWaitingData\r\n");
+  LOG(L_DEBUG, "Done handleWaitingData\r\n");
 }
 
 
@@ -378,7 +378,7 @@ int OwlModemSocket::open(at_uso_protocol_e protocol, uint16_t local_port, uint8_
 
 int OwlModemSocket::close(uint8_t socket) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   char buf[64];
@@ -415,11 +415,11 @@ int OwlModemSocket::getError(at_uso_error_e *out_error) {
 
 int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port, OwlModem_SocketClosedHandler_f cb) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   this->status[socket].is_connected = 0;
@@ -432,7 +432,7 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       snprintf(buf, 64, "AT+USOCO=%u,\"%.*s\",%u", socket, remote_ip.len, remote_ip.s, remote_port);
       break;
     default:
-      LOG(L_ERR, "Socket %u has unsupported protocol %d\r\n", socket, this->status[socket].protocol);
+      LOG(L_ERROR, "Socket %u has unsupported protocol %d\r\n", socket, this->status[socket].protocol);
       return 0;
   }
   int result =
@@ -473,23 +473,23 @@ int OwlModemSocket::send(uint8_t socket, str data) {
 
 int OwlModemSocket::sendUDP(uint8_t socket, str data, int *out_bytes_sent) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (data.len > 512) {
-    LOG(L_ERR, "Too much data %d > max 512 bytes\r\n", data.len);
+    LOG(L_ERROR, "Too much data %d > max 512 bytes\r\n", data.len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (!this->status[socket].is_connected) {
-    LOG(L_ERR, "Socket %d is not connected\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not connected\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__UDP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   int bytes_sent                      = this->send(socket, data);
@@ -500,23 +500,23 @@ int OwlModemSocket::sendUDP(uint8_t socket, str data, int *out_bytes_sent) {
 
 int OwlModemSocket::sendTCP(uint8_t socket, str data, int *out_bytes_sent) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (data.len > 512) {
-    LOG(L_ERR, "Too much data %d > max 512 bytes\r\n", data.len);
+    LOG(L_ERROR, "Too much data %d > max 512 bytes\r\n", data.len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (!this->status[socket].is_connected) {
-    LOG(L_ERR, "Socket %d is not connected\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not connected\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__TCP) {
-    LOG(L_ERR, "Socket %d is not an TCP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an TCP socket\r\n", socket);
     return 0;
   }
   int bytes_sent                      = this->send(socket, data);
@@ -530,19 +530,19 @@ static str s_usost = STRDECL("+USOST: ");
 int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_port, str data) {
   int bytes_sent = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (data.len > 512) {
-    LOG(L_ERR, "Too much data %d > max 512 bytes\r\n", data.len);
+    LOG(L_ERROR, "Too much data %d > max 512 bytes\r\n", data.len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__UDP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   char buf[1200];
@@ -577,7 +577,7 @@ int OwlModemSocket::getQueuedForReceive(uint8_t socket, int *out_receive_tcp, in
   if (out_receive_udp) *out_receive_udp         = 0;
   if (out_receivefrom_udp) *out_receivefrom_udp = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket);
     return 0;
   }
   switch (status[socket].protocol) {
@@ -630,7 +630,7 @@ int OwlModemSocket::receive(uint8_t socket, uint16_t len, str *out_data, int max
           sub.len -= 2;
         }
         if (sub.len != received_len * 2) {
-          LOG(L_ERR, "Indicator said payload has %d bytes follow, but %d hex characters found\r\n", received_len,
+          LOG(L_ERROR, "Indicator said payload has %d bytes follow, but %d hex characters found\r\n", received_len,
               sub.len);
         }
         if (sub.len) {
@@ -643,32 +643,32 @@ int OwlModemSocket::receive(uint8_t socket, uint16_t len, str *out_data, int max
     }
   return 1;
 error:
-  LOG(L_ERR, "Bad payload\r\n");
+  LOG(L_ERROR, "Bad payload\r\n");
   return 0;
 }
 
 int OwlModemSocket::receiveUDP(uint8_t socket, uint16_t len, str *out_data, int max_data_len) {
   if (out_data) out_data->len = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket);
     return 0;
   }
   if (len > 512) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "Unfortunately, only supporting up to 512 binary bytes. 1024 would be possible, but in ASCII mode only\r\n",
         len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (!this->status[socket].is_connected) {
-    LOG(L_ERR, "Socket %d is not connected - use receiveFromUDP\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not connected - use receiveFromUDP\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__UDP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   return this->receive(socket, len, out_data, max_data_len);
@@ -677,25 +677,25 @@ int OwlModemSocket::receiveUDP(uint8_t socket, uint16_t len, str *out_data, int 
 int OwlModemSocket::receiveTCP(uint8_t socket, uint16_t len, str *out_data, int max_data_len) {
   if (out_data) out_data->len = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket);
     return 0;
   }
   if (len > 512) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "Unfortunately, only supporting up to 512 binary bytes. 1024 would be possible, but in ASCII mode only\r\n",
         len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (!this->status[socket].is_connected) {
-    LOG(L_ERR, "Socket %d is not connected\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not connected\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__TCP) {
-    LOG(L_ERR, "Socket %d is not a TCP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not a TCP socket\r\n", socket);
     return 0;
   }
   return this->receive(socket, len, out_data, max_data_len);
@@ -709,21 +709,21 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
   if (out_remote_port) *out_remote_port = 0;
   if (out_data) out_data->len           = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket);
     return 0;
   }
   if (len > 512) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "Unfortunately, only supporting up to 512 binary bytes. 1024 would be possible, but in ASCII mode only\r\n",
         len);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__UDP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   char buf[64];
@@ -770,7 +770,7 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
           sub.len -= 2;
         }
         if (sub.len != received_len * 2) {
-          LOG(L_ERR, "Indicator said payload has %d bytes follow, but %d hex characters found\r\n", received_len,
+          LOG(L_ERROR, "Indicator said payload has %d bytes follow, but %d hex characters found\r\n", received_len,
               sub.len);
         }
         if (sub.len) {
@@ -784,21 +784,21 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
 
   return 1;
 error:
-  LOG(L_ERR, "Bad payload\r\n");
+  LOG(L_ERROR, "Bad payload\r\n");
   return 0;
 }
 
 int OwlModemSocket::listenUDP(uint8_t socket, uint16_t local_port, OwlModem_UDPDataHandler_f cb) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__UDP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   char buf[64];
@@ -813,15 +813,15 @@ int OwlModemSocket::listenUDP(uint8_t socket, uint16_t local_port, OwlModem_UDPD
 
 int OwlModemSocket::listenTCP(uint8_t socket, uint16_t local_port, OwlModem_TCPDataHandler_f handler_tcp_data) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__TCP) {
-    LOG(L_ERR, "Socket %d is not an TCP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an TCP socket\r\n", socket);
     return 0;
   }
 
@@ -834,15 +834,15 @@ int OwlModemSocket::acceptTCP(uint8_t socket, uint16_t local_port, OwlModem_TCPA
                               OwlModem_SocketClosedHandler_f handler_socket_closed,
                               OwlModem_TCPDataHandler_f handler_tcp_data) {
   if (socket >= MODEM_MAX_SOCKETS) {
-    LOG(L_ERR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
+    LOG(L_ERROR, "Bad socket %d >= %d\r\n", socket, MODEM_MAX_SOCKETS);
     return 0;
   }
   if (!this->status[socket].is_opened) {
-    LOG(L_ERR, "Socket %d is not opened\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not opened\r\n", socket);
     return 0;
   }
   if (this->status[socket].protocol != AT_USO_Protocol__TCP) {
-    LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
+    LOG(L_ERROR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
   char buf[64];

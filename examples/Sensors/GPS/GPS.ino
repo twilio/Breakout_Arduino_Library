@@ -18,10 +18,12 @@ Breakout *breakout = &Breakout::getInstance();
 
 void setup() {
   // Feel free to change the log verbosity. E.g. from most critical to most verbose:
-  //   - errors: L_ALERT, L_CRIT, L_ERR, L_ISSUE
-  //   - warnings: L_WARN, L_NOTICE
-  //   - information & debug: L_INFO, L_DB, L_DBG, L_MEM
-  // When logging, the additional L_CLI level ensure that the output will always be visible, no matter the set level.
+  //   - errors:   L_ERROR
+  //   - warnings: L_WARN
+  //   - information: L_INFO
+  //   - debug: L_DEBUG
+  //
+  // When logging, the additional L_BYPASS level ensure that the output will always be visible, no matter the set level.
   owl_log_set_level(L_INFO);
   LOG(L_WARN, "Arduino setup() starting up\r\n");
 

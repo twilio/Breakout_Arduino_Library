@@ -67,7 +67,7 @@ typedef struct {
     if ((src).len) {                                                                                                   \
       (dst).s = (char *)owl_malloc((src).len);                                                                         \
       if (!(dst).s) {                                                                                                  \
-        LOG(L_ERR, "Error allocating %d bytes\r\n", (src).len);                                                        \
+        LOG(L_ERROR, "Error allocating %d bytes\r\n", (src).len);                                                        \
         (dst).len = 0;                                                                                                 \
         goto out_of_memory;                                                                                            \
       }                                                                                                                \
@@ -97,7 +97,7 @@ typedef struct {
     } else if (after_len == 0) {                                                                                       \
       (dst).len -= size;                                                                                               \
     } else {                                                                                                           \
-      LOG(L_ERR, "Bad len calculation %d\r\n", after_len);                                                             \
+      LOG(L_ERROR, "Bad len calculation %d\r\n", after_len);                                                             \
     }                                                                                                                  \
   } while (0)
 

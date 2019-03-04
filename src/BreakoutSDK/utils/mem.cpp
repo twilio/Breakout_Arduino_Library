@@ -34,7 +34,7 @@ extern "C" void *owl_internal_malloc(size_t size, const char *file, const char *
     LOGF(L_MEMDBG, "MEMDBG, %p, %5d bytes,  malloc, %s/%s():%u\r\n", ptr, size, file, func, line);
     return ptr;
   } else {
-    LOGF(L_ERR, "MEMDBG, ERR-MALLOC, %5d bytes,  malloc, %s/%s():%u\r\n", size, file, func, line);
+    LOGF(L_ERROR, "MEMDBG, ERR-MALLOC, %5d bytes,  malloc, %s/%s():%u\r\n", size, file, func, line);
     return 0;
   }
 }
@@ -62,7 +62,7 @@ void *operator new(size_t size, const char *file, const char *func, unsigned int
     LOGF(L_MEMDBG, "MEMDBG, %p, %5d bytes,     new, %s/%s():%u\r\n", ptr, size, file, func, line);
     return ptr;
   } else {
-    LOGF(L_ERR, "MEMDBG, ERR-MALLOC, %5d bytes,     new, %s/%s():%u\r\n", size, file, func, line);
+    LOGF(L_ERROR, "MEMDBG, ERR-MALLOC, %5d bytes,     new, %s/%s():%u\r\n", size, file, func, line);
     return 0;
   }
   //  if (ptr == nullptr) throw std::bad_alloc { };
@@ -75,7 +75,7 @@ void *operator new[](size_t size, const char *file, const char *func, unsigned i
     LOGF(L_MEMDBG, "MEMDBG, %p, %5d bytes,     new, %s/%s():%u\r\n", ptr, size, file, func, line);
     return ptr;
   } else {
-    LOGF(L_ERR, "MEMDBG, ERR-MALLOC, %5d bytes,     new, %s/%s():%u\r\n", size, file, func, line);
+    LOGF(L_ERROR, "MEMDBG, ERR-MALLOC, %5d bytes,     new, %s/%s():%u\r\n", size, file, func, line);
     return 0;
   }
   //  if (ptr == nullptr) throw std::bad_alloc { };

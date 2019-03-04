@@ -52,7 +52,7 @@ int str_tok(str src, char *sep, str *dst) {
   if (!sep_len) return 0;
   if (dst->s) {
     if (dst->s < src.s || dst->s > src.s + src.len || dst->s + dst->len > src.s + src.len) {
-      //      LOG(L_ERR, "The token parameter must either be an empty string on first call, or the last token!");
+      //      LOG(L_ERROR, "The token parameter must either be an empty string on first call, or the last token!");
       return 0;
     }
   }
@@ -93,7 +93,7 @@ int str_tok_with_empty_tokens(str src, char *sep, str *dst) {
   if (!sep_len) return 0;
   if (dst->s) {
     if (dst->s < src.s || dst->s > src.s + src.len || dst->s + dst->len > src.s + src.len) {
-      //      LOG(L_ERR, "The token parameter must either be an empty string on first call, or the last token!");
+      //      LOG(L_ERROR, "The token parameter must either be an empty string on first call, or the last token!");
       return 0;
     }
   }
@@ -143,7 +143,7 @@ int str_tok_with_empty_tokens(str src, char *sep, str *dst) {
 long int str_to_long_int(str x, int base) {
   char buf[65];
   if (x.len > 64) {
-    //    LOG(L_ERR, "The give string is too long to convert - %d > 64\r\n", x.len);
+    //    LOG(L_ERROR, "The give string is too long to convert - %d > 64\r\n", x.len);
     return 0;
   }
   if (x.len > 1 && x.s[0] == '"' && x.s[x.len - 1] == '"') {
@@ -159,7 +159,7 @@ long int str_to_long_int(str x, int base) {
 uint32_t str_to_uint32_t(str x, int base) {
   char buf[33];
   if (x.len > 32) {
-    //    LOG(L_ERR, "The give string is too long to convert - %d > 32\r\n", x.len);
+    //    LOG(L_ERROR, "The give string is too long to convert - %d > 32\r\n", x.len);
     return 0;
   }
   if (x.len > 1 && x.s[0] == '"' && x.s[x.len - 1] == '"') {
@@ -175,7 +175,7 @@ uint32_t str_to_uint32_t(str x, int base) {
 double str_to_double(str x) {
   char buf[65];
   if (x.len > 64) {
-//    LOG(L_ERR, "The give string is too long to convert - %d > 64\n", x.len);
+//    LOG(L_ERROR, "The give string is too long to convert - %d > 64\n", x.len);
     return 0;
   }
   memcpy(buf, x.s, x.len);

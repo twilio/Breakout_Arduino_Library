@@ -80,7 +80,7 @@ extern "C" int owl_log_is_printable(log_level_t level) {
 #define ANSI_RESET ""
 #define ANSI_RESET_BLINK ""
 
-#define ANSI_CLI ANSI_NONE
+#define ANSI_BYPASS ANSI_NONE
 
 #else
 /* ANSI Escape codes:
@@ -108,34 +108,22 @@ extern "C" int owl_log_is_printable(log_level_t level) {
 #define ANSI_RESET "\033[00;49m"
 #define ANSI_RESET_BLINK "\033[01;25m"
 
-#define ANSI_CLI ANSI_GREEN
+#define ANSI_BYPASS ANSI_GREEN
 
 #endif
 
 static char *owl_log_level_name(log_level_t level) {
   switch (level) {
-    case L_CLI:
-      return ANSI_CLI "CLI ";
-    case L_ALERT:
-      return ANSI_BLINK_RED "ALRT" ANSI_RESET_BLINK ANSI_RED;
-    case L_CRIT:
-      return ANSI_RED "CRIT";
-    case L_ERR:
-      return ANSI_YELLOW "ERR ";
-    case L_ISSUE:
-      return ANSI_YELLOW_FAINT "ISSU";
+    case L_BYPASS:
+      return ANSI_BYPASS "BYPS";
+    case L_ERROR:
+      return ANSI_RED "ERR ";
     case L_WARN:
-      return ANSI_BLUE "WARN";
-    case L_NOTICE:
-      return ANSI_CYAN "NOTI";
+      return ANSI_YELLOW_FAINT"WARN";
     case L_INFO:
-      return ANSI_GREEN "INFO";
-    case L_DB:
-      return ANSI_BLUE_FAINT "DB  ";
-    case L_DBG:
-      return ANSI_GREEN_FAINT "DBG ";
-    case L_MEM:
-      return ANSI_GRAY "MEM ";
+      return ANSI_CYAN "INFO";
+    case L_DEBUG:
+      return ANSI_BLUE_FAINT "DEBG";
     default:
       return ANSI_GREEN ">>>>";
   }
@@ -147,28 +135,16 @@ static char *owl_log_level_color(log_level_t level) {
   return "";
 #else
   switch (level) {
-    case L_CLI:
-      return ANSI_CLI;
-    case L_ALERT:
-      return ANSI_BLINK_RED;
-    case L_CRIT:
+    case L_BYPASS:
+      return ANSI_BYPASS;
+    case L_ERROR:
       return ANSI_RED;
-    case L_ERR:
-      return ANSI_YELLOW;
-    case L_ISSUE:
-      return ANSI_YELLOW_FAINT;
     case L_WARN:
-      return ANSI_BLUE;
-    case L_NOTICE:
-      return ANSI_CYAN;
+      return ANSI_YELLOW_FAINT;
     case L_INFO:
-      return ANSI_GREEN;
-    case L_DB:
+      return ANSI_CYAN;
+    case L_DEBUG:
       return ANSI_BLUE_FAINT;
-    case L_DBG:
-      return ANSI_GREEN_FAINT;
-    case L_MEM:
-      return ANSI_GRAY;
     default:
       return ANSI_GREEN;
   }

@@ -74,7 +74,7 @@ int OwlModem::powerOn(owl_power_m bit_mask) {
     owl_time_t timeout = owl_time() + 10 * 1000;
     while (!isPoweredOn()) {
       if (owl_time() > timeout) {
-        LOG(L_ERR, "Timed-out waiting for modem to power on\r\n");
+        LOG(L_ERROR, "Timed-out waiting for modem to power on\r\n");
         return 0;
       }
       delay(50);
@@ -134,7 +134,7 @@ int OwlModem::isPoweredOn() {
  */
 void initCheckPIN(str message) {
   if (!str_equal_prefix_char(message, "READY")) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "PIN status [%.*s] != READY and PIN handler not set. Please disable the SIM card PIN, or set a handler.\r\n",
         message.len, message.s);
   }
@@ -181,7 +181,7 @@ int OwlModem::initModem(int testing_variant) {
 
   /* Resetting the modem network parameters */
   if (!network.getModemMNOProfile(&current_profile)) {
-    LOG(L_ERR, "Error retrieving current MNO Profile\r\n");
+    LOG(L_ERROR, "Error retrieving current MNO Profile\r\n");
     goto error;
   }
 
@@ -195,7 +195,7 @@ int OwlModem::initModem(int testing_variant) {
       LOG(L_WARN, "Updating MNO Profile to %d - %s\r\n", expected_profile,
           at_umnoprof_mno_profile_text(expected_profile));
       if (!network.setModemMNOProfile(expected_profile)) {
-        LOG(L_ERR, "Error re-setting MNO Profile from %d to %d\r\n", current_profile, expected_profile);
+        LOG(L_ERROR, "Error re-setting MNO Profile from %d to %d\r\n", current_profile, expected_profile);
         goto error;
       }
     }
@@ -306,15 +306,15 @@ int OwlModem::initModem(int testing_variant) {
     LOG(L_WARN, "Potential error caching the modem model\r\n");
   } else {
     if (str_equal_char(response, "SARA-N410-02B")) {
-      LOG(L_NOTICE, "Detected the SARA-N410-02B - marking for the listen bug workaround\r\n");
+      LOG(L_INFO, "Detected the SARA-N410-02B - marking for the listen bug workaround\r\n");
       model = Owl_Modem__SARA_N410_02B__Listen_Bug;
     }
   }
 
-  LOG(L_DBG, "Modem correctly initialized\r\n");
+  LOG(L_DEBUG, "Modem correctly initialized\r\n");
   return 1;
 error:
-  LOG(L_ERR, "Failed modem initialization\r\n");
+  LOG(L_ERROR, "Failed modem initialization\r\n");
   return 0;
 }
 
@@ -328,10 +328,10 @@ int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {
       if (network_ready) break;
     }
     if ((testing_variant & Testing__Timeout_Network_Registration_30_Sec) != 0 && owl_time() > timeout) {
-      LOG(L_ERR, "Bailing out from network registration - for testing purposes only\r\n");
+      LOG(L_ERROR, "Bailing out from network registration - for testing purposes only\r\n");
       return 0;
     }
-    LOG(L_NOTICE, ".. waiting for network registration\r\n");
+    LOG(L_INFO, ".. waiting for network registration\r\n");
     delay(2000);
   }
 
@@ -487,7 +487,7 @@ int OwlModem::setHostDeviceInformation(str purpose) {
     }
   }
   if (!registered) {
-    LOG(L_ERR, "Setting HostDeviceInformation failed.\r\n");
+    LOG(L_ERROR, "Setting HostDeviceInformation failed.\r\n");
     return 0;
   }
 
@@ -512,7 +512,7 @@ int OwlModem::sendData(str data) {
   do {
     cnt = modem_port->write(data.s, data.len);
     if (cnt <= 0) {
-      LOG(L_ERR, "Had %d bytes to send on modem_port, but wrote only %d.\r\n", data.len, written);
+      LOG(L_ERROR, "Had %d bytes to send on modem_port, but wrote only %d.\r\n", data.len, written);
       return 0;
     }
     written += cnt;
@@ -570,7 +570,7 @@ int OwlModem::processURC(str line, int report_unknown) {
   str urc = {.s = line.s, .len = k};
   str data = {.s = line.s + k + 2, .len = line.len - k - 2};
 
-  LOG(L_DBG, "URC [%.*s] Data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
+  LOG(L_DEBUG, "URC [%.*s] Data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
 
   /* ordered based on expected incoming count of events */
   if (this->network.processURC(urc, data)) return 1;
@@ -625,7 +625,7 @@ void OwlModem::removeRxBufferLine(str line) {
   } else if (after_len == 0) {
     rx_buffer.len -= line.len;
   } else {
-    LOG(L_ERR, "Bad len calculation %d\r\n", after_len);
+    LOG(L_ERROR, "Bad len calculation %d\r\n", after_len);
   }
 }
 
@@ -634,8 +634,8 @@ void OwlModem::consumeUnsolicited() {
   int start               = 0;
   int saved_rx_buffer_len = rx_buffer.len;
 
-  LOG(L_DBG, "Old-Buffer\r\n");
-  LOGSTR(L_DBG, this->rx_buffer);
+  LOG(L_DEBUG, "Old-Buffer\r\n");
+  LOGSTR(L_DEBUG, this->rx_buffer);
 
   while (getNextCompleteLine(start, &line)) {
     processURC(line, 1);
@@ -653,8 +653,8 @@ void OwlModem::consumeUnsolicited() {
   }
 
   if (saved_rx_buffer_len != rx_buffer.len) {
-    LOG(L_DBG, "New-Buffer\r\n");
-    LOGSTR(L_DBG, this->rx_buffer);
+    LOG(L_DEBUG, "New-Buffer\r\n");
+    LOGSTR(L_DEBUG, this->rx_buffer);
   }
 }
 
@@ -664,11 +664,11 @@ void OwlModem::consumeUnsolicitedInCommandResponse() {
   int saved_rx_buffer_len = rx_buffer.len;
   int consumed            = 0;
 
-  LOG(L_DBG, "Old-Buffer\r\n");
-  LOGSTR(L_DBG, this->rx_buffer);
+  LOG(L_DEBUG, "Old-Buffer\r\n");
+  LOGSTR(L_DEBUG, this->rx_buffer);
 
   while (getNextCompleteLine(start, &line)) {
-    LOG(L_DBG, "Line [%.*s]\r\n", line.len, line.s);
+    LOG(L_DEBUG, "Line [%.*s]\r\n", line.len, line.s);
 
     consumed = processURC(line, 0);
     if (consumed) {
@@ -680,14 +680,14 @@ void OwlModem::consumeUnsolicitedInCommandResponse() {
   }
 
   if (saved_rx_buffer_len != rx_buffer.len) {
-    LOG(L_DBG, "New-Buffer\r\n");
-    LOGSTR(L_DBG, this->rx_buffer);
+    LOG(L_DEBUG, "New-Buffer\r\n");
+    LOGSTR(L_DEBUG, this->rx_buffer);
   }
 }
 
 
 int OwlModem::drainModemRxToBuffer() {
-  LOG(L_MEM, "Trying to drain modem\r\n");
+  LOG(L_DEBUG, "Trying to drain modem\r\n");
   int available, received, total = 0;
   while ((available = modem_port->available()) > 0) {
     if (available > MODEM_Rx_BUFFER_SIZE) available = MODEM_Rx_BUFFER_SIZE;
@@ -699,7 +699,7 @@ int OwlModem::drainModemRxToBuffer() {
     }
     received = modem_port->readBytes(rx_buffer.s + rx_buffer.len, available);
     if (received != available) {
-      LOG(L_ERR, "modem_port said %d bytes available, but received %d.\r\n", available, received);
+      LOG(L_ERROR, "modem_port said %d bytes available, but received %d.\r\n", available, received);
       if (received < 0) goto error;
     }
 
@@ -707,25 +707,25 @@ int OwlModem::drainModemRxToBuffer() {
     total += received;
 
     if (rx_buffer.len > MODEM_Rx_BUFFER_SIZE) {
-      LOG(L_ERR, "Bug in the rx_buffer_len calculation %d > %d\r\n", rx_buffer.len, MODEM_Rx_BUFFER_SIZE);
+      LOG(L_ERROR, "Bug in the rx_buffer_len calculation %d > %d\r\n", rx_buffer.len, MODEM_Rx_BUFFER_SIZE);
       goto error;
     }
 
-    LOG(L_DBG, "Modem Rx - size changed from %d to %d bytes\r\n", rx_buffer.len - received, rx_buffer.len);
-    LOGSTR(L_DBG, this->rx_buffer);
+    LOG(L_DEBUG, "Modem Rx - size changed from %d to %d bytes\r\n", rx_buffer.len - received, rx_buffer.len);
+    LOGSTR(L_DEBUG, this->rx_buffer);
   }
 error:
-  LOG(L_MEM, "Done draining modem %d\r\n", total);
+  LOG(L_DEBUG, "Done draining modem %d\r\n", total);
   return total;
 }
 
 int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
   if (!gnss_buffer || !gnss_port) return 0;
-  LOG(L_MEM, "Trying to drain GNSS data\r\n");
+  LOG(L_DEBUG, "Trying to drain GNSS data\r\n");
   int available, received, total = 0, full = 0;
   while ((available = gnss_port->available()) > 0) {
     if (available > gnss_buffer_len) available = gnss_buffer_len;
-    //    LOG(L_DBG, "Available %d bytes\r\n", available);
+    //    LOG(L_DEBUG, "Available %d bytes\r\n", available);
     if (available > gnss_buffer_len - gnss_buffer->len) {
       int shift = available - (gnss_buffer_len - gnss_buffer->len);
       LOG(L_WARN, "GNSS buffer full with %d bytes. Dropping oldest %d bytes.\r\n", gnss_buffer->len, shift);
@@ -736,7 +736,7 @@ int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
     received = gnss_port->readBytes(gnss_buffer->s + gnss_buffer->len, available);
     //    LOG(L_WARN, "Rx %d bytes\r\n", received);
     if (received != available) {
-      LOG(L_ERR, "gnss_port said %d bytes available, but received %d.\r\n", available, received);
+      LOG(L_ERROR, "gnss_port said %d bytes available, but received %d.\r\n", available, received);
       if (received < 0) goto error;
     }
 
@@ -744,21 +744,21 @@ int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
     total += received;
 
     if (gnss_buffer->len > gnss_buffer_len) {
-      LOG(L_ERR, "Bug in the gnss_buffer_len calculation %d > %d\r\n", gnss_buffer->len, gnss_buffer_len);
+      LOG(L_ERROR, "Bug in the gnss_buffer_len calculation %d > %d\r\n", gnss_buffer->len, gnss_buffer_len);
       goto error;
     }
 
-    LOG(L_DBG, "GNSS Rx - size changed from %d to %d bytes\r\n", gnss_buffer->len - received, gnss_buffer->len);
-    LOGSTR(L_DBG, *gnss_buffer);
+    LOG(L_DEBUG, "GNSS Rx - size changed from %d to %d bytes\r\n", gnss_buffer->len - received, gnss_buffer->len);
+    LOGSTR(L_DEBUG, *gnss_buffer);
     if (full) return total;
   }
 error:
-  LOG(L_MEM, "Done draining GNSS %d\r\n", total);
+  LOG(L_DEBUG, "Done draining GNSS %d\r\n", total);
   return total;
 }
 
 int OwlModem::handleRxOnTimer() {
-  LOG(L_MEM, "Entering timer on interrupt\r\n");
+  LOG(L_DEBUG, "Entering timer on interrupt\r\n");
   int received = 0;
 
   if (!modem_port) goto error;
@@ -775,10 +775,10 @@ int OwlModem::handleRxOnTimer() {
 
 done:
   in_timer = 0;
-  LOG(L_MEM, "Done timer on interrupt\r\n");
+  LOG(L_DEBUG, "Done timer on interrupt\r\n");
   return 1;
 error:
-  LOG(L_MEM, "Done timer on interrupt\r\n");
+  LOG(L_DEBUG, "Done timer on interrupt\r\n");
   return 0;
 }
 
@@ -851,13 +851,13 @@ at_result_code_e OwlModem::doCommand(str command, uint32_t timeout_millis, str *
   for (i = 0; i < 100 && in_timer != 0; i++)
     delay(50);
   if (i >= 100) {
-    LOG(L_ERR, "[%.*s] either called from a timer, or timeout waiting for timer to exit\r\n", command.len, command.s);
+    LOG(L_ERROR, "[%.*s] either called from a timer, or timeout waiting for timer to exit\r\n", command.len, command.s);
     return AT_Result_Code__failure;
   }
 
   /* Tx */
   if (!sendData(command)) goto failure;
-  //  LOG(L_DBG, "[%.*s] sent\r\n", command.len, command.s);
+  //  LOG(L_DEBUG, "[%.*s] sent\r\n", command.len, command.s);
 
   /* Before sending the actual command, get rid of the URC in the pipe. This way, the result of this command will be
    * nice and empty. */
@@ -865,8 +865,8 @@ at_result_code_e OwlModem::doCommand(str command, uint32_t timeout_millis, str *
 
   /* Tx CRLF*/
   if (!sendData(CMDLT)) goto failure;
-  LOG(L_DBG, "[%.*s] sent\r\n", command.len, command.s);
-  //  LOG(L_DBG, "[CRLF] sent\r\n");
+  LOG(L_DEBUG, "[%.*s] sent\r\n", command.len, command.s);
+  //  LOG(L_DEBUG, "[CRLF] sent\r\n");
 
   /* Rx */
   timeout = owl_time() + timeout_millis;
@@ -884,10 +884,10 @@ at_result_code_e OwlModem::doCommand(str command, uint32_t timeout_millis, str *
     if (result_code >= AT_Result_Code__OK) {
       in_command = 0;
       if (out_response)
-        LOG(L_DBG, " - Execution complete - Result %d - %s Data [%.*s]\r\n", result_code,
+        LOG(L_DEBUG, " - Execution complete - Result %d - %s Data [%.*s]\r\n", result_code,
             at_result_code_text(result_code), out_response->len, out_response->s);
       else
-        LOG(L_DBG, " - Execution complete - Result %d - %s\r\n", result_code, at_result_code_text(result_code));
+        LOG(L_DEBUG, " - Execution complete - Result %d - %s\r\n", result_code, at_result_code_text(result_code));
       return result_code;
     }
   } while (owl_time() < timeout);

@@ -57,12 +57,12 @@ void enableLed() {
  */
 void setup() {
   // Feel free to change the log verbosity. E.g. from most critical to most verbose:
-  //   - errors:   L_ERR
+  //   - errors:   L_ERROR
   //   - warnings: L_WARN
   //   - information: L_INFO
-  //   - debug: L_DBG
+  //   - debug: L_DEBUG
   //
-  // When logging, the additional L_CLI level ensure that the output will always be visible, no matter the set level.
+  // When logging, the additional L_BYPASS level ensure that the output will always be visible, no matter the set level.
   owl_log_set_level(L_INFO);
   LOG(L_WARN, "Arduino setup() starting up\r\n");
 

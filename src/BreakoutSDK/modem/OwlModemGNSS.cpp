@@ -38,20 +38,20 @@ int OwlModemGNSS::getGNSSData(gnss_data_t *out_data) {
   str token = {0};
 
   if (!out_data) {
-    LOG(L_ERR, "Null parameter\r\n");
+    LOG(L_ERROR, "Null parameter\r\n");
     return false;
   }
   GNSS_response.len = 0;
   do {
     /* drain data to buffer */
-    //    LOG(L_DBG, "Draining GNSS-Rx\r\n");
+    //    LOG(L_DEBUG, "Draining GNSS-Rx\r\n");
     owlModem->drainGNSSRx(&GNSS_response, MODEM_GNSS_RESPONSE_BUFFER_SIZE);
     bzero(&line, sizeof(str));
     while (str_tok(GNSS_response, "\r\n", &line)) {
       // Looking for $--RMC,hhmmss.sss,x,llll.lll,a,yyyyy.yyy,a,x.x,u.u,xxxxxx,,,v*hh<CR><LF>
       // If this is incomplete, skip it
       if (line.s + line.len >= GNSS_response.s + GNSS_response.len) break;
-      LOG(L_DB, "Line [%.*s]\r\n", line.len, line.s);
+      LOG(L_DEBUG, "Line [%.*s]\r\n", line.len, line.s);
       if (line.len < 3 || line.s[0] != '$') continue;
       line.s += 3;
       line.len -= 3;
@@ -62,7 +62,7 @@ int OwlModemGNSS::getGNSSData(gnss_data_t *out_data) {
       bzero(&token, sizeof(str));
       bzero(out_data, sizeof(gnss_data_t));
       for (int cnt = 0; str_tok_with_empty_tokens(line, ",", &token); cnt++) {
-        LOG(L_DB, "  Token[%d] = [%.*s]\r\n", cnt, token.len, token.s);
+        LOG(L_DEBUG, "  Token[%d] = [%.*s]\r\n", cnt, token.len, token.s);
         switch (cnt) {
           case 0:
             // time hhmmss.sss
@@ -77,7 +77,7 @@ int OwlModemGNSS::getGNSSData(gnss_data_t *out_data) {
           case 1:
             // V/A
             if (token.len < 1) {
-              LOG(L_ERR, "Bad status format\r\n");
+              LOG(L_ERROR, "Bad status format\r\n");
               goto next_line;
             }
             if (token.s[0] == 'A') out_data->valid = true;
@@ -151,7 +151,7 @@ int OwlModemGNSS::getGNSSData(gnss_data_t *out_data) {
     }
   next_line:
     if (owl_time() > timeout) {
-      LOG(L_ERR, "Timed-out waiting for GNSS data\r\n");
+      LOG(L_ERROR, "Timed-out waiting for GNSS data\r\n");
       return false;
     }
     delay(50);

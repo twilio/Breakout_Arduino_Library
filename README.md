@@ -29,17 +29,17 @@ Breakout *breakout = &Breakout::getInstance();
 Owl log provides robust output and color coding to Serial output. 
 Log verbosity from most critical to most verbose:
 * errors
-	* `L_ERR`
+	* `L_ERROR`
 * warnings
 	* `L_WARN`
 * information 
 	* `L_INFO`
 * debug
-	* `L_DBG`
+	* `L_DEBUG`
 ```
- owl_log_set_level(L_DBG);
+ owl_log_set_level(L_DEBUG);
 ```
-> When logging, the additional L_CLI level ensure that the output will always be visible, no matter the set level.
+> When logging, the additional L_BYPASS level ensure that the output will always be visible, no matter the set level.
 
 #### Set PSK in Breakout
 PSK value is 16 bytes in hex or 32 characters.

@@ -32,7 +32,7 @@ Breakout::Breakout() {
   // strip->begin();
   // strip->brightness = 20;
 
-  owl_log_set_level(L_ISSUE);
+  owl_log_set_level(L_WARN);
 
   setPurpose("Dev-Kit");
 }
@@ -57,11 +57,11 @@ Breakout::~Breakout() {
 
 bool Breakout::setPurpose(char const *new_purpose) {
   if (owlModem != 0) {
-    LOG(L_ERR, "Can only set purpose before initialization\r\n");
+    LOG(L_ERROR, "Can only set purpose before initialization\r\n");
     return false;
   }
   if (!new_purpose || strlen(new_purpose) == 0) {
-    LOG(L_ERR, "Empty purpose is not supported\r\n");
+    LOG(L_ERROR, "Empty purpose is not supported\r\n");
     return false;
   }
 
@@ -99,14 +99,14 @@ void Breakout::setPollingInterval(uint32_t interval_seconds) {
 
 bool Breakout::setPSKKey(char const *hex_key) {
   if (owlModem != 0) {
-    LOG(L_ERR, "Can only set PSK-Key before initialization\r\n");
+    LOG(L_ERROR, "Can only set PSK-Key before initialization\r\n");
     return false;
   }
   str input = {.s = (char *)hex_key, .len = (int)strlen(hex_key)};
   // c_psk_key is aliased with psk_key.s
   psk_key.len = hex_to_str(c_psk_key, sizeof(c_psk_key), input);
   if (psk_key.len * 2 != input.len) {
-    LOG(L_ERR, "Failed setting the PSK-Key - maybe bad hex value?\r\n");
+    LOG(L_ERROR, "Failed setting the PSK-Key - maybe bad hex value?\r\n");
     return false;
   }
   return true;
@@ -135,28 +135,28 @@ bool Breakout::initModem() {
 
   if (owlModem != 0) return true;
 
-  LOG(L_NOTICE, "OwlModem starting up\r\n");
+  LOG(L_INFO, "OwlModem starting up\r\n");
 
   if (!(owlModem = owl_new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
 
-  LOG(L_NOTICE, ".. OwlModem - powering on modules\r\n");
+  LOG(L_INFO, ".. OwlModem - powering on modules\r\n");
   if (!owlModem->powerOn()) {
-    LOG(L_ERR, ".. OwlModem - modem failed to power on\r\n");
+    LOG(L_ERROR, ".. OwlModem - modem failed to power on\r\n");
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. OwlModem - now powered on - initializing\r\n");
+  LOG(L_INFO, ".. OwlModem - now powered on - initializing\r\n");
 
   /* Initialize modem configuration to something we can trust. */
   if (!owlModem->initModem(TESTING_VARIANT_INIT)) {
-    LOG(L_NOTICE, "..   - failed initializing modem! - resetting in 30 seconds\r\n");
+    LOG(L_INFO, "..   - failed initializing modem! - resetting in 30 seconds\r\n");
     delay(30000);
     goto error_stop;
   }
-  LOG(L_NOTICE, ".. OwlModem - initialization successfully completed - next waiting for network registration\r\n");
+  LOG(L_INFO, ".. OwlModem - initialization successfully completed - next waiting for network registration\r\n");
 
   /* Read the ICCID */
   if (!owlModem->SIM.getICCID(&buffer, 64)) {
-    LOG(L_ERR, "Error reading ICCID\r\n");
+    LOG(L_ERROR, "Error reading ICCID\r\n");
     goto error_stop;
   }
   /* The PSK-Id is the ICCID, but saving it somewhere else, just in case we'll change this in the future */
@@ -171,7 +171,7 @@ bool Breakout::initModem() {
   owlModem->network.setHandlerEPSRegistrationURC(Breakout::handler_EPSRegistrationStatusChange);
 
   if (!owlModem->waitForNetworkRegistration(purpose, TESTING_VARIANT_REG)) {
-    LOG(L_ERR, ".. OwlModem - modem failed to register to the network!\r\n");
+    LOG(L_ERROR, ".. OwlModem - modem failed to register to the network!\r\n");
     if (((TESTING_VARIANT_REG)&Testing__Timeout_Network_Registration_30_Sec) != 0) {
       LOG(L_WARN, ".. Dropping to CLI, for debugging\r\n");
       return true;
@@ -179,10 +179,10 @@ bool Breakout::initModem() {
     goto error_stop;
   }
 
-  LOG(L_NOTICE, "... OwlModem - registered to network.\r\n");
+  LOG(L_INFO, "... OwlModem - registered to network.\r\n");
   return true;
 error_stop:
-  LOG(L_ERR, "... OwlModem - Network initialization failed, please reset the device.\r\n");
+  LOG(L_ERROR, "... OwlModem - Network initialization failed, please reset the device.\r\n");
   while (true)
     delay(1000);
   return false;
@@ -190,14 +190,14 @@ error_stop:
 
 bool Breakout::initCoAPPeer() {
   if (coapPeer) {
-    LOG(L_NOTICE, "CoAPPeer - Already initialized\r\n");
+    LOG(L_INFO, "CoAPPeer - Already initialized\r\n");
     return true;
   }
   owl_time_t timeout = 0;
   str remote_ip      = STRDECL(BREAKOUT_IP);
   int retries        = BREAKOUT_INIT_CONNECTION_RETRIES;
 
-  LOG(L_NOTICE, "CoAPPeer - creating \r\n");
+  LOG(L_INFO, "CoAPPeer - creating \r\n");
 
 #if TESTING_WITH_DTLS == 0
   coapPeer = owl_new CoAPPeer(owlModem, 0, remote_ip, 5683);
@@ -210,7 +210,7 @@ bool Breakout::initCoAPPeer() {
                         Breakout::handler_CoAPRequest, Breakout::handler_CoAPResponse);
   if (!coapPeer->reinitialize()) GOTOERR(error);
 
-  LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
+  LOG(L_INFO, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
   while (!coapPeer->transportIsReady()) {
     // Need to spin modem, because otherwise tinydtls doesn't get properly initialized.
@@ -218,40 +218,40 @@ bool Breakout::initCoAPPeer() {
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
-        LOG(L_ERR, "Failed to initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
+        LOG(L_ERROR, "Failed to initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
         goto error;
       }
-      LOG(L_NOTICE, ".. CoAPPeer - will try another initialization %d left\r\n", retries - 1);
+      LOG(L_INFO, ".. CoAPPeer - will try another initialization %d left\r\n", retries - 1);
       timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
       if (!coapPeer->reinitialize()) GOTOERR(error);
       retries--;
     }
   }
-  LOG(L_NOTICE, "... CoAP Peer is ready.\r\n");
-  LOG(L_NOTICE, "        B R E A K O U T\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
-  LOG(L_NOTICE, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
-  LOG(L_NOTICE, "▒▒▒▒                       ▒▒▒▒\r\n");
-  LOG(L_NOTICE, "░░░░                      ░░░░░\r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "               ⚪               \r\n");
-  LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
-  LOG(L_NOTICE, "\r\n");
-  LOG(L_NOTICE, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
+  LOG(L_INFO, "... CoAP Peer is ready.\r\n");
+  LOG(L_INFO, "        B R E A K O U T\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
+  LOG(L_INFO, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
+  LOG(L_INFO, "▒▒▒▒                       ▒▒▒▒\r\n");
+  LOG(L_INFO, "░░░░                      ░░░░░\r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "               ⚪               \r\n");
+  LOG(L_INFO, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  LOG(L_INFO, "\r\n");
+  LOG(L_INFO, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
   if (!coap_status) {
     coap_status = true;
     notifyConnectionStatusChanged();
   }
   return true;
 error:
-  LOG(L_ERR, "... CoAP Peer was not initialized correctly.\r\n");
+  LOG(L_ERROR, "... CoAP Peer was not initialized correctly.\r\n");
   if (coap_status) {
     coap_status = false;
     notifyConnectionStatusChanged();
@@ -275,13 +275,13 @@ bool Breakout::powerModuleOn() {
   if (!reinitializeTransport()) GOTOERR(error);
   return true;
 error:
-  LOG(L_ERR, "Error powering module on\r\n");
+  LOG(L_ERROR, "Error powering module on\r\n");
   return false;
 }
 
 bool Breakout::powerModuleOff(void) {
   if (owlModem == 0) {
-    LOG(L_ERR, "No modem instance created yet, can't be powered on\r\n");
+    LOG(L_ERROR, "No modem instance created yet, can't be powered on\r\n");
     return false;
   }
 
@@ -321,7 +321,7 @@ bool Breakout::reinitializeTransport() {
   LOG(L_WARN, "Reinitializing transport connection with the Twilio Commands server\r\n");
 
   if (!coapPeer) {
-    LOG(L_NOTICE, "CoAPPeer - Not yet initialized - starting from scratch\r\n");
+    LOG(L_INFO, "CoAPPeer - Not yet initialized - starting from scratch\r\n");
     return initCoAPPeer();
   }
   owl_time_t timeout = 0;
@@ -329,7 +329,7 @@ bool Breakout::reinitializeTransport() {
 
   if (!coapPeer->reinitialize()) GOTOERR(error);
 
-  LOG(L_NOTICE, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
+  LOG(L_INFO, ".. CoAPPeer - waiting for transport to be ready (DTLS handshake)\r\n");
   timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
   while (!coapPeer->transportIsReady()) {
     // Need to spin modem, because otherwise tinydtls doesn't get properly initialized.
@@ -337,40 +337,40 @@ bool Breakout::reinitializeTransport() {
     delay(50);
     if (timeout < owl_time()) {
       if (retries <= 0) {
-        LOG(L_ERR, "Failed to re-initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
+        LOG(L_ERROR, "Failed to re-initialize CoAP peer %d times in a row\r\n", BREAKOUT_INIT_CONNECTION_RETRIES);
         goto error;
       }
-      LOG(L_NOTICE, ".. CoAPPeer - will try another reinitialization %d left\r\n", retries - 1);
+      LOG(L_INFO, ".. CoAPPeer - will try another reinitialization %d left\r\n", retries - 1);
       timeout = owl_time() + BREAKOUT_INIT_CONNECTION_TIMEOUT * 1000;
       if (!coapPeer->reinitialize()) GOTOERR(error);
       retries--;
     }
   }
-  LOG(L_NOTICE, "... CoAP Peer is ready.\r\n");
-  LOG(L_NOTICE, "        B R E A K O U T - re\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
-  LOG(L_NOTICE, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
-  LOG(L_NOTICE, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
-  LOG(L_NOTICE, "▒▒▒▒                       ▒▒▒▒\r\n");
-  LOG(L_NOTICE, "░░░░                      ░░░░░\r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "                               \r\n");
-  LOG(L_NOTICE, "               ⚪               \r\n");
-  LOG(L_NOTICE, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
-  LOG(L_NOTICE, "\r\n");
-  LOG(L_NOTICE, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
+  LOG(L_INFO, "... CoAP Peer is ready.\r\n");
+  LOG(L_INFO, "        B R E A K O U T - re\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅▅\r\n");
+  LOG(L_INFO, "▓▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓\r\n");
+  LOG(L_INFO, "▒▒▒▒       ▒▒▒▒▒▒          ▒▒▒▒\r\n");
+  LOG(L_INFO, "▒▒▒▒                       ▒▒▒▒\r\n");
+  LOG(L_INFO, "░░░░                      ░░░░░\r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "                               \r\n");
+  LOG(L_INFO, "               ⚪               \r\n");
+  LOG(L_INFO, "     ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁          \r\n");
+  LOG(L_INFO, "\r\n");
+  LOG(L_INFO, "SDK Version: %s\r\n", TWILIO_SDK_VERSION);
   if (!coap_status) {
     coap_status = true;
     notifyConnectionStatusChanged();
   }
   return true;
 error:
-  LOG(L_ERR, "... CoAP Peer was not re-initialized correctly.\r\n");
+  LOG(L_ERROR, "... CoAP Peer was not re-initialized correctly.\r\n");
   if (coap_status) {
     coap_status = false;
     notifyConnectionStatusChanged();
@@ -413,40 +413,40 @@ command_status_code_e Breakout::sendBinaryCommand(const char *buf, size_t bufSiz
 
 command_status_code_e Breakout::sendCommand(str cmd, bool isBinary) {
   if (getConnectionStatus() != CONNECTION_STATUS_REGISTERED_AND_CONNECTED) {
-    LOG(L_ERR, "Current Connection-Status is offline - please try again later\r\n");
+    LOG(L_ERROR, "Current Connection-Status is offline - please try again later\r\n");
     return COMMAND_STATUS_ERROR;
   }
   if (cmd.len > 140) {
-    LOG(L_ERR, "Command of %d bytes longer than maximum acceptable of 140 bytes\r\n", cmd.len);
+    LOG(L_ERROR, "Command of %d bytes longer than maximum acceptable of 140 bytes\r\n", cmd.len);
     return COMMAND_STATUS_COMMAND_TOO_LONG;
   }
 
   CoAPMessage request = CoAPMessage(CoAP_Type__Non_Confirmable, CoAP_Code_Class__Request,
                                     CoAP_Code_Detail__Request__POST, coapPeer->getNextMessageId());
   if (!request.addOptionUriPath("v1")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriPath("Commands")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriQuery(iccid)) {
-    LOG(L_ERR, "Error adding UriQuery\r\n");
+    LOG(L_ERROR, "Error adding UriQuery\r\n");
     goto error;
   }
   if (!request.addOptionContentFormat(isBinary ? CoAP_Content_Format__application_octet_stream :
                                                  CoAP_Content_Format__text_plain_charset_utf8)) {
-    LOG(L_ERR, "Error adding ContentFormat\r\n");
+    LOG(L_ERROR, "Error adding ContentFormat\r\n");
     goto error;
   }
   if (!request.addOptionTwilioHostDeviceInformation(owlModem->getShortHostDeviceInformation())) {
-    LOG(L_ERR, "Error adding Twilio-HostDevice-Information\r\n");
+    LOG(L_ERROR, "Error adding Twilio-HostDevice-Information\r\n");
     goto error;
   }
   request.payload = cmd;
   if (!coapPeer->sendUnreliably(&request)) {
-    LOG(L_ERR, "Error sending request unreliably\r\n");
+    LOG(L_ERROR, "Error sending request unreliably\r\n");
     goto error;
   }
 
@@ -505,35 +505,35 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
                                                               void *callback_parameter, bool isBinary) {
   receipt_t *receipt = 0;
   if (getConnectionStatus() != CONNECTION_STATUS_REGISTERED_AND_CONNECTED) {
-    LOG(L_ERR, "Current Connection-Status is offline - please try again later\r\n");
+    LOG(L_ERROR, "Current Connection-Status is offline - please try again later\r\n");
     return COMMAND_STATUS_ERROR;
   }
   if (cmd.len > 140) {
-    LOG(L_ERR, "Command of %d bytes longer than maximum acceptable of 140 bytes\r\n", cmd.len);
+    LOG(L_ERROR, "Command of %d bytes longer than maximum acceptable of 140 bytes\r\n", cmd.len);
     return COMMAND_STATUS_COMMAND_TOO_LONG;
   }
 
   CoAPMessage request = CoAPMessage(CoAP_Type__Confirmable, CoAP_Code_Class__Request, CoAP_Code_Detail__Request__POST,
                                     coapPeer->getNextMessageId());
   if (!request.addOptionUriPath("v1")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriPath("Commands")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriQuery(iccid)) {
-    LOG(L_ERR, "Error adding UriQuery\r\n");
+    LOG(L_ERROR, "Error adding UriQuery\r\n");
     goto error;
   }
   if (!request.addOptionContentFormat(isBinary ? CoAP_Content_Format__application_octet_stream :
                                                  CoAP_Content_Format__text_plain_charset_utf8)) {
-    LOG(L_ERR, "Error adding ContentFormat\r\n");
+    LOG(L_ERROR, "Error adding ContentFormat\r\n");
     goto error;
   }
   if (!request.addOptionTwilioHostDeviceInformation(owlModem->getShortHostDeviceInformation())) {
-    LOG(L_ERR, "Error adding Twilio-HostDevice-Information\r\n");
+    LOG(L_ERROR, "Error adding Twilio-HostDevice-Information\r\n");
     goto error;
   }
   request.payload = cmd;
@@ -545,7 +545,7 @@ command_status_code_e Breakout::sendCommandWithReceiptRequest(str cmd, BreakoutC
     receipt->callback_parameter = callback_parameter;
   }
   if (!coapPeer->sendReliably(&request, callback_commandReceipt, receipt)) {
-    LOG(L_ERR, "Error sending request unreliably\r\n");
+    LOG(L_ERROR, "Error sending request unreliably\r\n");
     goto error;
   }
   receipt = 0;
@@ -571,14 +571,14 @@ void Breakout::callback_checkForCommands(CoAPPeer *peer, coap_message_id_t messa
       break;
     case CoAP_Client_Transaction_Event__Timeout:
       if (isRetry) {
-        LOG(L_NOTICE, "Timeout after transport re-initialization - giving up, will retry at next poll interval\r\n");
+        LOG(L_INFO, "Timeout after transport re-initialization - giving up, will retry at next poll interval\r\n");
       } else if (!breakout->reinitializeTransport()) {
-        LOG(L_ERR, "Transport re-initialization failed\r\n");
+        LOG(L_ERROR, "Transport re-initialization failed\r\n");
       } else {
         // re-trigger Polling
         breakout->last_polling = owl_time() - BREAKOUT_POLLING_INTERVAL_MINIMUM * 1000;
         if (!breakout->checkForCommands()) {
-          LOG(L_ERR, "Transport reinitialized, immediate re-polling failed\r\n");
+          LOG(L_ERROR, "Transport reinitialized, immediate re-polling failed\r\n");
         } else {
           LOG(L_INFO, "Transport reinitialized and re-polling started\r\n");
         }
@@ -588,7 +588,7 @@ void Breakout::callback_checkForCommands(CoAPPeer *peer, coap_message_id_t messa
       // ignore
       break;
     default:
-      LOG(L_ERR, "Not handled event %d\r\n", event);
+      LOG(L_ERROR, "Not handled event %d\r\n", event);
   }
 }
 
@@ -614,7 +614,7 @@ bool Breakout::checkForCommands(bool isRetry) {
       // This was a call on the timer - delay the call a bit
       next_polling = now + 5 * 1000;
     } else {
-      LOG(L_ISSUE, "Current Connection-Status is offline - please try again later\r\n");
+      LOG(L_WARN, "Current Connection-Status is offline - please try again later\r\n");
     }
     return false;
   }
@@ -629,23 +629,23 @@ recovered_connection:
                                     coapPeer->getNextMessageId());
   request.token = coapPeer->getNextToken(&request.token_length);
   if (!request.addOptionUriPath("v1")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriPath("Heartbeats")) {
-    LOG(L_ERR, "Error adding UriPath\r\n");
+    LOG(L_ERROR, "Error adding UriPath\r\n");
     goto error;
   }
   if (!request.addOptionUriQuery(iccid)) {
-    LOG(L_ERR, "Error adding UriQuery\r\n");
+    LOG(L_ERROR, "Error adding UriQuery\r\n");
     goto error;
   }
   if (!request.addOptionTwilioHostDeviceInformation(owlModem->getShortHostDeviceInformation())) {
-    LOG(L_ERR, "Error adding Twilio-HostDevice-Information\r\n");
+    LOG(L_ERROR, "Error adding Twilio-HostDevice-Information\r\n");
     goto error;
   }
   if (!coapPeer->sendReliably(&request, callback_checkForCommands, (void *)(isRetry ? 1 : 0))) {
-    LOG(L_ERR, "Error sending request unreliably\r\n");
+    LOG(L_ERROR, "Error sending request unreliably\r\n");
     goto error;
   }
 
@@ -681,7 +681,7 @@ command_status_code_e Breakout::receiveCommand(const size_t maxBufSize, char *bu
     return COMMAND_STATUS_NO_COMMAND_WAITING;
   }
   if (!bufSize && buf) {
-    LOG(L_ERR,
+    LOG(L_ERROR,
         "Must provide a non-null bufSize parameter, if you provide a buf. To simply drain the command pipe, call with "
         "both buf and bufSize to null\r\n");
     return COMMAND_STATUS_ERROR;
@@ -710,8 +710,8 @@ command_status_code_e Breakout::receiveCommand(const size_t maxBufSize, char *bu
 bool Breakout::getGNSSData(gnss_data_t *out_gnss_data) {
   bool ret = owlModem->gnss.getGNSSData(out_gnss_data);
   if (ret) {
-    LOG(L_DBG, "Current GNSS data:\r\n");
-    owlModem->gnss.logGNSSData(L_DBG, *out_gnss_data);
+    LOG(L_DEBUG, "Current GNSS data:\r\n");
+    owlModem->gnss.logGNSSData(L_DEBUG, *out_gnss_data);
   }
   return ret;
 }
@@ -735,20 +735,20 @@ static int breakout_pin_count = 0;
 
 void Breakout::handler_PIN(str message) {
   str sim_pin = {.s = "0000", .len = 4};
-  LOG(L_CLI, "\r\n>>>\r\n>>>PIN>>> %.*s\r\n>>>\r\n\r\n", message.len, message.s);
+  LOG(L_BYPASS, "\r\n>>>\r\n>>>PIN>>> %.*s\r\n>>>\r\n\r\n", message.len, message.s);
   if (str_equalcase_char(message, "READY")) {
     /* Seems fine */
   } else if (str_equalcase_char(message, "SIM PIN")) {
     /* The card needs the PIN */
     breakout_pin_count++;
     if (breakout_pin_count > 1) {
-      LOG(L_CLI, "Trying to avoid a PIN lock - too many attempts to enter the PIN\r\n");
+      LOG(L_BYPASS, "Trying to avoid a PIN lock - too many attempts to enter the PIN\r\n");
     } else {
-      LOG(L_CLI, "Verifying PIN...\r\n");
+      LOG(L_BYPASS, "Verifying PIN...\r\n");
       if (getInstance().owlModem->SIM.verifyPIN(sim_pin)) {
-        LOG(L_CLI, "... PIN verification OK\r\n");
+        LOG(L_BYPASS, "... PIN verification OK\r\n");
       } else {
-        LOG(L_CLI, "... PIN verification Failed\r\n");
+        LOG(L_BYPASS, "... PIN verification Failed\r\n");
       }
     }
   } else if (str_equalcase_char(message, "SIM PUK")) {
@@ -759,7 +759,7 @@ void Breakout::handler_PIN(str message) {
     /* and so on ... */
   } else if (str_equalcase_char(message, "SIM not inserted")) {
     /* Panic mode :) */
-    LOG(L_CLI, "No SIM in, not much to do...\r\n");
+    LOG(L_BYPASS, "No SIM in, not much to do...\r\n");
   }
 }
 
@@ -801,8 +801,8 @@ void Breakout::handler_UDPData(uint8_t socket, str remote_ip, uint16_t remote_po
   LOG(L_INFO,
       "\r\n>>>\r\n>>>URC-UDP-Data>>> Received UDP data from socket=%d remote_ip=%.*s remote_port=%u of %d bytes\r\n",
       socket, remote_ip.len, remote_ip.s, remote_port, data.len);
-  LOGSTR(L_DBG, data);
-  LOG(L_DBG, ">>>\r\n");
+  LOGSTR(L_DEBUG, data);
+  LOG(L_DEBUG, ">>>\r\n");
 }
 
 void Breakout::handler_SocketClosed(uint8_t socket) {
@@ -814,10 +814,10 @@ void Breakout::handler_SocketClosed(uint8_t socket) {
 /*                     Handlers - CoAP                 */
 
 void Breakout::handler_CoAPStatelessMessage(CoAPPeer *peer, CoAPMessage *message) {
-  LOG(L_DBG, "\r\n>>>\r\n>>>Rx-CoAP-Stateless>>> From %.*s:%u\r\n", peer->remote_ip.len, peer->remote_ip.s,
+  LOG(L_DEBUG, "\r\n>>>\r\n>>>Rx-CoAP-Stateless>>> From %.*s:%u\r\n", peer->remote_ip.len, peer->remote_ip.s,
       peer->remote_port);
-  if (message) message->log(L_DBG);
-  LOG(L_DBG, ">>>\r\n");
+  if (message) message->log(L_DEBUG);
+  LOG(L_DEBUG, ">>>\r\n");
 }
 
 void Breakout::handler_CoAPDTLSEvent(CoAPPeer *peer, dtls_alert_level_e level, dtls_alert_description_e code) {

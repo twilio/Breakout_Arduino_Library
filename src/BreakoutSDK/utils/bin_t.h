@@ -47,7 +47,7 @@ typedef struct {
 #define bin_t_check_len(_b_, _len_)                                                                                    \
   do {                                                                                                                 \
     if ((_b_)->max - (_b_)->idx < (_len_)) {                                                                           \
-      LOG(L_ERR, "Expected or needing %d bytes but only %d left\r\n", _len_, (_b_)->max - (_b_)->idx);                 \
+      LOG(L_ERROR, "Expected or needing %d bytes but only %d left\r\n", _len_, (_b_)->max - (_b_)->idx);                 \
       goto bad_length;                                                                                                 \
     }                                                                                                                  \
   } while (0)
@@ -89,7 +89,7 @@ typedef struct {
   do {                                                                                                                 \
     bin_t_check_len(_b_, _width_);                                                                                     \
     if (_width_ > 8 || _width_ < 0) {                                                                                  \
-      LOG(L_CRIT, "Not implemented for %d > 8 bytes\r\n", _width_);                                                    \
+      LOG(L_ERROR, "Not implemented for %d > 8 bytes\r\n", _width_);                                                    \
       goto error;                                                                                                      \
     }                                                                                                                  \
     for (int i               = (_width_)-1; i >= 0; i--)                                                               \
@@ -99,7 +99,7 @@ typedef struct {
 #define bin_t_decode_varuint(_b_, _width_)                                                                             \
   ({                                                                                                                   \
     if (_width_ > 8 || _width_ < 0) {                                                                                  \
-      LOG(L_CRIT, "Not implemented for %d > 8 bytes\r\n", _width_);                                                    \
+      LOG(L_ERROR, "Not implemented for %d > 8 bytes\r\n", _width_);                                                    \
       goto error;                                                                                                      \
     }                                                                                                                  \
     bin_t_check_len(_b_, _width_);                                                                                     \
