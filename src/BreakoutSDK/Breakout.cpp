@@ -27,11 +27,6 @@
 
 
 Breakout::Breakout() {
-  // strip = owl_new WS2812(1, ublox->RGB_LED_PIN);
-  // ublox->enableRGBPower();
-  // strip->begin();
-  // strip->brightness = 20;
-
   owl_log_set_level(L_WARN);
 
   setPurpose("Dev-Kit");
