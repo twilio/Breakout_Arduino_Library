@@ -42,6 +42,8 @@ typedef uint64_t owl_time_t;
  */
 owl_time_t owl_time();
 
+void owl_delay(uint32_t ms);
+
 
 #ifdef __cplusplus
 }

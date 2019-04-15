@@ -25,10 +25,10 @@
 #define __OWL_MODEM_H__
 
 #include <Arduino.h>
-#include <HardwareSerial.h>
-#include <usb_serial.h>
+#include "ArduinoSeeedOwlSerial.h"
 
 #include "enums.h"
+#include "OwlModemAT.h"
 #include "OwlModemInformation.h"
 #include "OwlModemNetwork.h"
 #include "OwlModemPDN.h"
@@ -41,8 +41,6 @@
  * Constants and Parameters
  */
 
-#define MODEM_Rx_BUFFER_SIZE 1200
-#define MODEM_RESPONSE_BUFFER_SIZE 1200
 #define MODEM_LOG_BUFFER_SIZE 1024
 #define MODEM_HOSTDEVICE_INFORMATION_SIZE 256
 
@@ -52,13 +50,6 @@ typedef enum {
   Owl_PowerOnOff__RGBLED = 0x04,
   Owl_PowerOnOff__GNSS   = 0x08,
 } owl_power_m;
-
-typedef enum {
-  Owl_Modem__Default                   = 0,
-  Owl_Modem__SARA_N410_02B__Listen_Bug = 1, /**< Skip listen (+USOLI) operation on UDP sockets - probably this model
-                                             * does it implicitly on open (+USOCR) hence it fails for us. */
-} owl_modem_model_e;
-
 
 /**
  * Twilio wrapper for the AT serial interface to a modem
@@ -70,7 +61,7 @@ class OwlModem {
    * @param modem_port - mandatory modem port
    * @param debug_port - optional debug port, to use in the bypass functions
    */
-  OwlModem(HardwareSerial *modem_port, USBSerial *debug_port = 0, HardwareSerial *gnss_port = 0);
+  OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in = 0, HardwareSerial *gnss_port_in = 0);
 
   /**
    * Destructror of OwlModem
@@ -137,45 +128,6 @@ class OwlModem {
   void bypassGNSSCLI();
 
   /**
-   * Send arbitrary data to the modem.
-   * @param data - data to send
-   * @return 1 on success, 0 on failure
-   */
-  int sendData(str data);
-  int sendData(char *data);
-
-  /**
-   * Call this function periodically, to handle incoming message from the modem. The UART serial interface has a buffer
-   * of just 256 bytes and this function drains it by moving the data to the rx_buffer. What can be parsed (complete
-   * data) is parsed and passed along to handlers.
-   * @return 1 on success, 0 on failure
-   */
-  int handleRxOnTimer();
-
-
-  /**
-   * Execute one AT command
-   * @param command - command to send
-   * @param timeout_millis - timeout for the command in milliseconds - consult the modem manual for maximum timeouts
-   * for each command
-   * @param out_response - optional output buffer to fill with the command response (not including the result code)
-   * @param max_response_len - length of output buffer
-   * @return the AT result code, or AT_Result_Code__failure on failure to send the data, or AT_Result_Code__timeout in
-   * case of timeout while waiting for one of the standard AT result codes.
-   */
-  at_result_code_e doCommand(str command, uint32_t timeout_millis, str *out_response, int max_response_len);
-  at_result_code_e doCommand(char *command, uint32_t timeout_millis, str *out_response, int max_response_len);
-
-
-  /**
-   * Utility function to filter out of the response for a command, lines which do not start with a certain prefix.
-   * The prefix is also eliminated, so that you have just your actual data left.
-   * @param prefix - prefix to take out
-   * @param out_response - response to modify
-   */
-  void filterResponse(str prefix, str *response);
-
-  /**
    * Retrieve the full HostDevice Information
    * @return the HostDevice Information string
    */
@@ -193,67 +145,45 @@ class OwlModem {
    */
   void setDebugLevel(int level);
 
-
-
+ private:
+  ArduinoSeeedHwOwlSerial modem_port;
+  ArduinoSeeedUSBOwlSerial debug_port;
+  ArduinoSeeedHwOwlSerial gnss_port;
+ public:
   /*
    * Main APIs
    */
+  OwlModemAT AT;
   /** Methods to get information from the modem */
-  OwlModemInformation information = OwlModemInformation(this);
+  OwlModemInformation information;
 
   /** Method to get information and interact with the SIM card */
-  OwlModemSIM SIM = OwlModemSIM(this);
+  OwlModemSIM SIM;
 
   /** Network Registration and Management */
-  OwlModemNetwork network = OwlModemNetwork(this);
+  OwlModemNetwork network;
 
   /** APN Management */
-  OwlModemPDN pdn = OwlModemPDN(this);
+  OwlModemPDN pdn;
 
   /** TCP/UDP communication over sockets */
-  OwlModemSocket socket = OwlModemSocket(this);
+  OwlModemSocket socket;
 
   /** GNSS to get position, date, time, etc */
   OwlModemGNSS gnss = OwlModemGNSS(this);
 
-
-
-  /** Cached modem model - to enable specific behavior for some buggy firmwares */
-  owl_modem_model_e model = Owl_Modem__Default;
-
  private:
-  HardwareSerial *modem_port = 0;
-  USBSerial *debug_port      = 0;
-  HardwareSerial *gnss_port  = 0;
-
-
   /** The execution is now in the modem bypass mode */
   volatile uint8_t in_bypass = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
   /** The execution is now in a timer - not used at the moment, will probably be removed in the near future */
   volatile uint8_t in_timer = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
-  /** The modem has been issued a command and is waiting for its response - URC are not expected */
-  volatile uint8_t in_command = 0;  // volatile might not do much here, as we're not multi-threaded, but just marking it
 
-  /** The receiving buffer - the modem interface is drained and bytes moved here */
-  char c_rx_buffer[MODEM_Rx_BUFFER_SIZE];
-  str rx_buffer = {.s = c_rx_buffer, .len = 0};
+  bool has_modem_port{false};
+  bool has_debug_port{false};
+  bool has_gnss_port{false};
 
-  /** Response buffer, to be used by the internal functions */
   char response_buffer[MODEM_RESPONSE_BUFFER_SIZE];
   str response = {.s = response_buffer, .len = 0};
-
-
-
-  at_result_code_e extractResult(str *out_response, int max_response_len);
-
-  int processURC(str line, int report_unknown);
-  int getNextCompleteLine(int start_idx, str *line);
-  void removeRxBufferLine(str line);
-  void consumeUnsolicited();
-  void consumeUnsolicitedInCommandResponse();
-
-  int drainModemRxToBuffer();
-
   char c_hostdevice_information[MODEM_HOSTDEVICE_INFORMATION_SIZE + 1];
   str hostdevice_information = {.s = c_hostdevice_information, .len = 0};
   char c_short_hostdevice_information[MODEM_HOSTDEVICE_INFORMATION_SIZE + 1];
@@ -284,8 +214,6 @@ class OwlModem {
 public: // These things are not part of the API. TODO - make them private
   int drainGNSSRx(str *gnss_buffer, int gnss_buffer_len);
 };
-
-
 
 /**
  * Internal testing bitmask

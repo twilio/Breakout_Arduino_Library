@@ -29,7 +29,7 @@
 
 
 
-OwlModemPDN::OwlModemPDN(OwlModem *owlModem) : owlModem(owlModem) {
+OwlModemPDN::OwlModemPDN(OwlModemAT *atModem) : atModem_(atModem) {
 }
 
 
@@ -43,9 +43,9 @@ int OwlModemPDN::getAPNIPAddress(uint8_t cid, uint8_t ipv4[4], uint8_t ipv6[16])
   if (ipv6) bzero(ipv6, 16);
   char buf[64];
   snprintf(buf, 64, "AT+CGPADDR=%d", cid);
-  int result = owlModem->doCommand(buf, 3000, &pdn_response, MODEM_PDN_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 3000, &pdn_response, MODEM_PDN_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
-  owlModem->filterResponse(s_cgpaddr, &pdn_response);
+  OwlModemAT::filterResponse(s_cgpaddr, &pdn_response);
   while (str_tok(pdn_response, ",\r\n", &token)) {
     str token_ip = {0};
     switch (cnt) {

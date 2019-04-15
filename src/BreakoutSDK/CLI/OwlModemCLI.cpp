@@ -80,7 +80,7 @@ class SetDebugLevel : public OwlModemCLIExecutor {
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
     int level = str_to_long_int(cmd.argv[0], 10);
-    cli.owlModem->setDebugLevel(level);
+    owl_log_set_level(level);
     LOGF(L_CLI, "OK level=%d\r\n", level);
   }
 };
@@ -2118,7 +2118,7 @@ int OwlModemCLI::handleUserInput(int resume) {
             /* AT<something> */
             command.s[command.len >= MODEM_CLI_CMD_LEN ? MODEM_CLI_CMD_LEN - 1 : command.len] = 0;
             at_result_code_e result_code =
-                owlModem->doCommand(command.s, 2 * 60 * 1000, &response, MODEM_RESPONSE_BUFFER_SIZE);
+                owlModem->AT.doCommandBlocking(command.s, 2 * 60 * 1000, &response, MODEM_RESPONSE_BUFFER_SIZE);
             if (!response.len)
               LOGF(L_CLI, " Command [%.*s] returned with result code %s (%d)\r\n", command.len, command.s,
                    at_result_code_text(result_code), result_code);

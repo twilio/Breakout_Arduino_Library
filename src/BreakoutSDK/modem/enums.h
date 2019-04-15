@@ -33,6 +33,7 @@
 
 
 typedef enum {
+  AT_Result_Code__in_progress  = -5,
   AT_Result_Code__cme_error    = -4,
   AT_Result_Code__failure      = -3,
   AT_Result_Code__timeout      = -2,

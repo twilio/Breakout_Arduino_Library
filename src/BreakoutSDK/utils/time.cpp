@@ -35,3 +35,7 @@ extern "C" owl_time_t owl_time() {
   if (now < last_millis) epoch++;
   return (uint64_t)epoch << 32 | now;
 }
+
+extern "C" void owl_delay(uint32_t ms) {
+  delay(ms);
+}

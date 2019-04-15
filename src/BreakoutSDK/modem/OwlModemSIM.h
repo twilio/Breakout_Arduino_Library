@@ -25,6 +25,7 @@
 #define __OWL_MODEM_SIM_H__
 
 #include "enums.h"
+#include "OwlModemAT.h"
 
 
 
@@ -38,15 +39,13 @@ typedef void (*OwlModem_PINHandler_f)(str message);
 
 
 
-class OwlModem;
-
 
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods to get information from the SIM card
  */
 class OwlModemSIM {
  public:
-  OwlModemSIM(OwlModem *owlModem);
+  OwlModemSIM(OwlModemAT *atModem);
 
   /**
    * Handler for Unsolicited Response Codes from the modem - called from OwlModem on timer, when URC is received
@@ -54,7 +53,7 @@ class OwlModemSIM {
    * @param data - data of the event
    * @return 1 if the line was handled, 0 if no match here
    */
-  int processURC(str urc, str data);
+  static int processURC(str urc, str data, void* instance);
 
 
 
@@ -123,7 +122,7 @@ class OwlModemSIM {
   OwlModem_PINHandler_f handler_cpin = 0;
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemAT *atModem_ = 0;
 
   //char sim_response_buffer[MODEM_SIM_RESPONSE_BUFFER_SIZE];
   //str sim_response = {.s = sim_response_buffer, .len = 0};

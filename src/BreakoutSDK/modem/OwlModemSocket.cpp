@@ -62,7 +62,7 @@ void OwlModemSocketStatus::setClosed() {
 
 
 
-OwlModemSocket::OwlModemSocket(OwlModem *owlModem) : owlModem(owlModem) {
+OwlModemSocket::OwlModemSocket(OwlModemAT *atModem) : atModem_(atModem) {
   for (uint8_t socket = 0; socket < MODEM_MAX_SOCKETS; socket++)
     status[socket].setClosed();
 }
@@ -261,13 +261,15 @@ int OwlModemSocket::processURCReceiveFrom(str urc, str data) {
 }
 
 
-int OwlModemSocket::processURC(str urc, str data) {
+int OwlModemSocket::processURC(str urc, str data, void* instance) {
+  OwlModemSocket *inst = reinterpret_cast<OwlModemSocket*>(instance);
+
   /* ordered based on the expected frequency of arrival */
-  if (processURCReceiveFrom(urc, data)) return 1;
-  if (processURCReceive(urc, data)) return 1;
-  if (processURCTCPAccept(urc, data)) return 1;
-  if (processURCConnected(urc, data)) return 1;
-  if (processURCClosed(urc, data)) return 1;
+  if (inst->processURCReceiveFrom(urc, data)) return 1;
+  if (inst->processURCReceive(urc, data)) return 1;
+  if (inst->processURCTCPAccept(urc, data)) return 1;
+  if (inst->processURCConnected(urc, data)) return 1;
+  if (inst->processURCClosed(urc, data)) return 1;
   return 0;
 }
 
@@ -365,9 +367,9 @@ int OwlModemSocket::open(at_uso_protocol_e protocol, uint16_t local_port, uint8_
   char buf[64];
   snprintf(buf, 64, "AT+USOCR=%d,%u", protocol, local_port);
   int result =
-      owlModem->doCommand(buf, 3000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 3000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
-  owlModem->filterResponse(s_usocr, &socket_response);
+  OwlModemAT::filterResponse(s_usocr, &socket_response);
   socket                      = str_to_uint32_t(socket_response, 10);
   if (out_socket) *out_socket = socket;
 
@@ -391,7 +393,7 @@ int OwlModemSocket::close(uint8_t socket) {
       snprintf(buf, 64, "AT+USOCL=%u", socket);
       break;
   }
-  int result = (owlModem->doCommand(buf, 120 * 1000, 0, 0) == AT_Result_Code__OK);
+  int result = (atModem_->doCommandBlocking(buf, 120 * 1000, 0, 0) == AT_Result_Code__OK);
   if (!result) return 0;
 
   this->status[socket].setClosed();
@@ -403,10 +405,10 @@ static str s_usoer = STRDECL("+USOER: ");
 
 int OwlModemSocket::getError(at_uso_error_e *out_error) {
   if (out_error) *out_error = (at_uso_error_e)-1;
-  int result = (owlModem->doCommand("AT+USOER", 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+  int result = (atModem_->doCommandBlocking("AT+USOER", 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
                 AT_Result_Code__OK);
   if (!result) return 0;
-  owlModem->filterResponse(s_usoer, &socket_response);
+  atModem_->filterResponse(s_usoer, &socket_response);
 
   if (out_error) *out_error = (at_uso_error_e)str_to_long_int(socket_response, 10);
 
@@ -436,7 +438,7 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       return 0;
   }
   int result =
-      owlModem->doCommand(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
   this->status[socket].is_connected         = 1;
   this->status[socket].handler_SocketClosed = cb;
@@ -453,9 +455,9 @@ int OwlModemSocket::send(uint8_t socket, str data) {
   buf[len++] = '\"';
   buf[len++] = 0;
   int result =
-      owlModem->doCommand(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return -1;
-  owlModem->filterResponse(s_usowr, &socket_response);
+  OwlModemAT::filterResponse(s_usowr, &socket_response);
   str token = {0};
   for (int i = 0; str_tok(socket_response, ",\r\n", &token); i++)
     switch (i) {
@@ -552,9 +554,9 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
   buf[len++] = '\"';
   buf[len++] = 0;
   int result =
-      owlModem->doCommand(buf, 10 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
-  owlModem->filterResponse(s_usost, &socket_response);
+  OwlModemAT::filterResponse(s_usost, &socket_response);
   str token = {0};
   for (int i = 0; str_tok(socket_response, ",\r\n", &token); i++)
     switch (i) {
@@ -601,9 +603,9 @@ int OwlModemSocket::receive(uint8_t socket, uint16_t len, str *out_data, int max
   char buf[64];
   snprintf(buf, 64, "AT+USORD=%u,%u", socket, len);
   int result =
-      owlModem->doCommand(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
-  owlModem->filterResponse(s_usord, &socket_response);
+  OwlModemAT::filterResponse(s_usord, &socket_response);
   str token             = {0};
   str sub               = {0};
   uint16_t received_len = 0;
@@ -729,9 +731,9 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
   char buf[64];
   snprintf(buf, 64, "AT+USORF=%u,%u", socket, len);
   int result =
-      owlModem->doCommand(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
-  owlModem->filterResponse(s_usorf, &socket_response);
+  OwlModemAT::filterResponse(s_usorf, &socket_response);
   str token             = {0};
   str sub               = {0};
   uint16_t received_len = 0;
@@ -803,7 +805,7 @@ int OwlModemSocket::listenUDP(uint8_t socket, uint16_t local_port, OwlModem_UDPD
   }
   char buf[64];
   snprintf(buf, 64, "AT+USOLI=%u,%u", socket, local_port);
-  int result = owlModem->doCommand(buf, 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, 0, 0) == AT_Result_Code__OK;
   if (!result) return 0;
 
   this->status[socket].handler_UDPData = cb;
@@ -847,7 +849,7 @@ int OwlModemSocket::acceptTCP(uint8_t socket, uint16_t local_port, OwlModem_TCPA
   }
   char buf[64];
   snprintf(buf, 64, "AT+USOLI=%u,%u", socket, local_port);
-  int result = owlModem->doCommand(buf, 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, 0, 0) == AT_Result_Code__OK;
   if (!result) return 0;
 
   this->status[socket].handler_TCPAccept    = handler_tcp_accept;
@@ -862,15 +864,7 @@ int OwlModemSocket::openListenUDP(uint16_t local_port, OwlModem_UDPDataHandler_f
   uint8_t socket              = 255;
 
   if (!this->open(AT_USO_Protocol__UDP, 0, &socket)) goto error;
-  switch (this->owlModem->model) {
-    case Owl_Modem__SARA_N410_02B__Listen_Bug:
-      // Skip listen - but do set the handler
-      this->status[socket].handler_UDPData = handler_data;
-      break;
-    default:
-      if (!this->listenUDP(socket, local_port, handler_data)) goto error;
-      break;
-  }
+  if (!this->listenUDP(socket, local_port, handler_data)) goto error;
 
   if (out_socket) *out_socket = socket;
   return 1;
@@ -902,15 +896,7 @@ int OwlModemSocket::openListenConnectUDP(uint16_t local_port, str remote_ip, uin
   uint8_t socket              = 255;
 
   if (!this->open(AT_USO_Protocol__UDP, 0, &socket)) goto error;
-  switch (this->owlModem->model) {
-    case Owl_Modem__SARA_N410_02B__Listen_Bug:
-      // Skip listen, but do set the handler
-      this->status[socket].handler_UDPData = handler_data;
-      break;
-    default:
-      if (!this->listenUDP(socket, local_port, handler_data)) goto error;
-      break;
-  }
+  if (!this->listenUDP(socket, local_port, handler_data)) goto error;
   if (!this->connect(socket, remote_ip, remote_port, (OwlModem_SocketClosedHandler_f)0)) goto error;
 
   if (out_socket) *out_socket = socket;

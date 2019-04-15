@@ -384,7 +384,7 @@ void Breakout::spin() {
   if (next_polling != 0 && next_polling <= owl_time()) checkForCommands();
 
   /* Take care of async modem events */
-  owlModem->handleRxOnTimer();
+  owlModem->AT.spin();
 
   /* Take care of UDP/TCP data from the modem */
   owlModem->socket.handleWaitingData();

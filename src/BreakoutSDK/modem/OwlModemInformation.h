@@ -25,18 +25,14 @@
 #define __OWL_MODEM_INFORMATION_H__
 
 #include "enums.h"
-
-
-
-class OwlModem;
-
+#include "OwlModemAT.h"
 
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods to get information from the modem
  */
 class OwlModemInformation {
  public:
-  OwlModemInformation(OwlModem *owlModem);
+  OwlModemInformation(OwlModemAT *atModem);
 
   /*
    * Methods to get information from the modem or SIM card
@@ -110,7 +106,7 @@ class OwlModemInformation {
 
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemAT *atModem_ = 0;
 };
 
 #endif

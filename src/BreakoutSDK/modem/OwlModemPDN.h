@@ -25,13 +25,11 @@
 #define __OWL_MODEM_PDN_H__
 
 #include "enums.h"
+#include "OwlModemAT.h"
 
 
 
 #define MODEM_PDN_RESPONSE_BUFFER_SIZE 512
-
-
-class OwlModem;
 
 
 /**
@@ -39,7 +37,7 @@ class OwlModem;
  */
 class OwlModemPDN {
  public:
-  OwlModemPDN(OwlModem *owlModem);
+  OwlModemPDN(OwlModemAT *atModem);
 
 
   // TODO
@@ -69,7 +67,7 @@ class OwlModemPDN {
 
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemAT *atModem_ = 0;
 
   char pdn_response_buffer[MODEM_PDN_RESPONSE_BUFFER_SIZE];
   str pdn_response = {.s = pdn_response_buffer, .len = 0};

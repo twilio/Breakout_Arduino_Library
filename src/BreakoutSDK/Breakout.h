@@ -27,7 +27,6 @@
 #include "CLI/OwlModemCLI.h"
 
 
-
 #define TESTING_WITH_DTLS 1
 
 #define TESTING_WITH_CLI 1

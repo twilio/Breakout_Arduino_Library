@@ -26,6 +26,8 @@
 
 #include "enums.h"
 
+#include "OwlModemAT.h"
+
 
 #define MODEM_NETWORK_RESPONSE_BUFFER_SIZE 512
 
@@ -64,16 +66,12 @@ typedef void (*OwlModem_EPSRegistrationStatusChangeHandler_f)(at_cereg_stat_e st
                                                               uint32_t reject_cause);
 
 
-
-class OwlModem;
-
-
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods to get information from the Network card
  */
 class OwlModemNetwork {
  public:
-  OwlModemNetwork(OwlModem *owlModem);
+  OwlModemNetwork(OwlModemAT *atModem);
 
   /**
    * Handler for Unsolicited Response Codes from the modem - called from OwlModem on timer, when URC is received
@@ -81,7 +79,7 @@ class OwlModemNetwork {
    * @param data - data of the event
    * @return 1 if the line was handled, 0 if no match here
    */
-  int processURC(str urc, str data);
+  static int processURC(str urc, str data, void* instance);
 
 
 
@@ -263,7 +261,7 @@ class OwlModemNetwork {
 
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemAT *atModem_ = 0;
 
   char network_response_buffer[MODEM_NETWORK_RESPONSE_BUFFER_SIZE];
   str network_response = {.s = network_response_buffer, .len = 0};

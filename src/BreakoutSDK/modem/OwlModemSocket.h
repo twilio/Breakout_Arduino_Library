@@ -25,6 +25,7 @@
 #define __OWL_MODEM_SOCKET_H__
 
 #include "enums.h"
+#include "OwlModemAT.h"
 
 
 
@@ -103,15 +104,16 @@ class OwlModem;
  */
 class OwlModemSocket {
  public:
-  OwlModemSocket(OwlModem *owlModem);
+  OwlModemSocket(OwlModemAT *atModem);
 
   /**
    * Handler for Unsolicited Response Codes from the modem - called from OwlModem on timer, when URC is received
    * @param urc - event id
    * @param data - data of the event
+   * @param instance - pointer to OwlModemSocket instance
    * @return 1 if the line was handled, 0 if no match here
    */
-  int processURC(str urc, str data);
+  static int processURC(str urc, str data, void* instance);
 
   /**
    * Handler for incoming data - triggers receive and handler calling for UDP/TCP queued packets.
@@ -322,7 +324,7 @@ class OwlModemSocket {
 
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemAT *atModem_ = 0;
 
 
   OwlModemSocketStatus status[MODEM_MAX_SOCKETS];
