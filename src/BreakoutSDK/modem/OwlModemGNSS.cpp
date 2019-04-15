@@ -164,11 +164,12 @@ int OwlModemGNSS::getGNSSData(gnss_data_t *out_data) {
 void OwlModemGNSS::logGNSSData(log_level_t level, gnss_data_t data) {
   if (!owl_log_is_printable(level)) return;
   LOG(level, "GNSS Data:  data_valid %s  mode_indicator %c(%s)\r\n", data.valid ? "yes" : "no", data.mode_indicator,
-      data.mode_indicator == 'N' ? "Data not valid" : data.mode_indicator == 'A' ?
-                                   "Autonomous mode" :
-                                   data.mode_indicator == 'D' ? "Differential mode" : data.mode_indicator == 'E' ?
-                                                                "Estimated (dead reckoning) mode" :
-                                                                "<unknown>");
+      data.mode_indicator == 'N' ?
+          "Data not valid" :
+          data.mode_indicator == 'A' ?
+          "Autonomous mode" :
+          data.mode_indicator == 'D' ? "Differential mode" :
+                                       data.mode_indicator == 'E' ? "Estimated (dead reckoning) mode" : "<unknown>");
   if (data.valid) {
     LOG(level, "  - Position:  %d %7.5f %s  %d %7.5f %s\r\n", data.position.latitude_degrees,
         data.position.latitude_minutes, data.position.is_north ? "N" : "S", data.position.longitude_degrees,

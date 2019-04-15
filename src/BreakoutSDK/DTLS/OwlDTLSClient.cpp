@@ -63,7 +63,7 @@ static int sendToPeer(struct dtls_context_t *ctx, session_t *session, uint8 *buf
   OwlDTLSClient *owlDTLS = (OwlDTLSClient *)dtls_get_app_data(ctx);
 
   str data = {.s = (char *)buf, .len = len};
-  int cnt = owlDTLS->sendRawData(data);
+  int cnt  = owlDTLS->sendRawData(data);
   if (cnt != len) {
     LOG(L_ERR, "Error on sending data\r\n");
     return 0;
@@ -284,7 +284,7 @@ int OwlDTLSClient::connect(uint16_t local_port, str remote_ip, uint16_t remote_p
   if (str_find_char(remote_ip, ":") < 0) {
     /* IPv4 */
     this->dtls_dst.size = IP_Address__IPv4;
-    for (int i                    = 0; i < 4 && str_tok(remote_ip, ".", &token); i++)
+    for (int i = 0; i < 4 && str_tok(remote_ip, ".", &token); i++)
       this->dtls_dst.addr.ipv4[i] = str_to_uint32_t(token, 10);
   } else {
     /* IPv6 */

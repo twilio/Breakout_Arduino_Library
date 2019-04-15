@@ -64,7 +64,7 @@ void CoAPOption::log(log_level_t level) {
       switch (this->number) {
         case CoAP_Option__Content_Format:
           LOGF(level, " - CoAPOption %d (%s): %llu - %s\r\n", this->number, coap_option_number_text(this->number),
-               this->value.uint, coap_content_format_text((coap_content_format_e) this->value.uint));
+               this->value.uint, coap_content_format_text((coap_content_format_e)this->value.uint));
           break;
         default:
           LOGF(level, " - CoAPOption %d (%s): %llu\r\n", this->number, coap_option_number_text(this->number),

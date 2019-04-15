@@ -400,7 +400,7 @@ CoAPOption *CoAPMessage::getNextOption(coap_option_number_e number, coap_option_
                                        CoAPOption **iterator) {
   CoAPOption *x = iterator ? (*iterator)->next : this->options;
   while (x && x->number != number && x->format != format)
-    x                     = x->next;
+    x = x->next;
   if (iterator) *iterator = x;
   return x;
 }

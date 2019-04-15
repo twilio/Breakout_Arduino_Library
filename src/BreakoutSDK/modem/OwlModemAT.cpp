@@ -30,15 +30,14 @@ bool OwlModemAT::initTerminal() {
   }
 
   return true;
-
 }
 
-bool OwlModemAT::registerUrcHandler(UrcHandler handler, void* priv) {
+bool OwlModemAT::registerUrcHandler(UrcHandler handler, void *priv) {
   if (num_urc_handlers_ >= MaxUrcHandlers) {
     return false;
   }
 
-  urc_handlers_[num_urc_handlers_] = handler;
+  urc_handlers_[num_urc_handlers_]       = handler;
   urc_handler_params_[num_urc_handlers_] = priv;
 
   ++num_urc_handlers_;
@@ -49,7 +48,7 @@ int OwlModemAT::sendData(str data) {
   ssize_t written = 0;
   ssize_t cnt;
   do {
-    cnt = serial_->write((const uint8_t*)data.s+written, data.len-written);
+    cnt = serial_->write((const uint8_t *)data.s + written, data.len - written);
     if (cnt <= 0) {
       LOG(L_ERR, "Had %d bytes to send on modem_port, but wrote only %d.\r\n", data.len, written);
       return 0;
@@ -131,7 +130,8 @@ at_result_code_e OwlModemAT::sendCommand(str command) {
   }
 
   if (in_command_) {
-    LOG(L_ERR, "sendCommand [%.*s] failed: attempt to send while waiting for a response from the previous one\r\n", command.len, command.s);
+    LOG(L_ERR, "sendCommand [%.*s] failed: attempt to send while waiting for a response from the previous one\r\n",
+        command.len, command.s);
     return AT_Result_Code__failure;
   }
 
@@ -151,11 +151,8 @@ at_result_code_e OwlModemAT::sendCommand(str command) {
   return AT_Result_Code__OK;
 }
 
-/*at_result_code_e OwlModemAT::doCommand(str command, uint32_t timeout_millis, str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  at_result_code_e result_code;
-  owl_time_t timeout;
-  int received;
+/*at_result_code_e OwlModemAT::doCommand(str command, uint32_t timeout_millis, str *out_response, int max_response_len)
+{ if (out_response) out_response->len = 0; at_result_code_e result_code; owl_time_t timeout; int received;
 
   in_command_ = 1;
   int i;
@@ -211,9 +208,8 @@ failure:
   return AT_Result_Code__failure;
 }
 
-at_result_code_e OwlModemAT::doCommand(char *command, uint32_t timeout_millis, str *out_response, int max_response_len) {
-  str s = {.s = command, .len = strlen(command)};
-  return doCommand(s, timeout_millis, out_response, max_response_len);
+at_result_code_e OwlModemAT::doCommand(char *command, uint32_t timeout_millis, str *out_response, int max_response_len)
+{ str s = {.s = command, .len = strlen(command)}; return doCommand(s, timeout_millis, out_response, max_response_len);
 }*/
 
 at_result_code_e OwlModemAT::getLastCommandResponse(str *out_response, int max_response_len) {
@@ -236,7 +232,8 @@ at_result_code_e OwlModemAT::getLastCommandResponse(str *out_response, int max_r
   }
 }
 
-at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_millis, str *out_response, int max_response_len) {
+at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_millis, str *out_response,
+                                               int max_response_len) {
   owl_time_t timeout;
   int received;
   at_result_code_e result_code;
@@ -279,7 +276,8 @@ at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_mil
   return AT_Result_Code__timeout;
 }
 
-at_result_code_e OwlModemAT::doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response, int max_response_len) {
+at_result_code_e OwlModemAT::doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response,
+                                               int max_response_len) {
   str s = {.s = command, .len = strlen(command)};
   return doCommandBlocking(s, timeout_millis, out_response, max_response_len);
 }
@@ -342,7 +340,7 @@ int OwlModemAT::processURC(str line, int report_unknown) {
   if (line.len < 1 || line.s[0] != '+') return 0;
   int k = str_find_char(line, ": ");
   if (k < 0) return 0;
-  str urc = {.s = line.s, .len = k};
+  str urc  = {.s = line.s, .len = k};
   str data = {.s = line.s + k + 2, .len = line.len - k - 2};
 
   LOG(L_DBG, "URC [%.*s] Data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
@@ -358,8 +356,8 @@ int OwlModemAT::processURC(str line, int report_unknown) {
   if (this->SIM.processURC(urc, data)) return 1;*/
 
   if (report_unknown) {
-  //  for (int i = 0; prefix_non_urc[i].s; i++)
-  //    if (str_equal(urc, prefix_non_urc[i])) return 0;
+    //  for (int i = 0; prefix_non_urc[i].s; i++)
+    //    if (str_equal(urc, prefix_non_urc[i])) return 0;
     // If it wasn't on the ignored list, report it
     LOG(L_WARN, "Not handled URC [%.*s] with data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
   }
@@ -477,7 +475,7 @@ int OwlModemAT::drainModemRxToBuffer() {
       rx_buffer.len -= shift;
       memmove(rx_buffer.s, rx_buffer.s + shift, rx_buffer.len);
     }
-    received = serial_->read((uint8_t*)rx_buffer.s + rx_buffer.len, available);
+    received = serial_->read((uint8_t *)rx_buffer.s + rx_buffer.len, available);
     if (received != available) {
       LOG(L_ERR, "modem_port said %d bytes available, but received %d.\r\n", available, received);
       if (received < 0) goto error;
@@ -515,4 +513,3 @@ void OwlModemAT::spin() {
 
   LOG(L_MEM, "Done spinning\r\n");
 }
-

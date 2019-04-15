@@ -30,8 +30,8 @@
 
 
 OwlModemNetwork::OwlModemNetwork(OwlModemAT *atModem) : atModem_(atModem) {
-  if(atModem_ != nullptr) {
-    atModem_-> registerUrcHandler(OwlModemNetwork::processURC, this);
+  if (atModem_ != nullptr) {
+    atModem_->registerUrcHandler(OwlModemNetwork::processURC, this);
   }
 }
 
@@ -42,13 +42,13 @@ static str s_creg_full = STRDECL("+CREG: ");
 
 void OwlModemNetwork::parseNetworkRegistrationStatus(str response, at_creg_n_e *out_n, at_creg_stat_e *out_stat,
                                                      uint16_t *out_lac, uint32_t *out_ci, at_creg_act_e *out_act) {
-  int cnt                 = 0;
-  str token               = {0};
-  if (out_n) *out_n       = AT_CREG__N__URC_Disabled;
+  int cnt   = 0;
+  str token = {0};
+  if (out_n) *out_n = AT_CREG__N__URC_Disabled;
   if (out_stat) *out_stat = AT_CREG__Stat__Not_Registered;
-  if (out_lac) *out_lac   = 0;
-  if (out_ci) *out_ci     = 0xFFFFFFFFu;
-  if (out_act) *out_act   = AT_CREG__AcT__invalid;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CREG__AcT__invalid;
 
   str data = response;
   str_skipover_prefix(&data, s_creg_full);
@@ -114,14 +114,14 @@ static str s_cgreg_full = STRDECL("+CGREG: ");
 void OwlModemNetwork::parseGPRSRegistrationStatus(str response, at_cgreg_n_e *out_n, at_cgreg_stat_e *out_stat,
                                                   uint16_t *out_lac, uint32_t *out_ci, at_cgreg_act_e *out_act,
                                                   uint8_t *out_rac) {
-  int cnt                 = 0;
-  str token               = {0};
-  if (out_n) *out_n       = AT_CGREG__N__URC_Disabled;
+  int cnt   = 0;
+  str token = {0};
+  if (out_n) *out_n = AT_CGREG__N__URC_Disabled;
   if (out_stat) *out_stat = AT_CGREG__Stat__Not_Registered;
-  if (out_lac) *out_lac   = 0;
-  if (out_ci) *out_ci     = 0xFFFFFFFFu;
-  if (out_act) *out_act   = AT_CGREG__AcT__invalid;
-  if (out_rac) *out_rac   = 0;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CGREG__AcT__invalid;
+  if (out_rac) *out_rac = 0;
 
   str data = response;
   str_skipover_prefix(&data, s_cgreg_full);
@@ -189,14 +189,14 @@ static str s_cereg_full = STRDECL("+CEREG: ");
 void OwlModemNetwork::parseEPSRegistrationStatus(str response, at_cereg_n_e *out_n, at_cereg_stat_e *out_stat,
                                                  uint16_t *out_lac, uint32_t *out_ci, at_cereg_act_e *out_act,
                                                  at_cereg_cause_type_e *out_cause_type, uint32_t *out_reject_cause) {
-  int cnt                                 = 0;
-  str token                               = {0};
-  if (out_n) *out_n                       = AT_CEREG__N__URC_Disabled;
-  if (out_stat) *out_stat                 = AT_CEREG__Stat__Not_Registered;
-  if (out_lac) *out_lac                   = 0;
-  if (out_ci) *out_ci                     = 0xFFFFFFFFu;
-  if (out_act) *out_act                   = AT_CEREG__AcT__invalid;
-  if (out_cause_type) *out_cause_type     = AT_CEREG__Cause_Type__EMM_Cause;
+  int cnt   = 0;
+  str token = {0};
+  if (out_n) *out_n = AT_CEREG__N__URC_Disabled;
+  if (out_stat) *out_stat = AT_CEREG__Stat__Not_Registered;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CEREG__AcT__invalid;
+  if (out_cause_type) *out_cause_type = AT_CEREG__Cause_Type__EMM_Cause;
   if (out_reject_cause) *out_reject_cause = 0;
 
   str data = response;
@@ -263,8 +263,8 @@ int OwlModemNetwork::processURCEPSRegistration(str urc, str data) {
 
 
 
-int OwlModemNetwork::processURC(str urc, str data, void* instance) {
-  OwlModemNetwork *inst = reinterpret_cast<OwlModemNetwork*>(instance);
+int OwlModemNetwork::processURC(str urc, str data, void *instance) {
+  OwlModemNetwork *inst = reinterpret_cast<OwlModemNetwork *>(instance);
 
   if (inst->processURCNetworkRegistration(urc, data)) return 1;
   if (inst->processURCGPRSRegistration(urc, data)) return 1;
@@ -278,9 +278,9 @@ static str s_cfun = STRDECL("+CFUN: ");
 
 int OwlModemNetwork::getModemFunctionality(at_cfun_power_mode_e *out_power_mode, at_cfun_stk_mode_e *out_stk_mode) {
   if (out_power_mode) *out_power_mode = AT_CFUN__POWER_MODE__Minimum_Functionality;
-  if (out_stk_mode) *out_stk_mode     = AT_CFUN__STK_MODE__Interface_Disabled_Proactive_SIM_APPL_Enabled_0;
-  int result = atModem_->doCommandBlocking("AT+CFUN?", 15 * 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
-               AT_Result_Code__OK;
+  if (out_stk_mode) *out_stk_mode = AT_CFUN__STK_MODE__Interface_Disabled_Proactive_SIM_APPL_Enabled_0;
+  int result = atModem_->doCommandBlocking("AT+CFUN?", 15 * 1000, &network_response,
+                                           MODEM_NETWORK_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_cfun, &network_response);
   str token = {0};
@@ -317,8 +317,8 @@ static str s_umnoprof = STRDECL("+UMNOPROF: ");
 
 int OwlModemNetwork::getModemMNOProfile(at_umnoprof_mno_profile_e *out_profile) {
   if (out_profile) *out_profile = AT_UMNOPROF__MNO_PROFILE__SW_Default;
-  int result = atModem_->doCommandBlocking("AT+UMNOPROF?", 15 * 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
-               AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking("AT+UMNOPROF?", 15 * 1000, &network_response,
+                                           MODEM_NETWORK_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_umnoprof, &network_response);
   *out_profile = (at_umnoprof_mno_profile_e)str_to_long_int(network_response, 10);
@@ -337,15 +337,15 @@ static str s_cops = STRDECL("+COPS: ");
 
 int OwlModemNetwork::getOperatorSelection(at_cops_mode_e *out_mode, at_cops_format_e *out_format, str *out_oper,
                                           int max_oper_len, at_cops_act_e *out_act) {
-  int cnt                     = 0;
-  str token                   = {0};
-  char save                   = 0;
-  if (out_mode) *out_mode     = AT_COPS__Mode__Automatic_Selection;
+  int cnt   = 0;
+  str token = {0};
+  char save = 0;
+  if (out_mode) *out_mode = AT_COPS__Mode__Automatic_Selection;
   if (out_format) *out_format = AT_COPS__Format__Long_Alphanumeric;
   if (out_oper) out_oper->len = 0;
-  if (out_act) *out_act       = (at_cops_act_e)0;
-  int result = atModem_->doCommandBlocking("AT+COPS?", 3 * 60 * 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
-               AT_Result_Code__OK;
+  if (out_act) *out_act = (at_cops_act_e)0;
+  int result = atModem_->doCommandBlocking("AT+COPS?", 3 * 60 * 1000, &network_response,
+                                           MODEM_NETWORK_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_cops, &network_response);
   while (str_tok(network_response, ",\r\n", &token)) {
@@ -402,7 +402,8 @@ int OwlModemNetwork::getOperatorList(str *out_response, int max_response_len) {
   // TODO - parse maybe the structures. But then we'll have a more complex list structure, which should be freed by
   // the user, so more complex to use.
   if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+COPS=?", 3 * 60 * 1000, out_response, max_response_len) == AT_Result_Code__OK;
+  int result =
+      atModem_->doCommandBlocking("AT+COPS=?", 3 * 60 * 1000, out_response, max_response_len) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_cops, out_response);
   return 1;
@@ -412,20 +413,20 @@ int OwlModemNetwork::getOperatorList(str *out_response, int max_response_len) {
 
 int OwlModemNetwork::getNetworkRegistrationStatus(at_creg_n_e *out_n, at_creg_stat_e *out_stat, uint16_t *out_lac,
                                                   uint32_t *out_ci, at_creg_act_e *out_act) {
-  if (out_n) *out_n       = AT_CREG__N__URC_Disabled;
+  if (out_n) *out_n = AT_CREG__N__URC_Disabled;
   if (out_stat) *out_stat = AT_CREG__Stat__Not_Registered;
-  if (out_lac) *out_lac   = 0;
-  if (out_ci) *out_ci     = 0xFFFFFFFFu;
-  if (out_act) *out_act   = AT_CREG__AcT__invalid;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CREG__AcT__invalid;
   int result = atModem_->doCommandBlocking("AT+CREG?", 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
                AT_Result_Code__OK;
   if (!result) return 0;
   // the URC handlers are catching this, so serving from local cache
-  if (out_n) *out_n       = last_network_status.n;
+  if (out_n) *out_n = last_network_status.n;
   if (out_stat) *out_stat = last_network_status.stat;
-  if (out_lac) *out_lac   = last_network_status.lac;
-  if (out_ci) *out_ci     = last_network_status.ci;
-  if (out_act) *out_act   = last_network_status.act;
+  if (out_lac) *out_lac = last_network_status.lac;
+  if (out_ci) *out_ci = last_network_status.ci;
+  if (out_act) *out_act = last_network_status.act;
   return 1;
 }
 
@@ -442,22 +443,22 @@ void OwlModemNetwork::setHandlerNetworkRegistrationURC(OwlModem_NetworkRegistrat
 
 int OwlModemNetwork::getGPRSRegistrationStatus(at_cgreg_n_e *out_n, at_cgreg_stat_e *out_stat, uint16_t *out_lac,
                                                uint32_t *out_ci, at_cgreg_act_e *out_act, uint8_t *out_rac) {
-  if (out_n) *out_n       = AT_CGREG__N__URC_Disabled;
+  if (out_n) *out_n = AT_CGREG__N__URC_Disabled;
   if (out_stat) *out_stat = AT_CGREG__Stat__Not_Registered;
-  if (out_lac) *out_lac   = 0;
-  if (out_ci) *out_ci     = 0xFFFFFFFFu;
-  if (out_act) *out_act   = AT_CGREG__AcT__invalid;
-  if (out_rac) *out_rac   = 0;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CGREG__AcT__invalid;
+  if (out_rac) *out_rac = 0;
   int result = atModem_->doCommandBlocking("AT+CGREG?", 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
                AT_Result_Code__OK;
   if (!result) return 0;
   // the URC handlers are catching this, so serving from local cache
-  if (out_n) *out_n       = last_gprs_status.n;
+  if (out_n) *out_n = last_gprs_status.n;
   if (out_stat) *out_stat = last_gprs_status.stat;
-  if (out_lac) *out_lac   = last_gprs_status.lac;
-  if (out_ci) *out_ci     = last_gprs_status.ci;
-  if (out_act) *out_act   = last_gprs_status.act;
-  if (out_act) *out_rac   = last_gprs_status.rac;
+  if (out_lac) *out_lac = last_gprs_status.lac;
+  if (out_ci) *out_ci = last_gprs_status.ci;
+  if (out_act) *out_act = last_gprs_status.act;
+  if (out_act) *out_rac = last_gprs_status.rac;
   return 1;
 }
 
@@ -474,23 +475,23 @@ void OwlModemNetwork::setHandlerGPRSRegistrationURC(OwlModem_GPRSRegistrationSta
 int OwlModemNetwork::getEPSRegistrationStatus(at_cereg_n_e *out_n, at_cereg_stat_e *out_stat, uint16_t *out_lac,
                                               uint32_t *out_ci, at_cereg_act_e *out_act,
                                               at_cereg_cause_type_e *out_cause_type, uint32_t *out_reject_cause) {
-  if (out_n) *out_n                       = AT_CEREG__N__URC_Disabled;
-  if (out_stat) *out_stat                 = AT_CEREG__Stat__Not_Registered;
-  if (out_lac) *out_lac                   = 0;
-  if (out_ci) *out_ci                     = 0xFFFFFFFFu;
-  if (out_act) *out_act                   = AT_CEREG__AcT__invalid;
-  if (out_cause_type) *out_cause_type     = AT_CEREG__Cause_Type__EMM_Cause;
+  if (out_n) *out_n = AT_CEREG__N__URC_Disabled;
+  if (out_stat) *out_stat = AT_CEREG__Stat__Not_Registered;
+  if (out_lac) *out_lac = 0;
+  if (out_ci) *out_ci = 0xFFFFFFFFu;
+  if (out_act) *out_act = AT_CEREG__AcT__invalid;
+  if (out_cause_type) *out_cause_type = AT_CEREG__Cause_Type__EMM_Cause;
   if (out_reject_cause) *out_reject_cause = 0;
   int result = atModem_->doCommandBlocking("AT+CEREG?", 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
                AT_Result_Code__OK;
   if (!result) return 0;
   // the URC handlers are catching this, so serving from local cache
-  if (out_n) *out_n                       = last_eps_status.n;
-  if (out_stat) *out_stat                 = last_eps_status.stat;
-  if (out_lac) *out_lac                   = last_eps_status.lac;
-  if (out_ci) *out_ci                     = last_eps_status.ci;
-  if (out_act) *out_act                   = last_eps_status.act;
-  if (out_cause_type) *out_cause_type     = last_eps_status.cause_type;
+  if (out_n) *out_n = last_eps_status.n;
+  if (out_stat) *out_stat = last_eps_status.stat;
+  if (out_lac) *out_lac = last_eps_status.lac;
+  if (out_ci) *out_ci = last_eps_status.ci;
+  if (out_act) *out_act = last_eps_status.act;
+  if (out_cause_type) *out_cause_type = last_eps_status.cause_type;
   if (out_reject_cause) *out_reject_cause = last_eps_status.reject_cause;
   return 1;
 }
@@ -510,13 +511,13 @@ void OwlModemNetwork::setHandlerEPSRegistrationURC(OwlModem_EPSRegistrationStatu
 static str s_csq = STRDECL("+CSQ: ");
 
 int OwlModemNetwork::getSignalQuality(at_csq_rssi_e *out_rssi, at_csq_qual_e *out_qual) {
-  int cnt                 = 0;
-  str token               = {0};
-  char save               = 0;
+  int cnt   = 0;
+  str token = {0};
+  char save = 0;
   if (out_rssi) *out_rssi = AT_CSQ__RSSI__Not_Known_or_Detectable_99;
   if (out_qual) *out_qual = AT_CSQ__Qual__Not_Known_or_Not_Detectable;
-  int result =
-      atModem_->doCommandBlocking("AT+CSQ", 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking("AT+CSQ", 1000, &network_response, MODEM_NETWORK_RESPONSE_BUFFER_SIZE) ==
+               AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_csq, &network_response);
   while (str_tok(network_response, ",", &token)) {

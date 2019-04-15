@@ -261,8 +261,8 @@ int OwlModemSocket::processURCReceiveFrom(str urc, str data) {
 }
 
 
-int OwlModemSocket::processURC(str urc, str data, void* instance) {
-  OwlModemSocket *inst = reinterpret_cast<OwlModemSocket*>(instance);
+int OwlModemSocket::processURC(str urc, str data, void *instance) {
+  OwlModemSocket *inst = reinterpret_cast<OwlModemSocket *>(instance);
 
   /* ordered based on the expected frequency of arrival */
   if (inst->processURCReceiveFrom(urc, data)) return 1;
@@ -279,7 +279,7 @@ void OwlModemSocket::handleWaitingData() {
   LOG(L_MEM, "Starting handleWaitingData\r\n");
 
   char buf[64];
-  str remote_ip = {.s = buf, .len = 0};
+  str remote_ip        = {.s = buf, .len = 0};
   uint16_t remote_port = 0;
   int data_len         = 0;
 
@@ -363,14 +363,14 @@ static str s_usocr = STRDECL("+USOCR: ");
 
 int OwlModemSocket::open(at_uso_protocol_e protocol, uint16_t local_port, uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  int socket                  = 255;
+  int socket = 255;
   char buf[64];
   snprintf(buf, 64, "AT+USOCR=%d,%u", protocol, local_port);
   int result =
       atModem_->doCommandBlocking(buf, 3000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usocr, &socket_response);
-  socket                      = str_to_uint32_t(socket_response, 10);
+  socket = str_to_uint32_t(socket_response, 10);
   if (out_socket) *out_socket = socket;
 
   this->status[socket].setOpened(protocol);
@@ -437,8 +437,8 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       LOG(L_ERR, "Socket %d has unsupported protocol %d\r\n", this->status[socket].protocol);
       return 0;
   }
-  int result =
-      atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+               AT_Result_Code__OK;
   if (!result) return 0;
   this->status[socket].is_connected         = 1;
   this->status[socket].handler_SocketClosed = cb;
@@ -454,8 +454,8 @@ int OwlModemSocket::send(uint8_t socket, str data) {
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result =
-      atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+               AT_Result_Code__OK;
   if (!result) return -1;
   OwlModemAT::filterResponse(s_usowr, &socket_response);
   str token = {0};
@@ -494,7 +494,7 @@ int OwlModemSocket::sendUDP(uint8_t socket, str data, int *out_bytes_sent) {
     LOG(L_ERR, "Socket %d is not an UDP socket\r\n", socket);
     return 0;
   }
-  int bytes_sent                      = this->send(socket, data);
+  int bytes_sent = this->send(socket, data);
   if (out_bytes_sent) *out_bytes_sent = bytes_sent;
   LOG(L_INFO, "Sent data over UDP on socket %u %d bytes\r\n", socket, bytes_sent);
   return bytes_sent == data.len;
@@ -521,7 +521,7 @@ int OwlModemSocket::sendTCP(uint8_t socket, str data, int *out_bytes_sent) {
     LOG(L_ERR, "Socket %d is not an TCP socket\r\n", socket);
     return 0;
   }
-  int bytes_sent                      = this->send(socket, data);
+  int bytes_sent = this->send(socket, data);
   if (out_bytes_sent) *out_bytes_sent = bytes_sent;
   LOG(L_INFO, "Sent data over TCP on socket %u %d bytes\r\n", socket, bytes_sent);
   return bytes_sent > 0;
@@ -553,8 +553,8 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result =
-      atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+               AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usost, &socket_response);
   str token = {0};
@@ -575,8 +575,8 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
 
 int OwlModemSocket::getQueuedForReceive(uint8_t socket, int *out_receive_tcp, int *out_receive_udp,
                                         int *out_receivefrom_udp) {
-  if (out_receive_tcp) *out_receive_tcp         = 0;
-  if (out_receive_udp) *out_receive_udp         = 0;
+  if (out_receive_tcp) *out_receive_tcp = 0;
+  if (out_receive_udp) *out_receive_udp = 0;
   if (out_receivefrom_udp) *out_receivefrom_udp = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
     LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
@@ -587,7 +587,7 @@ int OwlModemSocket::getQueuedForReceive(uint8_t socket, int *out_receive_tcp, in
       if (out_receive_tcp) *out_receive_tcp = status[socket].len_outstanding_receive_data;
       break;
     case AT_USO_Protocol__UDP:
-      if (out_receive_udp) *out_receive_udp         = status[socket].len_outstanding_receive_data;
+      if (out_receive_udp) *out_receive_udp = status[socket].len_outstanding_receive_data;
       if (out_receivefrom_udp) *out_receivefrom_udp = status[socket].len_outstanding_receivefrom_data;
       break;
     default:
@@ -709,7 +709,7 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
                                    str *out_data, int max_data_len) {
   if (out_remote_ip) out_remote_ip->len = 0;
   if (out_remote_port) *out_remote_port = 0;
-  if (out_data) out_data->len           = 0;
+  if (out_data) out_data->len = 0;
   if (socket >= MODEM_MAX_SOCKETS) {
     LOG(L_ERR, "Bad socket %d >= %d\r\n", socket);
     return 0;
@@ -861,7 +861,7 @@ int OwlModemSocket::acceptTCP(uint8_t socket, uint16_t local_port, OwlModem_TCPA
 
 int OwlModemSocket::openListenUDP(uint16_t local_port, OwlModem_UDPDataHandler_f handler_data, uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  uint8_t socket              = 255;
+  uint8_t socket = 255;
 
   if (!this->open(AT_USO_Protocol__UDP, 0, &socket)) goto error;
   if (!this->listenUDP(socket, local_port, handler_data)) goto error;
@@ -876,7 +876,7 @@ error:
 int OwlModemSocket::openConnectUDP(str remote_ip, uint16_t remote_port, OwlModem_UDPDataHandler_f handler_data,
                                    uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  uint8_t socket              = 255;
+  uint8_t socket = 255;
 
   if (!this->open(AT_USO_Protocol__UDP, 0, &socket)) goto error;
   if (!this->connect(socket, remote_ip, remote_port, (OwlModem_SocketClosedHandler_f)0)) goto error;
@@ -893,7 +893,7 @@ error:
 int OwlModemSocket::openListenConnectUDP(uint16_t local_port, str remote_ip, uint16_t remote_port,
                                          OwlModem_UDPDataHandler_f handler_data, uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  uint8_t socket              = 255;
+  uint8_t socket = 255;
 
   if (!this->open(AT_USO_Protocol__UDP, 0, &socket)) goto error;
   if (!this->listenUDP(socket, local_port, handler_data)) goto error;
@@ -910,7 +910,7 @@ int OwlModemSocket::openListenConnectTCP(uint16_t local_port, str remote_ip, uin
                                          OwlModem_SocketClosedHandler_f handler_close,
                                          OwlModem_TCPDataHandler_f handler_data, uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  uint8_t socket              = 255;
+  uint8_t socket = 255;
 
   if (!this->open(AT_USO_Protocol__TCP, local_port, &socket)) goto error;
   if (!this->listenTCP(socket, local_port, handler_data)) goto error;
@@ -927,7 +927,7 @@ int OwlModemSocket::openAcceptTCP(uint16_t local_port, OwlModem_TCPAcceptHandler
                                   OwlModem_SocketClosedHandler_f handler_socket_close,
                                   OwlModem_TCPDataHandler_f handler_data, uint8_t *out_socket) {
   if (out_socket) *out_socket = 255;
-  uint8_t socket              = 255;
+  uint8_t socket = 255;
 
   if (!this->open(AT_USO_Protocol__TCP, 0, &socket)) goto error;
   if (!this->listenTCP(socket, local_port, handler_data)) goto error;

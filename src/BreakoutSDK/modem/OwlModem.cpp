@@ -31,7 +31,15 @@
 
 
 OwlModem::OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in, HardwareSerial *gnss_port_in)
-    : modem_port(modem_port_in), debug_port(debug_port_in), gnss_port(gnss_port_in), AT(&modem_port), information(&AT), SIM(&AT), network(&AT), pdn(&AT), socket(&AT) {
+    : modem_port(modem_port_in),
+      debug_port(debug_port_in),
+      gnss_port(gnss_port_in),
+      AT(&modem_port),
+      information(&AT),
+      SIM(&AT),
+      network(&AT),
+      pdn(&AT),
+      socket(&AT) {
   modem_port_in->begin(SerialModule_Baudrate);
   if (!modem_port_in) {
     LOG(L_ERR, "OwlModem initialized without modem port. That is not going to work\r\n");
@@ -50,7 +58,7 @@ OwlModem::OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in, Hard
 
   has_modem_port = (modem_port_in != nullptr);
   has_debug_port = (debug_port_in != nullptr);
-  has_gnss_port = (gnss_port_in != nullptr);
+  has_gnss_port  = (gnss_port_in != nullptr);
 }
 
 OwlModem::~OwlModem() {
@@ -70,7 +78,6 @@ int OwlModem::powerOn(owl_power_m bit_mask) {
   int errCnt     = 0;
 
   if ((bit_mask & Owl_PowerOnOff__Modem) != 0) {
-
     if (isPoweredOn()) return 1;
 
     // Set RTS pin down to enable UART communication
@@ -192,7 +199,8 @@ int OwlModem::initModem(int testing_variant) {
     }
 
     if ((testing_variant & Testing__Set_APN_Bands_to_Berlin) != 0) {
-      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK) LOG(L_WARN, "Error setting RAT to NB1\r\n");
+      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK)
+        LOG(L_WARN, "Error setting RAT to NB1\r\n");
       // This is a bitmask, LSB meaning Band1, MSB meaning Band64
       if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, 0, 0) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for Cat-M1 to none\r\n");
@@ -205,7 +213,8 @@ int OwlModem::initModem(int testing_variant) {
         LOG(L_WARN, "Error setting custom APN\r\n");
     }
     if ((testing_variant & Testing__Set_APN_Bands_to_US) != 0) {
-      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK) LOG(L_WARN, "Error setting RAT to NB1\r\n");
+      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK)
+        LOG(L_WARN, "Error setting RAT to NB1\r\n");
       // This is a bitmask, LSB meaning Band1, MSB meaning Band64
       if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, 0, 0) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for Cat-M1 to 2/4/5/12\r\n");
@@ -300,8 +309,8 @@ int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {
   if ((testing_variant & Testing__Skip_Set_Host_Device_Information) != 0) return 1;
 
   if (!setHostDeviceInformation(purpose)) {
-      LOG(L_WARN, "Error setting HostDeviceInformation.  If this persists, please inform Twilio support.\r\n");
-      // TODO: set a flag to report to Twilio Object-16 registration timed out or failed
+    LOG(L_WARN, "Error setting HostDeviceInformation.  If this persists, please inform Twilio support.\r\n");
+    // TODO: set a flag to report to Twilio Object-16 registration timed out or failed
   }
 
   return 1;
@@ -334,7 +343,7 @@ void OwlModem::bypassCLI() {
       else
         index = 0;
       if (index == s_exitbypass.len) {
-        modem_port.write((uint8_t*)"\r\n", 2);
+        modem_port.write((uint8_t *)"\r\n", 2);
         in_bypass = 0;
         AT.resume();
         return;
@@ -344,7 +353,7 @@ void OwlModem::bypassCLI() {
 }
 
 void OwlModem::bypassGNSSCLI() {
-  if (!has_gnss_port || ! has_debug_port) {
+  if (!has_gnss_port || !has_debug_port) {
     return;
   }
   // TODO - set echo on/off - maybe with parameter to this function? but that will mess with other code
@@ -363,7 +372,7 @@ void OwlModem::bypassGNSSCLI() {
       else
         index = 0;
       if (index == s_exitbypass.len) {
-        gnss_port.write((uint8_t*)"\r\n", 2);
+        gnss_port.write((uint8_t *)"\r\n", 2);
         return;
       }
     }
@@ -382,21 +391,21 @@ void OwlModem::bypass() {
   }
   while (debug_port.available())
     debug_port.read(&c, 1);
-    modem_port.write(&c, 1);
+  modem_port.write(&c, 1);
 }
 
 void OwlModem::bypassGNSS() {
-  if (!has_gnss_port || ! has_debug_port) {
+  if (!has_gnss_port || !has_debug_port) {
     return;
   }
 
   uint8_t c;
   while (gnss_port.available())
     gnss_port.read(&c, 1);
-    debug_port.write(&c, 1);
+  debug_port.write(&c, 1);
   while (debug_port.available())
     debug_port.read(&c, 1);
-    gnss_port.write(&c, 1);
+  gnss_port.write(&c, 1);
 }
 
 static str s_dev_kit = STRDECL("devkit");
@@ -505,7 +514,7 @@ int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
       memmove(gnss_buffer->s, gnss_buffer->s + shift, gnss_buffer->len);
       full = 1;
     }
-    received = gnss_port.read((uint8_t*)gnss_buffer->s + gnss_buffer->len, available);
+    received = gnss_port.read((uint8_t *)gnss_buffer->s + gnss_buffer->len, available);
     //    LOG(L_WARN, "Rx %d bytes\r\n", received);
     if (received != available) {
       LOG(L_ERR, "gnss_port said %d bytes available, but received %d.\r\n", available, received);
@@ -532,5 +541,3 @@ error:
 /*void OwlModem::setDebugLevel(int level) {
   owl_log_set_level(level);
 }*/
-
-

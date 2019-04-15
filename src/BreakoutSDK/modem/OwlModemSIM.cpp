@@ -30,8 +30,8 @@
 
 
 OwlModemSIM::OwlModemSIM(OwlModemAT *atModem) : atModem_(atModem) {
-  if(atModem_ != nullptr) {
-    atModem_-> registerUrcHandler(OwlModemSIM::processURC, this);
+  if (atModem_ != nullptr) {
+    atModem_->registerUrcHandler(OwlModemSIM::processURC, this);
   }
 }
 
@@ -52,8 +52,8 @@ int OwlModemSIM::handleCPIN(str urc, str data) {
   return 1;
 }
 
-int OwlModemSIM::processURC(str urc, str data, void* instance) {
-  OwlModemSIM *inst = reinterpret_cast<OwlModemSIM*>(instance);
+int OwlModemSIM::processURC(str urc, str data, void *instance) {
+  OwlModemSIM *inst = reinterpret_cast<OwlModemSIM *>(instance);
   if (inst->handleCPIN(urc, data)) return 1;
   return 0;
 }
@@ -72,7 +72,6 @@ int OwlModemSIM::getICCID(str *out_response, int max_response_len) {
 int OwlModemSIM::getIMSI(str *out_response, int max_response_len) {
   if (out_response) out_response->len = 0;
   return atModem_->doCommandBlocking("AT+CIMI", 1000, out_response, max_response_len) == AT_Result_Code__OK;
-
 }
 
 static str s_cnum = STRDECL("+CNUM: ");

@@ -127,13 +127,13 @@ class RawGNSSBypass : public OwlModemCLIExecutor {
 class PowerOn : public OwlModemCLIExecutor {
  public:
   PowerOn()
-      : OwlModemCLIExecutor("powerOn", "<module_bitmask>",
-                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+      : OwlModemCLIExecutor("powerOn", "<module_bitmask>", "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n",
+                            1, 1) {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    owl_power_m bit_mask = (owl_power_m) 0;
-    bit_mask = (owl_power_m)str_to_uint32_t(cmd.argv[0], 10);
+    owl_power_m bit_mask = (owl_power_m)0;
+    bit_mask             = (owl_power_m)str_to_uint32_t(cmd.argv[0], 10);
     cli.owlModem->powerOn(bit_mask);
   }
 };
@@ -143,13 +143,13 @@ class PowerOn : public OwlModemCLIExecutor {
 class PowerOff : public OwlModemCLIExecutor {
  public:
   PowerOff()
-      : OwlModemCLIExecutor("powerOff", "<module_bitmask>",
-                            "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n", 1, 1) {
+      : OwlModemCLIExecutor("powerOff", "<module_bitmask>", "Power on modules - 1 modem, 2 Grove, 4 RGBLED, 8 GNSS\r\n",
+                            1, 1) {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    owl_power_m bit_mask = (owl_power_m) 0;
-    bit_mask = (owl_power_m) str_to_uint32_t(cmd.argv[0], 10);
+    owl_power_m bit_mask = (owl_power_m)0;
+    bit_mask             = (owl_power_m)str_to_uint32_t(cmd.argv[0], 10);
     cli.owlModem->powerOff(bit_mask);
   }
 };
@@ -394,8 +394,8 @@ class SetModemFunctionality : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    at_cfun_fun_e fun      = (at_cfun_fun_e)str_to_long_int(cmd.argv[0], 10);
-    at_cfun_rst_e rst      = AT_CFUN__RST__No_Modem_Reset;
+    at_cfun_fun_e fun = (at_cfun_fun_e)str_to_long_int(cmd.argv[0], 10);
+    at_cfun_rst_e rst = AT_CFUN__RST__No_Modem_Reset;
     if (cmd.argc >= 2) rst = (at_cfun_rst_e)str_to_long_int(cmd.argv[1], 10);
     if (cli.owlModem->network.setModemFunctionality(fun, cmd.argc >= 2 ? &rst : 0)) {
       LOGF(L_CLI, "OK fun=%d(%s) rst=%d(%s)\r\n", fun, at_cfun_fun_text(fun), rst, at_cfun_rst_text(rst));
@@ -475,13 +475,13 @@ class SetOperatorSelection : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    at_cops_mode_e mode       = (at_cops_mode_e)str_to_long_int(cmd.argv[0], 10);
-    at_cops_format_e format   = AT_COPS__Format__Long_Alphanumeric;
-    str oper                  = {0};
-    at_cops_act_e act         = AT_COPS__Access_Technology__LTE_NB_S1;
+    at_cops_mode_e mode     = (at_cops_mode_e)str_to_long_int(cmd.argv[0], 10);
+    at_cops_format_e format = AT_COPS__Format__Long_Alphanumeric;
+    str oper                = {0};
+    at_cops_act_e act       = AT_COPS__Access_Technology__LTE_NB_S1;
     if (cmd.argc >= 2) format = (at_cops_format_e)str_to_long_int(cmd.argv[1], 10);
-    if (cmd.argc >= 3) oper   = cmd.argv[2];
-    if (cmd.argc >= 4) act    = (at_cops_act_e)str_to_long_int(cmd.argv[3], 10);
+    if (cmd.argc >= 3) oper = cmd.argv[2];
+    if (cmd.argc >= 4) act = (at_cops_act_e)str_to_long_int(cmd.argv[3], 10);
     if (cli.owlModem->network.setOperatorSelection(mode, cmd.argc >= 2 ? &format : 0, cmd.argc >= 3 ? &oper : 0,
                                                    cmd.argc >= 4 ? &act : 0)) {
       LOGF(L_CLI, "OK mode=%d(%s) format=%d(%s) oper=[%.*s] act=%d(%.*s)\r\n", mode, at_cops_mode_text(mode), format,
@@ -669,7 +669,7 @@ class GetAPNIPAddress : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    uint8_t cid            = 1;
+    uint8_t cid = 1;
     if (cmd.argc >= 1) cid = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
     uint8_t ipv4[4];
     uint8_t ipv6[16];
@@ -695,9 +695,9 @@ class OpenSocket : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    at_uso_protocol_e protocol    = (at_uso_protocol_e)str_to_uint32_t(cmd.argv[0], 10);
-    uint16_t local_port           = 0;
-    uint8_t out_socket            = 0;
+    at_uso_protocol_e protocol = (at_uso_protocol_e)str_to_uint32_t(cmd.argv[0], 10);
+    uint16_t local_port        = 0;
+    uint8_t out_socket         = 0;
     if (cmd.argc >= 2) local_port = (int)str_to_long_int(cmd.argv[1], 10);
     if (cli.owlModem->socket.open(protocol, local_port, &out_socket))
       LOGF(L_CLI, "OK socket=%u\r\n", out_socket);
@@ -773,7 +773,7 @@ class SendUDP : public OwlModemCLIExecutor {
       return;
     }
     char buf[512];
-    str data = {.s = buf, .len = 0};
+    str data           = {.s = buf, .len = 0};
     data.len           = hex_to_str(data.s, 512, cmd.argv[1]);
     int out_bytes_sent = 0;
     if (cli.owlModem->socket.sendUDP(socket, data, &out_bytes_sent))
@@ -798,7 +798,7 @@ class SendTCP : public OwlModemCLIExecutor {
       return;
     }
     char buf[512];
-    str data = {.s = buf, .len = 0};
+    str data           = {.s = buf, .len = 0};
     data.len           = hex_to_str(data.s, 512, cmd.argv[1]);
     int out_bytes_sent = 0;
     if (cli.owlModem->socket.sendTCP(socket, data, &out_bytes_sent))
@@ -864,8 +864,8 @@ class ReceiveUDP : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    uint8_t socket         = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
-    int len                = 0;
+    uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
+    int len        = 0;
     if (cmd.argc >= 2) len = str_to_long_int(cmd.argv[1], 10);
     char buf_ip[64];
     if (cmd.argv[3].len > 512) {
@@ -892,8 +892,8 @@ class ReceiveTCP : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    uint8_t socket         = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
-    int len                = 0;
+    uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
+    int len        = 0;
     if (cmd.argc >= 2) len = str_to_long_int(cmd.argv[1], 10);
     char buf_ip[64];
     if (cmd.argv[3].len > 512) {
@@ -919,11 +919,11 @@ class ReceiveFromUDP : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    uint8_t socket         = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
-    int len                = 0;
+    uint8_t socket = (uint8_t)str_to_uint32_t(cmd.argv[0], 10);
+    int len        = 0;
     if (cmd.argc >= 2) len = str_to_long_int(cmd.argv[1], 10);
     char buf_ip[64];
-    str remote_ip = {.s = buf_ip, .len = 0};
+    str remote_ip        = {.s = buf_ip, .len = 0};
     uint16_t remote_port = 0;
     if (cmd.argv[3].len > 512) {
       LOGF(L_CLI, "ERROR data input too long %d > max 512 bytes\r\n", cmd.argv[3].len);
@@ -1206,11 +1206,11 @@ class DTLSClientCreate : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    str remote_ip                 = cmd.argv[0];
-    uint16_t remote_port          = str_to_uint32_t(cmd.argv[1], 10);
-    uint16_t local_port           = 0;
+    str remote_ip        = cmd.argv[0];
+    uint16_t remote_port = str_to_uint32_t(cmd.argv[1], 10);
+    uint16_t local_port  = 0;
     if (cmd.argc >= 3) local_port = str_to_uint32_t(cmd.argv[2], 10);
-    str psk_id                    = {0};
+    str psk_id = {0};
     if (cmd.argc >= 4) {
       psk_id = cmd.argv[3];
     } else {
@@ -1490,18 +1490,18 @@ class CoAPPeerSend : public OwlModemCLIExecutor {
       LOG(L_CLI, "ERROR - no CoAP context created - do first coap.create\r\n");
       return;
     }
-    coap_type_e type                  = (coap_type_e)str_to_uint32_t(cmd.argv[0], 10);
-    coap_code_class_e code_class      = (coap_code_class_e)str_to_uint32_t(cmd.argv[1], 10);
-    coap_code_detail_e code_detail    = (coap_code_detail_e)str_to_uint32_t(cmd.argv[2], 10);
-    str uri_path                      = {0};
-    if (cmd.argc >= 4) uri_path       = cmd.argv[3];
-    str uri_query                     = {0};
-    if (cmd.argc >= 5) uri_query      = cmd.argv[4];
-    uint64_t content_format           = 7777;
+    coap_type_e type               = (coap_type_e)str_to_uint32_t(cmd.argv[0], 10);
+    coap_code_class_e code_class   = (coap_code_class_e)str_to_uint32_t(cmd.argv[1], 10);
+    coap_code_detail_e code_detail = (coap_code_detail_e)str_to_uint32_t(cmd.argv[2], 10);
+    str uri_path                   = {0};
+    if (cmd.argc >= 4) uri_path = cmd.argv[3];
+    str uri_query = {0};
+    if (cmd.argc >= 5) uri_query = cmd.argv[4];
+    uint64_t content_format = 7777;
     if (cmd.argc >= 6) content_format = str_to_uint32_t(cmd.argv[5], 10);
-    str payload                       = {0};
-    if (cmd.argc >= 7) payload        = cmd.argv[6];
-    CoAPMessage *msg                  = owl_new CoAPMessage(type, code_class, code_detail, coapPeer->getNextMessageId());
+    str payload = {0};
+    if (cmd.argc >= 7) payload = cmd.argv[6];
+    CoAPMessage *msg = owl_new CoAPMessage(type, code_class, code_detail, coapPeer->getNextMessageId());
     if (!msg) GOTOERR(error);
     if (uri_path.len) {
       str uri_path_token = {0};
@@ -1624,10 +1624,10 @@ class BreakoutSendCommand : public OwlModemCLIExecutor {
       return;
     }
     char buffer[140];
-    str command = {.s = buffer, .len = 0};
+    str command    = {.s = buffer, .len = 0};
     bool is_binary = false;
     if (str_equalcase_prefix_char(cmd.args, "0x")) {
-      str input = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
+      str input   = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
       command.len = hex_to_str(command.s, 140, input);
       if (command.len * 2 != input.len) {
         LOG(L_CLI, "ERROR bad input hex string or more than 140 bytes\r\n");
@@ -1707,10 +1707,10 @@ class BreakoutSendCommandWithReceiptRequest : public OwlModemCLIExecutor {
       return;
     }
     char buffer[140];
-    str command = {.s = buffer, .len = 0};
+    str command    = {.s = buffer, .len = 0};
     bool is_binary = false;
     if (str_equalcase_prefix_char(cmd.args, "0x")) {
-      str input = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
+      str input   = {.s = cmd.args.s + 2, .len = cmd.args.len - 2};
       command.len = hex_to_str(command.s, 140, input);
       if (command.len * 2 != input.len) {
         LOG(L_CLI, "ERROR bad input hex string or more than 140 bytes\r\n");
@@ -2043,7 +2043,7 @@ static str s_help = {.s = "help", .len = 4};
 static str s_quit = {.s = "quit", .len = 4};
 
 static bool in_command_execution = false; /**< Protection for commands which call handleUserInput() inside them */
-static str s_history = {.s = "history", .len = 7};
+static str s_history             = {.s = "history", .len = 7};
 
 int OwlModemCLI::handleUserInput(int resume) {
   if (in_command_execution) return resume;

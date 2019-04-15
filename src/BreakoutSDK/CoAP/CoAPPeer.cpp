@@ -324,7 +324,7 @@ void CoAPPeer::setHandlers(CoAPPeer_MessageHandler_f handler_message, CoAPPeer_D
 
 int CoAPPeer::sendUnreliably(CoAPMessage *message, int probing_rate, int max_transmit_span) {
   uint8_t buf[MODEM_UDP_BUFFER_SIZE];
-  bin_t b = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
+  bin_t b       = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
   int is_ackrst = 0;
   if (!message) {
     LOG(L_ERR, "Null parameter\r\n");
@@ -383,7 +383,7 @@ error:
 int CoAPPeer::sendReliably(CoAPMessage *message, CoAPPeer_ClientTransactionCallback_f cb, void *cb_param,
                            int max_retransmit, int max_transmit_span) {
   uint8_t buf[MODEM_UDP_BUFFER_SIZE];
-  bin_t b = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
+  bin_t b                      = {.s = buf, .idx = 0, .max = MODEM_UDP_BUFFER_SIZE};
   coap_client_transaction_t *t = 0;
   if (!message) {
     LOG(L_ERR, "Null parameter\r\n");

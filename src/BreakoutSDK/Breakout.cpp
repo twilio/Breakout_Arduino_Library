@@ -79,8 +79,8 @@ void Breakout::setPollingInterval(uint32_t interval_seconds) {
   } else if (interval_seconds == 0) {
     polling_interval = 0;
   } else {
-    LOG(L_WARN, "Interval %u seconds less than minimum of %u but not 0. Using minimum polling interval.\r\n", interval_seconds,
-        BREAKOUT_POLLING_INTERVAL_MINIMUM);
+    LOG(L_WARN, "Interval %u seconds less than minimum of %u but not 0. Using minimum polling interval.\r\n",
+        interval_seconds, BREAKOUT_POLLING_INTERVAL_MINIMUM);
     polling_interval = BREAKOUT_POLLING_INTERVAL_MINIMUM;
   }
 
@@ -395,7 +395,7 @@ void Breakout::spin() {
 #if TESTING_WITH_CLI == 1
   /* Enable also CLI, for intermediary testing */
   if (!owlModemCLI) owlModemCLI = owl_new OwlModemCLI(owlModem, &SerialDebugPort);
-  cli_resume                    = owlModemCLI->handleUserInput(cli_resume);
+  cli_resume = owlModemCLI->handleUserInput(cli_resume);
 #endif
 }
 
@@ -627,7 +627,7 @@ recovered_connection:
 
   CoAPMessage request = CoAPMessage(CoAP_Type__Confirmable, CoAP_Code_Class__Request, CoAP_Code_Detail__Request__POST,
                                     coapPeer->getNextMessageId());
-  request.token = coapPeer->getNextToken(&request.token_length);
+  request.token       = coapPeer->getNextToken(&request.token_length);
   if (!request.addOptionUriPath("v1")) {
     LOG(L_ERR, "Error adding UriPath\r\n");
     goto error;
@@ -665,7 +665,7 @@ recovered_connection:
 error:
   /* Reset the polling interval - doesn't matter if this was called manually or on interval
    * - after error label, to avoid hammering this on errors */
-  last_polling                        = now;
+  last_polling = now;
   if (next_polling != 0) next_polling = now + polling_interval * 1000;
 
   request.destroy();
@@ -722,7 +722,7 @@ bool Breakout::getGNSSData(gnss_data_t *out_gnss_data) {
 
 
 void Breakout::notifyConnectionStatusChanged() {
-  connection_status_e status                                                           = getConnectionStatus();
+  connection_status_e status = getConnectionStatus();
   if (status == CONNECTION_STATUS_REGISTERED_AND_CONNECTED) last_coap_status_connected = owl_time();
   if (connection_handler) (connection_handler)(status);
 }
