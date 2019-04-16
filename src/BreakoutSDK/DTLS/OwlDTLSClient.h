@@ -126,7 +126,7 @@ class OwlDTLSClient {
   OwlModem *owlModem = 0;
   uint8_t socket_id  = 255;
   char c_remote_ip[64];
-  str remote_ip = {.s = c_remote_ip, .len = 0};
+  str remote_ip        = {.s = c_remote_ip, .len = 0};
   uint16_t remote_port = 0;
 
   clock_time_t next_retransmit_timer = 0;

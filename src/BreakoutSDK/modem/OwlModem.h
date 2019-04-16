@@ -149,6 +149,7 @@ class OwlModem {
   ArduinoSeeedHwOwlSerial modem_port;
   ArduinoSeeedUSBOwlSerial debug_port;
   ArduinoSeeedHwOwlSerial gnss_port;
+
  public:
   /*
    * Main APIs
@@ -211,7 +212,7 @@ class OwlModem {
    */
   void computeHostDeviceInformation(str purpose);
 
-public: // These things are not part of the API. TODO - make them private
+ public:  // These things are not part of the API. TODO - make them private
   int drainGNSSRx(str *gnss_buffer, int gnss_buffer_len);
 };
 

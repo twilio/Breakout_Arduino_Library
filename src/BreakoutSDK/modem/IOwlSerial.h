@@ -5,7 +5,8 @@
 
 class IOwlSerial {
  public:
-  virtual ~IOwlSerial() {}
+  virtual ~IOwlSerial() {
+  }
 
   /**
    * Number of bytes available on the interface
@@ -29,4 +30,4 @@ class IOwlSerial {
    */
   virtual int32_t write(const uint8_t *buf, uint32_t count) = 0;
 };
-#endif // __I_OWL_SERIAL_H__
+#endif  // __I_OWL_SERIAL_H__

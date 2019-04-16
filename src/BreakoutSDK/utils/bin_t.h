@@ -92,7 +92,7 @@ typedef struct {
       LOG(L_CRIT, "Not implemented for %d > 8 bytes\r\n", _width_);                                                    \
       goto error;                                                                                                      \
     }                                                                                                                  \
-    for (int i               = (_width_)-1; i >= 0; i--)                                                               \
+    for (int i = (_width_)-1; i >= 0; i--)                                                                             \
       (_b_)->s[(_b_)->idx++] = (_uint_ >> (i * 8)) & 0xFF;                                                             \
   } while (0)
 

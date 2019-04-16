@@ -135,7 +135,7 @@ class OwlModemCLI {
 
   char empty_spaces[MODEM_CLI_CMD_LEN + 1];
   char buf[MODEM_CLI_CMD_LEN + 1];
-  str command = {.s = buf, .len = 0};
+  str command            = {.s = buf, .len = 0};
   OwlModemCLICommand cmd = OwlModemCLICommand();
 };
 

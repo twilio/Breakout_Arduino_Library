@@ -113,7 +113,7 @@ class OwlModemSocket {
    * @param instance - pointer to OwlModemSocket instance
    * @return 1 if the line was handled, 0 if no match here
    */
-  static int processURC(str urc, str data, void* instance);
+  static int processURC(str urc, str data, void *instance);
 
   /**
    * Handler for incoming data - triggers receive and handler calling for UDP/TCP queued packets.

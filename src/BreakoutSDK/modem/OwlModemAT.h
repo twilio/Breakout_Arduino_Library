@@ -9,14 +9,18 @@
 
 class OwlModemAT {
  public:
-
-  using UrcHandler = int(*)(str, str, void*); // code, data, private (pointer to the instance normally)
+  using UrcHandler = int (*)(str, str, void *);  // code, data, private (pointer to the instance normally)
   static constexpr int MaxUrcHandlers = 8;
 
-  OwlModemAT(IOwlSerial *serial) : serial_(serial) {}
+  OwlModemAT(IOwlSerial *serial) : serial_(serial) {
+  }
   bool initTerminal();
-  void pause() {paused_ = true;}
-  void resume() {paused_ = false;}
+  void pause() {
+    paused_ = true;
+  }
+  void resume() {
+    paused_ = false;
+  }
 
   /**
    * Send arbitrary data to the modem.
@@ -44,7 +48,9 @@ class OwlModemAT {
    */
   at_result_code_e sendCommand(str command);
   at_result_code_e getLastCommandResponse(str *out_response, int max_response_len);
-  void interrupLastCommand() {in_command_ = false;}
+  void interrupLastCommand() {
+    in_command_ = false;
+  }
   /**
    * Execute one AT command
    * @param command - command to send
@@ -58,7 +64,7 @@ class OwlModemAT {
   at_result_code_e doCommandBlocking(str command, uint32_t timeout_millis, str *out_response, int max_response_len);
   at_result_code_e doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response, int max_response_len);
 
-  bool registerUrcHandler(UrcHandler handler, void* priv);
+  bool registerUrcHandler(UrcHandler handler, void *priv);
   /**
    * Utility function to filter out of the response for a command, lines which do not start with a certain prefix.
    * The prefix is also eliminated, so that you have just your actual data left.
@@ -67,7 +73,9 @@ class OwlModemAT {
    */
   static void filterResponse(str prefix, str *response);
 
-  void interruptLastCommand() {in_command_ = false; }
+  void interruptLastCommand() {
+    in_command_ = false;
+  }
 
 
 
@@ -84,7 +92,7 @@ class OwlModemAT {
   int drainModemRxToBuffer();
 
   UrcHandler urc_handlers_[MaxUrcHandlers];
-  void* urc_handler_params_[MaxUrcHandlers];
+  void *urc_handler_params_[MaxUrcHandlers];
   int num_urc_handlers_{0};
   /** The modem has been issued a command and is waiting for its response - URC are not expected */
   bool in_command_{false};
@@ -98,7 +106,5 @@ class OwlModemAT {
   str response = {.s = response_buffer, .len = 0};
 
   bool paused_{false};
-
-
 };
-#endif // __OWL_MODEM_AT_H__
+#endif  // __OWL_MODEM_AT_H__

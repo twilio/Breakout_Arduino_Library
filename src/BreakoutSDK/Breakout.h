@@ -34,7 +34,7 @@
 
 
 #define MAX_PENDING_COMMANDS 100
-#define BREAKOUT_POLLING_INTERVAL_MINIMUM 60 // Temporary minimum interval; expect this to be 10 minutes in the future.
+#define BREAKOUT_POLLING_INTERVAL_MINIMUM 60  // Temporary minimum interval; expect this to be 10 minutes in the future.
 #define BREAKOUT_INIT_CONNECTION_TIMEOUT 60
 #define BREAKOUT_INIT_CONNECTION_RETRIES 2
 #define BREAKOUT_REINIT_CONNECTION_INTERVAL 600
@@ -379,7 +379,7 @@ class Breakout {
   uint32_t polling_interval = 10 * 60; /**< Polling interval in seconds */
   owl_time_t last_polling   = 0;       /**< Time of last polling - will warn if manually triggering it more often */
   owl_time_t next_polling   = 1;       /**< Time of next automatic polling, or 0 if disabled. Initialize to 0 if to
-                                         * disable it, or 1 if to enable it by default, without setting the poll. */
+                                        * disable it, or 1 if to enable it by default, without setting the poll. */
   coap_token_t last_polling_token = 0; /**< Token sent in the last Heartbeats request, to match the Response */
   uint64_t queued_command_count   = 0; /**< Last received Queued-Command-Count, as a Response to Heartbeats */
 

@@ -79,7 +79,7 @@ class OwlModemNetwork {
    * @param data - data of the event
    * @return 1 if the line was handled, 0 if no match here
    */
-  static int processURC(str urc, str data, void* instance);
+  static int processURC(str urc, str data, void *instance);
 
 
 

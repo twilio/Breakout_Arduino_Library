@@ -164,7 +164,7 @@
       ((list)->head)->prev = (add);                                                                                    \
     else                                                                                                               \
       (list)->tail = (add);                                                                                            \
-    (list)->head   = (add);                                                                                            \
+    (list)->head = (add);                                                                                              \
   } while (0)
 
 #define WL_APPEND(list, add)                                                                                           \
@@ -175,17 +175,17 @@
       ((list)->tail)->next = (add);                                                                                    \
     else                                                                                                               \
       (list)->head = (add);                                                                                            \
-    (list)->tail   = (add);                                                                                            \
+    (list)->tail = (add);                                                                                              \
   } while (0)
 
 #define WL_APPEND_LIST(list, add_list)                                                                                 \
   do {                                                                                                                 \
-    if (!(list)->head) (list)->head              = (add_list)->head;                                                   \
+    if (!(list)->head) (list)->head = (add_list)->head;                                                                \
     if ((add_list)->head) (add_list)->head->prev = (list)->tail;                                                       \
-    if ((list)->tail) (list)->tail->next         = (add_list)->head;                                                   \
-    (list)->tail                                 = (add_list)->tail;                                                   \
-    (add_list)->head                             = 0;                                                                  \
-    (add_list)->tail                             = 0;                                                                  \
+    if ((list)->tail) (list)->tail->next = (add_list)->head;                                                           \
+    (list)->tail     = (add_list)->tail;                                                                               \
+    (add_list)->head = 0;                                                                                              \
+    (add_list)->tail = 0;                                                                                              \
   } while (0)
 
 /**
@@ -203,7 +203,7 @@
         (list)->head = (add);                                                                                          \
       else                                                                                                             \
         el_is->prev->next = (add);                                                                                     \
-      el_is->prev         = (add);                                                                                     \
+      el_is->prev = (add);                                                                                             \
     } else {                                                                                                           \
       (add)->next = NULL;                                                                                              \
       (add)->prev = (list)->tail;                                                                                      \
@@ -211,7 +211,7 @@
         ((list)->tail)->next = (add);                                                                                  \
       else                                                                                                             \
         (list)->head = (add);                                                                                          \
-      (list)->tail   = (add);                                                                                          \
+      (list)->tail = (add);                                                                                            \
     }                                                                                                                  \
   } while (0)
 
@@ -228,8 +228,8 @@
       ((del)->next)->prev = (del)->prev;                                                                               \
     else                                                                                                               \
       ((list)->tail) = (del)->prev;                                                                                    \
-    (del)->next      = 0;                                                                                              \
-    (del)->prev      = 0;                                                                                              \
+    (del)->next = 0;                                                                                                   \
+    (del)->prev = 0;                                                                                                   \
   } while (0)
 
 #define WL_FOREACH(list, el) for ((el) = (list)->head; (el); (el) = (el)->next)

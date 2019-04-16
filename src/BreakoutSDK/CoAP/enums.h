@@ -247,9 +247,8 @@ typedef enum {
                                                    (TEMPORARY - registered 2018-08-09, expires 2019-08-09)*/
   CoAP_Content_Format__application_csrattrs =
       285, /**< [RFC7030][draft-ietf-ace-coap-est] (TEMPORARY - registered 2018-08-09, expires 2019-08-09)*/
-  CoAP_Content_Format__application_pkcs10 =
-      286, /**< [RFC-ietf-lamps-rfc5751-bis-12][RFC5967][draft-ietf-ace-coap-est] (TEMPORARY - registered 2018-08-09,
-              expires 2019-08-09)*/
+  CoAP_Content_Format__application_pkcs10 = 286, /**< [RFC-ietf-lamps-rfc5751-bis-12][RFC5967][draft-ietf-ace-coap-est]
+                                                    (TEMPORARY - registered 2018-08-09, expires 2019-08-09)*/
   CoAP_Content_Format__application_senml_xml          = 310,   /**< [RFC8428]*/
   CoAP_Content_Format__application_sensml_xml         = 311,   /**< [RFC8428]*/
   CoAP_Content_Format__application_vnd_ocf_cbor       = 10000, /**< [Michael_Koster]*/

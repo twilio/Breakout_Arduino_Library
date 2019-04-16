@@ -39,7 +39,6 @@ typedef void (*OwlModem_PINHandler_f)(str message);
 
 
 
-
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods to get information from the SIM card
  */
@@ -53,7 +52,7 @@ class OwlModemSIM {
    * @param data - data of the event
    * @return 1 if the line was handled, 0 if no match here
    */
-  static int processURC(str urc, str data, void* instance);
+  static int processURC(str urc, str data, void *instance);
 
 
 
@@ -124,8 +123,8 @@ class OwlModemSIM {
  private:
   OwlModemAT *atModem_ = 0;
 
-  //char sim_response_buffer[MODEM_SIM_RESPONSE_BUFFER_SIZE];
-  //str sim_response = {.s = sim_response_buffer, .len = 0};
+  // char sim_response_buffer[MODEM_SIM_RESPONSE_BUFFER_SIZE];
+  // str sim_response = {.s = sim_response_buffer, .len = 0};
 
   int handleCPIN(str urc, str data);
 };

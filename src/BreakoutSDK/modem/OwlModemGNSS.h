@@ -70,8 +70,8 @@ typedef struct {
 } gnss_data_t;
 
 /**
-* Twilio wrapper for the serial interface to a GNSS module
-*/
+ * Twilio wrapper for the serial interface to a GNSS module
+ */
 class OwlModemGNSS {
  public:
   OwlModemGNSS(OwlModem *owlModem);

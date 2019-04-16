@@ -68,9 +68,8 @@ typedef enum {
   AT_CFUN__FUN__Modem_Silent_Reset__With_SIM_Reset =
       16, /**< only for SARA-R4/N4 series - with detach from network and saving of NVM parameters */
   AT_CFUN__FUN__Minimum_Functionality_with_CS_PS_and_SIM_Deactivated = 19, /**< only for SARA-R4/N4 series */
-  AT_CFUN__FUN__Modem_Deep_Low_Power_Mode =
-      127, /**< only for SARA-R4/N4 series - with detach from network and saving of NVM
-         parameters; wake up with power cycle or module reset */
+  AT_CFUN__FUN__Modem_Deep_Low_Power_Mode = 127, /**< only for SARA-R4/N4 series - with detach from network and saving
+                                               of NVM parameters; wake up with power cycle or module reset */
 } at_cfun_fun_e;
 
 char *at_cfun_fun_text(at_cfun_fun_e code);
