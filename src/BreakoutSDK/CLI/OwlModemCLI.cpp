@@ -2051,6 +2051,10 @@ int OwlModemCLI::handleUserInput(int resume) {
   if (!owlModem || !debugPort) return 0;
   char c;
   if (!resume) {
+    // flush debug port on startup
+    while (debugPort->available()) {
+      c = debugPort->read();
+    }
     LOGF(L_CLI, "\r\n");
     LOGF(L_CLI, "Welcome to the OwlModem simple CLI interface!\r\n");
     LOGF(L_CLI, "  Type your commands to test the OwlModem API. Hit <TAB> for completion and fast help.\r\n");
