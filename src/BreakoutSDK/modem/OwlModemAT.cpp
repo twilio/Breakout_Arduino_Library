@@ -151,67 +151,6 @@ at_result_code_e OwlModemAT::sendCommand(str command) {
   return AT_Result_Code__OK;
 }
 
-/*at_result_code_e OwlModemAT::doCommand(str command, uint32_t timeout_millis, str *out_response, int max_response_len)
-{ if (out_response) out_response->len = 0; at_result_code_e result_code; owl_time_t timeout; int received;
-
-  in_command_ = 1;
-  int i;
-  int in_timer = 0;
-  for (i = 0; i < 100 && in_timer != 0; i++)
-    owl_delay(50);
-  if (i >= 100) {
-    LOG(L_ERR, "[%.*s] either called from a timer, or timeout waiting for timer to exit\r\n", command.len, command.s);
-    return AT_Result_Code__failure;
-  }
-
-  if (!sendData(command)) goto failure;
-  //  LOG(L_DBG, "[%.*s] sent\r\n", command.len, command.s);
-
-  if (rx_buffer.len) consumeUnsolicited();
-
-  if (!sendData(CMDLT)) goto failure;
-  LOG(L_DBG, "[%.*s] sent\r\n", command.len, command.s);
-  timeout = owl_time() + timeout_millis;
-  do {
-    received = drainModemRxToBuffer();
-    if (!received) {
-      owl_delay(50);
-      if (owl_time() < timeout)
-        continue;
-      else
-        break;
-    }
-    consumeUnsolicitedInCommandResponse();
-    result_code = extractResult(out_response, max_response_len);
-    if (result_code >= AT_Result_Code__OK) {
-      in_command_ = 0;
-      if (out_response)
-        LOG(L_DBG, " - Execution complete - Result %d - %s Data [%.*s]\r\n", result_code,
-            at_result_code_text(result_code), out_response->len, out_response->s);
-      else
-        LOG(L_DBG, " - Execution complete - Result %d - %s\r\n", result_code, at_result_code_text(result_code));
-      return result_code;
-    }
-  } while (owl_time() < timeout);
-
-  if (!str_equalcase_char(command, "AT")) LOG(L_WARN, " - Timed-out on [%.*s]\r\n", command.len, command.s);
-
-  //  // reset the buffer on timeout
-  //  rx_buffer.len = 0;
-  // or don't reset on timeout - the handleRxOnTimer() shall drop orphan lines
-
-  in_command_ = 0;
-  return AT_Result_Code__timeout;
-failure:
-  LOG(L_WARN, " - Failure on [%.*s]\r\n", command.len, command.s);
-  in_command_ = 0;
-  return AT_Result_Code__failure;
-}
-
-at_result_code_e OwlModemAT::doCommand(char *command, uint32_t timeout_millis, str *out_response, int max_response_len)
-{ str s = {.s = command, .len = strlen(command)}; return doCommand(s, timeout_millis, out_response, max_response_len);
-}*/
-
 at_result_code_e OwlModemAT::getLastCommandResponse(str *out_response, int max_response_len) {
   if (out_response) {
     out_response->len = 0;
@@ -301,41 +240,6 @@ void OwlModemAT::filterResponse(str prefix, str *response) {
   }
 }
 
-/**
- * These prefixes indicate lines which are not errors if not processed as URC, because they belong
- * to regular commands.
- */
-/*static str prefix_non_urc[] = {
-
-    // OwlModemInformation
-    STRDECL("+CBC"),
-    STRDECL("+CIND"),
-
-    // OwlModemSIM
-    STRDECL("+CCID"),
-    STRDECL("+CNUM"),
-
-    // OwlModemNetwork
-    STRDECL("+CFUN"),
-    STRDECL("+UMNOPROF"),
-    STRDECL("+COPS"),
-    STRDECL("+CSQ"),
-
-    // OwlModemPDN
-    STRDECL("+CGPADDR: "),
-
-    // OwlModemSocket
-    STRDECL("+USOCR"),
-    STRDECL("+USOER"),
-    STRDECL("+USOWR"),
-    STRDECL("+USOST"),
-    STRDECL("+USORD"),
-    STRDECL("+USORF"),
-    STRDECL("+USOCO"),
-
-    // End of list marker
-    {0}};*/
-
 int OwlModemAT::processURC(str line, int report_unknown) {
   if (line.len < 1 || line.s[0] != '+') return 0;
   int k = str_find_char(line, ": ");
@@ -351,14 +255,8 @@ int OwlModemAT::processURC(str line, int report_unknown) {
       return 1;
     }
   }
-  /*if (this->network.processURC(urc, data)) return 1;
-  if (this->socket.processURC(urc, data)) return 1;
-  if (this->SIM.processURC(urc, data)) return 1;*/
 
   if (report_unknown) {
-    //  for (int i = 0; prefix_non_urc[i].s; i++)
-    //    if (str_equal(urc, prefix_non_urc[i])) return 0;
-    // If it wasn't on the ignored list, report it
     LOG(L_WARN, "Not handled URC [%.*s] with data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
   }
   return 0;
@@ -497,7 +395,6 @@ error:
   return total;
 }
 
-// OYTIS: NEVER call anything non-trivial from an interrupt
 void OwlModemAT::spin() {
   LOG(L_MEM, "Spin on modem\r\n");
 

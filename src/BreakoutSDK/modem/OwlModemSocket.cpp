@@ -60,11 +60,13 @@ void OwlModemSocketStatus::setClosed() {
   handler_SocketClosed = 0;
 }
 
-
-
 OwlModemSocket::OwlModemSocket(OwlModemAT *atModem) : atModem_(atModem) {
   for (uint8_t socket = 0; socket < MODEM_MAX_SOCKETS; socket++)
     status[socket].setClosed();
+
+  if (atModem_ != nullptr) {
+    atModem_->registerUrcHandler(OwlModemSocket::processURC, this);
+  }
 }
 
 

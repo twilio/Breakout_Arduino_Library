@@ -35,8 +35,6 @@ OwlModemNetwork::OwlModemNetwork(OwlModemAT *atModem) : atModem_(atModem) {
   }
 }
 
-
-
 static str s_creg      = STRDECL("+CREG");
 static str s_creg_full = STRDECL("+CREG: ");
 

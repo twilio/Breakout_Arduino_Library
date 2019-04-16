@@ -112,7 +112,7 @@ void loop() {
   cli_resume = owlModemCLI->handleUserInput(cli_resume);
 
   /* Take care of async modem events */
-  owlModem->handleRxOnTimer();
+  owlModem->AT.spin();
   /* Important step - handling UDP data */
   owlModem->socket.handleWaitingData();
 

@@ -17,7 +17,6 @@ class OwlModemAT {
   bool initTerminal();
   void pause() {paused_ = true;}
   void resume() {paused_ = false;}
-  void spin();
 
   /**
    * Send arbitrary data to the modem.
@@ -33,7 +32,7 @@ class OwlModemAT {
    * data) is parsed and passed along to handlers.
    * @return 1 on success, 0 on failure
    */
-  int handleRxOnTimer();
+  void spin();
 
   /**
    * Send one AT command
