@@ -173,14 +173,20 @@ int OwlModem::initModem(int testing_variant) {
                                                    AT_UMNOPROF__MNO_PROFILE__SW_Default;
 
   if (!AT.initTerminal()) {
-    goto error;
+    return 0;
   }
 
+#if defined(COPS_OVERRIDE_LONG) || defined(COPS_OVERRIDE_SHORT) || defined(COPS_OVERRIDE_NUMERIC)
+  // deregister from the network before the modem hangs
+  if (!network.setOperatorSelection(AT_COPS__Mode__Deregister_from_Network, nullptr, nullptr, nullptr)) {
+    LOG(L_ERR, "Potential deregistering from network\r\n");
+  }
+#endif
 
   /* Resetting the modem network parameters */
   if (!network.getModemMNOProfile(&current_profile)) {
     LOG(L_ERR, "Error retrieving current MNO Profile\r\n");
-    goto error;
+    return 0;
   }
 
   if (current_profile != expected_profile || (testing_variant & Testing__Set_APN_Bands_to_Berlin) != 0 ||
@@ -194,7 +200,7 @@ int OwlModem::initModem(int testing_variant) {
           at_umnoprof_mno_profile_text(expected_profile));
       if (!network.setModemMNOProfile(expected_profile)) {
         LOG(L_ERR, "Error re-setting MNO Profile from %d to %d\r\n", current_profile, expected_profile);
-        goto error;
+        return 0;
       }
     }
 
@@ -233,9 +239,49 @@ int OwlModem::initModem(int testing_variant) {
     }
 
     if (!AT.initTerminal()) {
-      goto error;
+      return 0;
     }
+
+#if defined(COPS_OVERRIDE_LONG) || defined(COPS_OVERRIDE_SHORT) || defined(COPS_OVERRIDE_NUMERIC)
+    // deregister from the network before the modem hangs
+    if (!network.setOperatorSelection(AT_COPS__Mode__Deregister_from_Network, nullptr, nullptr, nullptr)) {
+      LOG(L_ERR, "Potential deregistering from network\r\n");
+    }
+#endif
   }
+
+
+#if defined(COPS_OVERRIDE_LONG)
+  at_cops_format_e cops_format = AT_COPS__Format__Long_Alphanumeric;
+  at_cops_act_e cops_act       = AT_COPS__Access_Technology__LTE_NB_S1;
+  str oper                     = STRDECL(COPS_OVERRIDE_LONG);
+
+  LOG(L_INFO, "Selecting network operator \"%s\", it can take a while.\r\n", COPS_OVERRIDE_LONG);
+  if (!network.setOperatorSelection(AT_COPS__Mode__Manual_Selection, &cops_format, &oper, &cops_act)) {
+    LOG(L_ERR, "Error selecting mobile operator\r\n");
+    return 0;
+  }
+#elif defined(COPS_OVERRIDE_SHORT)
+  at_cops_format_e cops_format = AT_COPS__Format__Short_Alphanumeric;
+  at_cops_act_e cops_act       = AT_COPS__Access_Technology__LTE_NB_S1;
+  str oper                     = STRDECL(COPS_OVERRIDE_SHORT);
+
+  LOG(L_INFO, "Selecting network operator \"%s\", it can take a while.\r\n", COPS_OVERRIDE_SHORT);
+  if (!network.setOperatorSelection(AT_COPS__Mode__Manual_Selection, &cops_format, &oper, &cops_act)) {
+    LOG(L_ERR, "Error selecting mobile operator\r\n");
+    return 0;
+  }
+#elif defined(COPS_OVERRIDE_NUMERIC)
+  at_cops_format_e cops_format = AT_COPS__Format__Numeric;
+  at_cops_act_e cops_act       = AT_COPS__Access_Technology__LTE_NB_S1;
+  str oper                     = STRDECL(COPS_OVERRIDE_NUMERIC);
+
+  LOG(L_INFO, "Selecting network operator \"%s\", it can take a while.\r\n", COPS_OVERRIDE_NUMERIC);
+  if (!network.setOperatorSelection(AT_COPS__Mode__Manual_Selection, &cops_format, &oper, &cops_act)) {
+    LOG(L_ERR, "Error selecting mobile operator\r\n");
+    return 0;
+  }
+#endif
 
 
   if (AT.doCommandBlocking("AT+CSCS=\"GSM\"", 1000, 0, 0) != AT_Result_Code__OK) {
@@ -284,9 +330,6 @@ int OwlModem::initModem(int testing_variant) {
 
   LOG(L_DBG, "Modem correctly initialized\r\n");
   return 1;
-error:
-  LOG(L_ERR, "Failed modem initialization\r\n");
-  return 0;
 }
 
 int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {

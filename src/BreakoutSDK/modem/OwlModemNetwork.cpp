@@ -384,9 +384,9 @@ int OwlModemNetwork::setOperatorSelection(at_cops_mode_e mode, at_cops_format_e 
   char buf[64];
   if (opt_oper) {
     if (opt_act) {
-      snprintf(buf, 64, "AT+COPS=%d,%d,%.*s,%d", mode, *opt_format, opt_oper->len, opt_oper->s, *opt_act);
+      snprintf(buf, 64, "AT+COPS=%d,%d,\"%.*s\",%d", mode, *opt_format, opt_oper->len, opt_oper->s, *opt_act);
     } else {
-      snprintf(buf, 64, "AT+COPS=%d,%d,%.*s", mode, *opt_format, opt_oper->len, opt_oper->s);
+      snprintf(buf, 64, "AT+COPS=%d,%d,\"%.*s\"", mode, *opt_format, opt_oper->len, opt_oper->s);
     }
   } else {
     snprintf(buf, 64, "AT+COPS=%d", mode);
