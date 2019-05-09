@@ -9,8 +9,10 @@
 
 class OwlModemAT {
  public:
-  using UrcHandler = int (*)(str, str, void *);  // code, data, private (pointer to the instance normally)
+  using UrcHandler    = int (*)(str, str, void *);  // code, data, private (pointer to the instance normally)
+  using PrefixHandler = void (*)(str, void *);      // input string, private (pointer to the instance normally)
   static constexpr int MaxUrcHandlers = 8;
+  static constexpr int MaxPrefixes    = 8;
 
   OwlModemAT(IOwlSerial *serial) : serial_(serial) {
   }
@@ -58,13 +60,18 @@ class OwlModemAT {
    * for each command
    * @param out_response - optional output buffer to fill with the command response (not including the result code)
    * @param max_response_len - length of output buffer
+   * @param command_data - additional data to a command requiring it (e.g. UDWNFILE in U-Blox Sara R4/N4).
    * @return the AT result code, or AT_Result_Code__failure on failure to send the data, or AT_Result_Code__timeout in
    * case of timeout while waiting for one of the standard AT result codes.
    */
-  at_result_code_e doCommandBlocking(str command, uint32_t timeout_millis, str *out_response, int max_response_len);
-  at_result_code_e doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response, int max_response_len);
+  at_result_code_e doCommandBlocking(str command, uint32_t timeout_millis, str *out_response, int max_response_len,
+                                     str command_data = {nullptr, 0}, uint16_t data_term = 0xFFFF);
+  at_result_code_e doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response, int max_response_len,
+                                     str command_data = {nullptr, 0}, uint16_t data_term = 0xFFFF);
 
   bool registerUrcHandler(UrcHandler handler, void *priv);
+  void registerPrefixHandler(PrefixHandler handler, void *priv, const str *prefixes, int num_prefixes);
+  void deregisterPrefixHandler();
   /**
    * Utility function to filter out of the response for a command, lines which do not start with a certain prefix.
    * The prefix is also eliminated, so that you have just your actual data left.
@@ -83,6 +90,7 @@ class OwlModemAT {
   IOwlSerial *serial_;
 
   int processURC(str line, int report_unknown);
+  void processPrefix(str line);
   int getNextCompleteLine(int start_idx, str *line);
   void removeRxBufferLine(str line);
   void consumeUnsolicited();
@@ -90,6 +98,11 @@ class OwlModemAT {
   at_result_code_e extractResult(str *out_response, int max_response_len);
 
   int drainModemRxToBuffer();
+
+  str special_prefixes_[MaxPrefixes];
+  PrefixHandler prefix_handler_{nullptr};
+  void *prefix_handler_param_{nullptr};
+  int num_special_prefixes_{0};
 
   UrcHandler urc_handlers_[MaxUrcHandlers];
   void *urc_handler_params_[MaxUrcHandlers];

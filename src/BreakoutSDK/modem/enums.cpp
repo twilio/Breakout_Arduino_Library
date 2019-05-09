@@ -41,28 +41,32 @@ struct {
     {.value = {0}, .code = AT_Result_Code__unknown},
 };
 
-at_result_code_e at_result_code_resolve(str value) {
-  int i;
-  for (i = 0; at_result_codes[i].code != AT_Result_Code__unknown; i++)
-    if (str_equal(at_result_codes[i].value, value)) return at_result_codes[i].code;
-  return AT_Result_Code__unknown;
-}
-
 static char c_cme_error[] = "+CME ERROR: ";
 
-at_result_code_e at_result_code_extract(char *value, int max_len) {
-  /* Must be at least <CR><LF>OK<CR><LF>, so 6 bytes */
+at_result_code_e at_result_code_extract(const char *value, int max_len) {
+  if (max_len < 3) {  // prompt for data '\r\n>'
+    return AT_Result_Code__unknown;
+  }
+
+  if (value[0] == '\r' && value[1] == '\n' && value[2] == '>') {
+    return AT_Result_Code__wait_input;
+  }
+
+  /* "Normal" result code, must be at least <CR><LF>OK<CR><LF>, so 6 bytes */
   if (max_len < 6) return AT_Result_Code__unknown;
   if (value[0] != '\r' || value[1] != '\n') return AT_Result_Code__unknown;
   if (strncmp(value + 2, c_cme_error, strlen(c_cme_error)) == 0) {
     return AT_Result_Code__cme_error;
   }
   int i;
-  for (i = 0; at_result_codes[i].code != AT_Result_Code__unknown; i++)
+  for (i = 0; at_result_codes[i].code != AT_Result_Code__unknown; i++) {
     if (at_result_codes[i].value.len <= max_len - 4 &&
         strncmp(value + 2, at_result_codes[i].value.s, at_result_codes[i].value.len) == 0 &&
-        value[2 + at_result_codes[i].value.len] == '\r' && value[3 + at_result_codes[i].value.len] == '\n')
+        value[2 + at_result_codes[i].value.len] == '\r' && value[3 + at_result_codes[i].value.len] == '\n') {
       return at_result_codes[i].code;
+    }
+  }
+
   return AT_Result_Code__unknown;
 }
 

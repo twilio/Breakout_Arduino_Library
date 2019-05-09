@@ -33,6 +33,7 @@
 
 
 typedef enum {
+  AT_Result_Code__wait_input   = -6,
   AT_Result_Code__in_progress  = -5,
   AT_Result_Code__cme_error    = -4,
   AT_Result_Code__failure      = -3,
@@ -50,7 +51,7 @@ typedef enum {
 } at_result_code_e;
 
 at_result_code_e at_result_code_resolve(str value);
-at_result_code_e at_result_code_extract(char *value, int max_len);
+at_result_code_e at_result_code_extract(const char *value, int max_len);
 char *at_result_code_text(at_result_code_e code);
 
 

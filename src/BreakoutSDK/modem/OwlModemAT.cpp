@@ -44,9 +44,25 @@ bool OwlModemAT::registerUrcHandler(UrcHandler handler, void *priv) {
   return true;
 }
 
+void OwlModemAT::registerPrefixHandler(PrefixHandler handler, void *priv, const str *prefixes, int num_prefixes) {
+  num_special_prefixes_ = num_prefixes;
+
+  for (int i = 0; i < num_prefixes && i < MaxPrefixes; ++i) {
+    special_prefixes_[i] = prefixes[i];
+  }
+
+  prefix_handler_       = handler;
+  prefix_handler_param_ = priv;
+}
+
+void OwlModemAT::deregisterPrefixHandler() {
+  num_special_prefixes_ = 0;
+  prefix_handler_       = nullptr;
+}
+
 int OwlModemAT::sendData(str data) {
-  ssize_t written = 0;
-  ssize_t cnt;
+  int32_t written = 0;
+  int32_t cnt;
   do {
     cnt = serial_->write((const uint8_t *)data.s + written, data.len - written);
     if (cnt <= 0) {
@@ -66,11 +82,10 @@ int OwlModemAT::sendData(char *data) {
 /*TODO: rewrite as a ring buffer*/
 at_result_code_e OwlModemAT::extractResult(str *out_response, int max_response_len) {
   at_result_code_e result_code;
-  for (int i = 0; i <= rx_buffer.len - 6; i++) {
+  for (int i = 0; i <= rx_buffer.len - 3; i++) {
     if (rx_buffer.s[i] != '\r' && rx_buffer.s[i] != '\n') continue;
     result_code = at_result_code_extract(rx_buffer.s + i, rx_buffer.len - i);
     if (result_code == AT_Result_Code__cme_error) {
-      //      LOG(L_INFO, "Rx-Before [%.*s]\r\n", rx_buffer.len, rx_buffer.s);
       /* CME Error received - extract the text into response and return ERROR */
       result_code = AT_Result_Code__ERROR;
       char *start = rx_buffer.s + i + 2 /* CRLF */ + 12 /* length of "+CME ERROR: " */;
@@ -87,8 +102,21 @@ at_result_code_e OwlModemAT::extractResult(str *out_response, int max_response_l
       int next_index = i + 2 /* CRLF */ + 12 /* length of "+CME ERROR: " */ + len + 2 /* CRLF */;
       rx_buffer.len -= next_index;
       if (rx_buffer.len > 0) memmove(rx_buffer.s, rx_buffer.s + next_index, rx_buffer.len);
-      //      LOG(L_INFO, "Result %d - %s\r\n", result_code, at_result_code_text(result_code));
-      //      LOG(L_INFO, "Rx-After  [%.*s]\r\n", rx_buffer.len, rx_buffer.s);
+      return result_code;
+    } else if (result_code == AT_Result_Code__wait_input) {
+      int next_index = i;
+      while (rx_buffer.s[next_index] != '>') {  // '>' is guaranteed to be present with this "result code"
+        next_index++;
+      }
+
+      while (next_index < rx_buffer.len && (rx_buffer.s[next_index] == ' ' || rx_buffer.s[next_index] == '\t' ||
+                                            rx_buffer.s[next_index] == '\r' || rx_buffer.s[next_index] == '\n')) {
+        next_index++;
+      }
+      rx_buffer.len -= next_index;
+      if (rx_buffer.len > 0) {
+        memmove(rx_buffer.s, rx_buffer.s + next_index, rx_buffer.len);
+      }
       return result_code;
     } else if (result_code >= AT_Result_Code__OK) {
       /* extract the response before the result code */
@@ -156,9 +184,8 @@ at_result_code_e OwlModemAT::getLastCommandResponse(str *out_response, int max_r
     out_response->len = 0;
   }
 
-  consumeUnsolicitedInCommandResponse();
   at_result_code_e result_code = extractResult(out_response, max_response_len);
-  if (result_code >= AT_Result_Code__OK) {
+  if ((result_code >= AT_Result_Code__OK) && (result_code != AT_Result_Code__CONNECT)) {
     in_command_ = false;
     if (out_response)
       LOG(L_DBG, " - Execution complete - Result %d - %s Data [%.*s]\r\n", result_code,
@@ -166,13 +193,17 @@ at_result_code_e OwlModemAT::getLastCommandResponse(str *out_response, int max_r
     else
       LOG(L_DBG, " - Execution complete - Result %d - %s\r\n", result_code, at_result_code_text(result_code));
     return result_code;
+  } else if (result_code == AT_Result_Code__wait_input) {
+    return AT_Result_Code__wait_input;
+  } else if (result_code == AT_Result_Code__CONNECT) {
+    return AT_Result_Code__CONNECT;
   } else {
     return AT_Result_Code__in_progress;
   }
 }
 
 at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_millis, str *out_response,
-                                               int max_response_len) {
+                                               int max_response_len, str command_data, uint16_t data_term) {
   owl_time_t timeout;
   int received;
   at_result_code_e result_code;
@@ -193,18 +224,39 @@ at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_mil
   /* Rx */
   timeout = owl_time() + timeout_millis;
   do {
-    received = drainModemRxToBuffer();
-    if (!received) {
-      owl_delay(50);
-      if (owl_time() < timeout)
-        continue;
-      else
-        break;
-    }
+    spin();
     result_code = getLastCommandResponse(out_response, max_response_len);
-    if (result_code >= AT_Result_Code__OK) {
+    if ((result_code >= AT_Result_Code__OK) && (result_code != AT_Result_Code__CONNECT)) {
       return result_code;
     }
+
+    if (command_data.len > 0 &&
+        ((result_code == AT_Result_Code__wait_input) || (result_code == AT_Result_Code__CONNECT))) {
+      while (command_data.len > 0) {
+        str command_slice = command_data;
+        if (command_slice.len > 100) {
+          command_slice.len = 100;
+        }
+        if (!sendData(command_slice)) {
+          LOG(L_WARN, "Potential error sending data for [%.*s]\r\n", command.len, command.s);
+        }
+        LOG(L_WARN, "SENT %d bytes of data\r\n", command_slice.len);
+        command_data.len -= command_slice.len;
+        command_data.s += command_slice.len;
+        owl_delay(100);
+        spin();
+      }
+
+      if (data_term != 0xFFFF) {
+        char term    = data_term & 0xFF;
+        str term_str = {.s = &term, .len = 1};
+
+        if (!sendData(term_str)) {
+          LOG(L_WARN, "Potential error sending data terminator for [%.*s]\r\n", command.len, command.s);
+        }
+      }
+    }
+    owl_delay(50);
   } while (owl_time() < timeout);
 
   if (!str_equalcase_char(command, "AT")) {
@@ -216,9 +268,9 @@ at_result_code_e OwlModemAT::doCommandBlocking(str command, uint32_t timeout_mil
 }
 
 at_result_code_e OwlModemAT::doCommandBlocking(char *command, uint32_t timeout_millis, str *out_response,
-                                               int max_response_len) {
+                                               int max_response_len, str command_data, uint16_t data_term) {
   str s = {.s = command, .len = strlen(command)};
-  return doCommandBlocking(s, timeout_millis, out_response, max_response_len);
+  return doCommandBlocking(s, timeout_millis, out_response, max_response_len, command_data, data_term);
 }
 
 void OwlModemAT::filterResponse(str prefix, str *response) {
@@ -260,6 +312,19 @@ int OwlModemAT::processURC(str line, int report_unknown) {
     LOG(L_WARN, "Not handled URC [%.*s] with data [%.*s]\r\n", urc.len, urc.s, data.len, data.s);
   }
   return 0;
+}
+
+void OwlModemAT::processPrefix(str line) {
+  if (line.len < 1 || prefix_handler_ == nullptr) {
+    return;
+  }
+
+  for (int i = 0; i < num_special_prefixes_; ++i) {
+    if (str_equal_prefix(line, special_prefixes_[i])) {
+      prefix_handler_(line, prefix_handler_param_);
+      return;
+    }
+  }
 }
 
 int OwlModemAT::getNextCompleteLine(int start_idx, str *line) {
@@ -315,6 +380,7 @@ void OwlModemAT::consumeUnsolicited() {
 
   while (getNextCompleteLine(start, &line)) {
     processURC(line, 1);
+    processPrefix(line);
     start = line.s - rx_buffer.s;
     removeRxBufferLine(line);
   }
@@ -374,6 +440,7 @@ int OwlModemAT::drainModemRxToBuffer() {
       memmove(rx_buffer.s, rx_buffer.s + shift, rx_buffer.len);
     }
     received = serial_->read((uint8_t *)rx_buffer.s + rx_buffer.len, available);
+
     if (received != available) {
       LOG(L_ERR, "modem_port said %d bytes available, but received %d.\r\n", available, received);
       if (received < 0) goto error;
@@ -403,9 +470,13 @@ void OwlModemAT::spin() {
     return;
   }
 
-  drainModemRxToBuffer();
-  if (rx_buffer.len > 0) {
-    consumeUnsolicited();
+  int received = drainModemRxToBuffer();
+  if (received != 0) {
+    if (!in_command_) {
+      consumeUnsolicited();
+    } else {
+      consumeUnsolicitedInCommandResponse();
+    }
   }
 
   LOG(L_MEM, "Done spinning\r\n");
