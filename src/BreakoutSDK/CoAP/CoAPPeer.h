@@ -176,7 +176,7 @@ class CoAPPeer {
   /**
    * Constructor for DTLS with PSK transport over tinydtls over OwlModem/UDP
    */
-  CoAPPeer(OwlModemRN *owlModem, str psk_id, str psk_key, uint16_t local_port, str remote_ip,
+  CoAPPeer(OwlModemRN4 *owlModem, str psk_id, str psk_key, uint16_t local_port, str remote_ip,
            uint16_t remote_port = 5684);
 
   ~CoAPPeer();

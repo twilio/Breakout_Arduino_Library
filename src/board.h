@@ -37,6 +37,7 @@
 
 #define SerialModule_Baudrate 115200
 #define SerialGNSS_BAUDRATE 9600
+#define BG96_Baudrate 9600
 
 /**
  * MCU Pin Definitions
@@ -61,6 +62,8 @@ typedef enum {
   RESET_MODULE_PIN = 35,  // PC3
   PWR_KEY_PIN      = 36,  // PC4
 
+  BG96_RESET_PIN   = 19,  // PB3, Grove DC pin
+
   ANALOG_RND_PIN = 7,  // PA7 - this port was picked because it's not connected, so random source - but it
                        // is unfortunately on Grove A6 port, so if used, change this maybe
 } board_pin_e;
@@ -73,6 +76,5 @@ typedef enum {
 
 #define BREAKOUT_IP "54.145.1.94"
 #define TESTING_APN "nb.iot"
-
 
 #endif
