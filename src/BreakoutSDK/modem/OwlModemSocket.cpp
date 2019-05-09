@@ -25,10 +25,6 @@
 
 #include <stdio.h>
 
-#include "OwlModem.h"
-
-
-
 void OwlModemSocketStatus::setOpened(at_uso_protocol_e proto) {
   is_opened    = 1;
   is_connected = 0;

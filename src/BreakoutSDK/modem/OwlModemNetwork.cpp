@@ -25,9 +25,6 @@
 
 #include <stdio.h>
 
-#include "OwlModem.h"
-
-
 
 OwlModemNetwork::OwlModemNetwork(OwlModemAT *atModem) : atModem_(atModem) {
   if (atModem_ != nullptr) {

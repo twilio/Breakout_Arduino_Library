@@ -254,7 +254,7 @@ dtls_handler_t OwlDTLS_callbacks = {
 
 };
 
-int OwlDTLSClient::init(OwlModem *owlModem) {
+int OwlDTLSClient::init(OwlModemRN4 *owlModem) {
   dtls_context = dtls_new_context((void *)this);
   if (!dtls_context) {
     LOG(L_ERR, "Error creating DTLS context\r\n");
@@ -264,7 +264,7 @@ int OwlDTLSClient::init(OwlModem *owlModem) {
   dtls_set_handler(dtls_context, &OwlDTLS_callbacks);
 
   if (!owlModem) {
-    LOG(L_ERR, "Need the OwlModem link for communication purposes\r\n");
+    LOG(L_ERR, "Need the OwlModemRN4 link for communication purposes\r\n");
     return 0;
   }
   this->owlModem = owlModem;

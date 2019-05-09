@@ -25,7 +25,7 @@
 #define __OWL_MODEM_CLI_H__
 
 #include "../modem/enums.h"
-#include "../modem/OwlModem.h"
+#include "../modem/OwlModemRN4.h"
 
 
 
@@ -100,7 +100,7 @@ class OwlModemCLIExecutor {
  */
 class OwlModemCLI {
  public:
-  OwlModemCLI(OwlModem *modem, USBSerial *debugPort);
+  OwlModemCLI(OwlModemRN4 *modem, USBSerial *debugPort);
 
   ~OwlModemCLI();
 
@@ -115,7 +115,7 @@ class OwlModemCLI {
   int handleUserInput(int resume);
 
 
-  OwlModem *owlModem;
+  OwlModemRN4 *owlModem;
   USBSerial *debugPort;
 
   char cmdHistory[MODEM_CLI_CMD_HISTORY][MODEM_CLI_CMD_LEN + 1]; /**< Command history */

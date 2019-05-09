@@ -22,10 +22,10 @@
  */
 
 #include "OwlModemGNSS.h"
-#include "OwlModem.h"
+#include "OwlModemRN4.h"
 
 
-OwlModemGNSS::OwlModemGNSS(OwlModem *owlModem) : owlModem(owlModem) {
+OwlModemGNSS::OwlModemGNSS(OwlModemRN4 *owlModem) : owlModem(owlModem) {
 }
 
 

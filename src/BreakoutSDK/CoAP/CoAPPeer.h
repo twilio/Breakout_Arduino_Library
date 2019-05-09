@@ -26,7 +26,7 @@
 
 #include "CoAPMessage.h"
 #include "../DTLS/OwlDTLSClient.h"
-#include "../modem/OwlModem.h"
+#include "../modem/OwlModemRN4.h"
 
 
 
@@ -171,12 +171,12 @@ class CoAPPeer {
   /**
    * Constructor for plain-text transport over OwlModem/UDP
    */
-  CoAPPeer(OwlModem *owlModem, uint16_t local_port, str remote_ip, uint16_t remote_port = 5683);
+  CoAPPeer(OwlModemRN4 *owlModem, uint16_t local_port, str remote_ip, uint16_t remote_port = 5683);
 
   /**
    * Constructor for DTLS with PSK transport over tinydtls over OwlModem/UDP
    */
-  CoAPPeer(OwlModem *owlModem, str psk_id, str psk_key, uint16_t local_port, str remote_ip,
+  CoAPPeer(OwlModemRN *owlModem, str psk_id, str psk_key, uint16_t local_port, str remote_ip,
            uint16_t remote_port = 5684);
 
   ~CoAPPeer();
@@ -274,7 +274,7 @@ class CoAPPeer {
   coap_token_t getNextToken(coap_token_lenght_t *token_length);
 
  private:
-  OwlModem *owlModem                   = 0;
+  OwlModemRN4 *owlModem                   = 0;
   coap_transport_type_e transport_type = CoAP_Transport__plaintext;
 
   int initDTLSClient();

@@ -95,9 +95,6 @@ class OwlModemSocketStatus {
 
 
 
-class OwlModem;
-
-
 
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods for TCP/UDP communication over sockets

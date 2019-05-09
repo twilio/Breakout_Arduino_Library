@@ -1,5 +1,5 @@
 /*
- * OwlModem.cpp
+ * OwlModemRN4.cpp
  * Twilio Breakout SDK
  *
  * Copyright (c) 2018 Twilio, Inc.
@@ -18,19 +18,16 @@
  */
 
 /**
- * \file OwlModem.cpp - a more elaborate, yet still simple modem interface.
+ * \file OwlModemRN4.h - wrapper for U-blox SARA-R4/SARA-N4 modems on Seeed WiO tracker board
  */
 
-#include "OwlModem.h"
+#include "OwlModemRN4.h"
 
 #include <stdarg.h>
 #include <stdio.h>
 
-#include "OwlModemSIM.h"
 
-
-
-OwlModem::OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in, HardwareSerial *gnss_port_in)
+OwlModemRN4::OwlModemRN4(HardwareSerial *modem_port_in, USBSerial *debug_port_in, HardwareSerial *gnss_port_in)
     : modem_port(modem_port_in),
       debug_port(debug_port_in),
       gnss_port(gnss_port_in),
@@ -42,7 +39,7 @@ OwlModem::OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in, Hard
       socket(&AT) {
   modem_port_in->begin(SerialModule_Baudrate);
   if (!modem_port_in) {
-    LOG(L_ERR, "OwlModem initialized without modem port. That is not going to work\r\n");
+    LOG(L_ERR, "OwlModemRN4 initialized without modem port. That is not going to work\r\n");
   }
 
   if (gnss_port_in) {
@@ -61,11 +58,11 @@ OwlModem::OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in, Hard
   has_gnss_port  = (gnss_port_in != nullptr);
 }
 
-OwlModem::~OwlModem() {
+OwlModemRN4::~OwlModemRN4() {
 }
 
 
-int OwlModem::powerOn(owl_power_m bit_mask) {
+int OwlModemRN4::powerOn(owl_power_m bit_mask) {
   if (!has_modem_port) {
     return false;
   }
@@ -122,7 +119,7 @@ int OwlModem::powerOn(owl_power_m bit_mask) {
   return 1;
 }
 
-int OwlModem::powerOff(owl_power_m bit_mask) {
+int OwlModemRN4::powerOff(owl_power_m bit_mask) {
   if ((bit_mask & Owl_PowerOnOff__Modem) != 0) {
     pinMode(MODULE_PWR_PIN, OUTPUT);
     digitalWrite(MODULE_PWR_PIN, HIGH);  // Module Power Default HIGH
@@ -145,7 +142,7 @@ int OwlModem::powerOff(owl_power_m bit_mask) {
   return 1;
 }
 
-int OwlModem::isPoweredOn() {
+int OwlModemRN4::isPoweredOn() {
   return AT.doCommandBlocking("AT", 1000, 0, 0) == AT_Result_Code__OK;
 }
 
@@ -164,7 +161,7 @@ void initCheckPIN(str message) {
 
 
 
-int OwlModem::initModem(int testing_variant) {
+int OwlModemRN4::initModem(int testing_variant) {
   at_result_code_e rc;
   OwlModem_PINHandler_f saved_handler = 0;
   at_umnoprof_mno_profile_e current_profile;
@@ -332,7 +329,7 @@ int OwlModem::initModem(int testing_variant) {
   return 1;
 }
 
-int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {
+int OwlModemRN4::waitForNetworkRegistration(char *purpose, int testing_variant) {
   bool network_ready = false;
   owl_time_t timeout = owl_time() + 30 * 1000;
   while (true) {
@@ -363,7 +360,7 @@ int OwlModem::waitForNetworkRegistration(char *purpose, int testing_variant) {
 
 static str s_exitbypass = {.s = "exitbypass", .len = 10};
 
-void OwlModem::bypassCLI() {
+void OwlModemRN4::bypassCLI() {
   if (!has_modem_port || !has_debug_port) {
     return;
   }
@@ -395,7 +392,7 @@ void OwlModem::bypassCLI() {
   }
 }
 
-void OwlModem::bypassGNSSCLI() {
+void OwlModemRN4::bypassGNSSCLI() {
   if (!has_gnss_port || !has_debug_port) {
     return;
   }
@@ -422,7 +419,7 @@ void OwlModem::bypassGNSSCLI() {
   }
 }
 
-void OwlModem::bypass() {
+void OwlModemRN4::bypass() {
   if (!has_modem_port || !has_debug_port) {
     return;
   }
@@ -437,7 +434,7 @@ void OwlModem::bypass() {
   modem_port.write(&c, 1);
 }
 
-void OwlModem::bypassGNSS() {
+void OwlModemRN4::bypassGNSS() {
   if (!has_gnss_port || !has_debug_port) {
     return;
   }
@@ -453,7 +450,7 @@ void OwlModem::bypassGNSS() {
 
 static str s_dev_kit = STRDECL("devkit");
 
-int OwlModem::setHostDeviceInformation(char *purpose) {
+int OwlModemRN4::setHostDeviceInformation(char *purpose) {
   str s_purpose;
   if (purpose) {
     s_purpose.s   = purpose;
@@ -465,7 +462,7 @@ int OwlModem::setHostDeviceInformation(char *purpose) {
   return setHostDeviceInformation(s_purpose);
 }
 
-void OwlModem::computeHostDeviceInformation(str purpose) {
+void OwlModemRN4::computeHostDeviceInformation(str purpose) {
   char *hostDeviceID      = "Twilio-Alfa";
   char *hostDeviceIDShort = "alfa";
   char *board_name        = "WioLTE-Cat-NB1";
@@ -499,7 +496,7 @@ void OwlModem::computeHostDeviceInformation(str purpose) {
       snprintf(short_hostdevice_information.s, MODEM_HOSTDEVICE_INFORMATION_SIZE, "v%s/%s", sdk_ver, hostDeviceIDShort);
 }
 
-int OwlModem::setHostDeviceInformation(str purpose) {
+int OwlModemRN4::setHostDeviceInformation(str purpose) {
   bool registered = false;
 
   if (!purpose.len) purpose = s_dev_kit;
@@ -529,18 +526,18 @@ int OwlModem::setHostDeviceInformation(str purpose) {
   return 1;
 }
 
-str OwlModem::getHostDeviceInformation() {
+str OwlModemRN4::getHostDeviceInformation() {
   if (!hostdevice_information.len) computeHostDeviceInformation(s_dev_kit);
   return hostdevice_information;
 }
 
-str OwlModem::getShortHostDeviceInformation() {
+str OwlModemRN4::getShortHostDeviceInformation() {
   if (!short_hostdevice_information.len) computeHostDeviceInformation(s_dev_kit);
   return short_hostdevice_information;
 }
 
 
-int OwlModem::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
+int OwlModemRN4::drainGNSSRx(str *gnss_buffer, int gnss_buffer_len) {
   if (gnss_buffer == nullptr || !has_gnss_port) {
     return 0;
   }
@@ -580,7 +577,3 @@ error:
   LOG(L_MEM, "Done draining GNSS %d\r\n", total);
   return total;
 }
-
-/*void OwlModem::setDebugLevel(int level) {
-  owl_log_set_level(level);
-}*/

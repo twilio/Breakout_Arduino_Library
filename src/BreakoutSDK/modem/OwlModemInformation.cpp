@@ -23,8 +23,6 @@
 
 #include "OwlModemInformation.h"
 
-#include "OwlModem.h"
-
 OwlModemInformation::OwlModemInformation(OwlModemAT *atModem) : atModem_(atModem) {
 }
 

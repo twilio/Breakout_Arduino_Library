@@ -1,5 +1,5 @@
 /*
- * OwlModem.h
+ * OwlModemRN4.h
  * Twilio Breakout SDK
  *
  * Copyright (c) 2018 Twilio, Inc.
@@ -18,11 +18,11 @@
  */
 
 /**
- * \file OwlModem.h - a more elaborate, yet still simple modem interface.
+ * \file OwlModemRN4.h - wrapper for U-blox SARA-R4/SARA-N4 modems on Seeed WiO tracker board
  */
 
-#ifndef __OWL_MODEM_H__
-#define __OWL_MODEM_H__
+#ifndef __OWL_MODEM_RN4_H__
+#define __OWL_MODEM_RN4_H__
 
 #include <Arduino.h>
 #include "ArduinoSeeedOwlSerial.h"
@@ -54,19 +54,19 @@ typedef enum {
 /**
  * Twilio wrapper for the AT serial interface to a modem
  */
-class OwlModem {
+class OwlModemRN4 {
  public:
   /**
-   * Constructor for OwlModem
+   * Constructor for OwlModemRN4
    * @param modem_port - mandatory modem port
    * @param debug_port - optional debug port, to use in the bypass functions
    */
-  OwlModem(HardwareSerial *modem_port_in, USBSerial *debug_port_in = 0, HardwareSerial *gnss_port_in = 0);
+  OwlModemRN4(HardwareSerial *modem_port_in, USBSerial *debug_port_in = 0, HardwareSerial *gnss_port_in = 0);
 
   /**
-   * Destructror of OwlModem
+   * Destructror of OwlModemRN4
    */
-  ~OwlModem();
+  ~OwlModemRN4();
 
 
   /**

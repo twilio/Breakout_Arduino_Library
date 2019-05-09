@@ -1,6 +1,6 @@
-# OwlModem  - a more elaborate, yet still simple modem interface.
+# OwlModemRN4.h - wrapper for U-blox SARA-R4/SARA-N4 modems on Seeed WiO tracker board
 
-## [`OwlModem`](OwlModem.h)
+## [`OwlModemRN4`](OwlModemRN4.h)
 
 Please check the documented header file for a description of the exported functionality.
 

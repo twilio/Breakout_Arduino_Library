@@ -25,10 +25,6 @@
 
 #include <stdio.h>
 
-#include "OwlModem.h"
-
-
-
 OwlModemSIM::OwlModemSIM(OwlModemAT *atModem) : atModem_(atModem) {
   if (atModem_ != nullptr) {
     atModem_->registerUrcHandler(OwlModemSIM::processURC, this);

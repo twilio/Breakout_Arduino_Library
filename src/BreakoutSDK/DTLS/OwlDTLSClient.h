@@ -25,7 +25,7 @@
 #define __OWL_DTLS_H__
 
 #include "enums.h"
-#include "../modem/OwlModem.h"
+#include "../modem/OwlModemRN4.h"
 
 extern "C" {
 #include "../../tinydtls/dtls.h"
@@ -52,7 +52,7 @@ class OwlDTLSClient {
    * Initialize the DTLS context
    * @return 1 on success, 0 on failure
    */
-  int init(OwlModem *owlModem);
+  int init(OwlModemRN4 *owlModem);
 
   /**
    * Start a connection with a remote peer - initiates the connection, call the timer and injects packets to continue
@@ -123,7 +123,7 @@ class OwlDTLSClient {
   char c_psk_key[DTLS_PSK_MAX_KEY_LEN];
   str psk_key = {.s = c_psk_key, .len = 0};
 
-  OwlModem *owlModem = 0;
+  OwlModemRN4 *owlModem = 0;
   uint8_t socket_id  = 255;
   char c_remote_ip[64];
   str remote_ip        = {.s = c_remote_ip, .len = 0};

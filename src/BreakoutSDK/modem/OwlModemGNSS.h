@@ -32,7 +32,7 @@
 
 
 
-class OwlModem;
+class OwlModemRN4;
 
 
 typedef struct {
@@ -74,7 +74,7 @@ typedef struct {
  */
 class OwlModemGNSS {
  public:
-  OwlModemGNSS(OwlModem *owlModem);
+  OwlModemGNSS(OwlModemRN4 *owlModem);
 
 
   /**
@@ -92,7 +92,7 @@ class OwlModemGNSS {
 
 
  private:
-  OwlModem *owlModem = 0;
+  OwlModemRN4 *owlModem = 0;
 
   char GNSS_response_buffer[MODEM_GNSS_RESPONSE_BUFFER_SIZE];
   str GNSS_response = {.s = GNSS_response_buffer, .len = 0};

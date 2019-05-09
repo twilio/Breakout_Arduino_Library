@@ -20,4 +20,4 @@ This page documents the internal structure of the Breakout SDK for Arduino.
 | `board.h` | Short header to define the parameters of the board as required by the Arduino SDK. |
 | BreakoutSDK.h | The main header to include in your Twilio Breakout client device application. If this is not included, the Arduino builders will consider that the library is not used and other includes will fail |
 
-> Note: [`OwlModem`](BreakoutSDK/modem/OwlModem.h) has the capability to power on/off all modules.
+> Note: [`OwlModemRN4`](BreakoutSDK/modem/OwlModemRN4.h) has the capability to power on/off all modules.

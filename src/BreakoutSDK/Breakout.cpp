@@ -138,7 +138,7 @@ bool Breakout::initModem() {
 
   LOG(L_NOTICE, "OwlModem starting up\r\n");
 
-  if (!(owlModem = owl_new OwlModem(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
+  if (!(owlModem = owl_new OwlModemRN4(&SerialModule, &SerialDebugPort, &SerialGNSS))) GOTOERR(error_stop);
 
   LOG(L_NOTICE, ".. OwlModem - powering on modules\r\n");
   if (!owlModem->powerOn()) {

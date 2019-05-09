@@ -31,7 +31,7 @@ int CoAPPeer::instances_cnt    = 0;
 
 
 
-CoAPPeer::CoAPPeer(OwlModem *modem, uint16_t local_port, str remote_ip, uint16_t remote_port)
+CoAPPeer::CoAPPeer(OwlModemRN4 *modem, uint16_t local_port, str remote_ip, uint16_t remote_port)
     : transport_type(CoAP_Transport__plaintext), owlModem(modem), local_port(local_port), remote_port(remote_port) {
   randomSeed(random(0xffffff) + millis());  // randomizing again, just in case the ANALOG_RND_PIN was connected
   last_message_id = random(0xFFFFu);
@@ -47,7 +47,7 @@ out_of_memory:
   return;
 }
 
-CoAPPeer::CoAPPeer(OwlModem *modem, str psk_id, str psk_key, uint16_t local_port, str remote_ip, uint16_t remote_port)
+CoAPPeer::CoAPPeer(OwlModemRN4 *modem, str psk_id, str psk_key, uint16_t local_port, str remote_ip, uint16_t remote_port)
     : transport_type(CoAP_Transport__DTLS_PSK),
       owlModem(modem),
       local_port(local_port),

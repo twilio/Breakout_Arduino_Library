@@ -22,7 +22,7 @@
 
 #include "../board.h"
 
-#include "modem/OwlModem.h"
+#include "modem/OwlModemRN4.h"
 #include "CoAP/CoAPPeer.h"
 #include "CLI/OwlModemCLI.h"
 
@@ -347,7 +347,7 @@ class Breakout {
 
   /*                     Sub-objects                   */
 
-  OwlModem *owlModem = 0;
+  OwlModemRN4 *owlModem = 0;
   CoAPPeer *coapPeer = 0;
 
 #ifdef TESTING_WITH_CLI == 1

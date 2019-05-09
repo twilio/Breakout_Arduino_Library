@@ -23,7 +23,7 @@
 
 #include <board.h>
 
-#include <BreakoutSDK/modem/OwlModem.h>
+#include <BreakoutSDK/modem/OwlModemRN4.h>
 #include <BreakoutSDK/CLI/OwlModemCLI.h>
 #include <BreakoutSDK/CoAP/CoAPPeer.h>
 
@@ -42,7 +42,7 @@ static str sim_pin = STRDECL("000000");
 
 
 /* The Twilio-specific modem interface */
-OwlModem *owlModem = 0;
+OwlModemRN4 *owlModem = 0;
 /* This is only for API demonstration purposes, can be removed for in-production */
 OwlModemCLI *owlModemCLI = 0;
 
@@ -55,7 +55,7 @@ void setup() {
   owl_log_set_level(L_INFO);
   LOG(L_NOTICE, "Arduino setup() starting up\r\n");
 
-  owlModem    = new OwlModem(&SerialModule, &SerialDebugPort);
+  owlModem    = new OwlModemRN4(&SerialModule, &SerialDebugPort);
   owlModemCLI = new OwlModemCLI(owlModem, &SerialDebugPort);
 
   LOG(L_NOTICE, ".. WioLTE Cat.NB-IoT - powering on modules\r\n");
