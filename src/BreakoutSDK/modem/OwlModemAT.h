@@ -73,9 +73,9 @@ class OwlModemAT {
    *  @param str - result data
    *  @return whether result was processed and modem can return to idle state
    */
-  using ResponseHandler = bool (*)(at_result_code_e, str, void*);
-  using UrcHandler    = bool (*)(str, str, void *);  // code, data, private (pointer to the instance normally)
-  using PrefixHandler = void (*)(str, void *);      // input string, private (pointer to the instance normally)
+  using ResponseHandler = bool (*)(at_result_code_e, str, void *);
+  using UrcHandler      = bool (*)(str, str, void *);  // code, data, private (pointer to the instance normally)
+  using PrefixHandler   = void (*)(str, void *);       // input string, private (pointer to the instance normally)
   static constexpr int MaxUrcHandlers = 8;
   static constexpr int MaxPrefixes    = 8;
 
@@ -87,7 +87,8 @@ class OwlModemAT {
     response_ready,
   };
 
-  OwlModemAT(IOwlSerial *serial) : serial_(serial) {}
+  OwlModemAT(IOwlSerial *serial) : serial_(serial) {
+  }
   bool initTerminal();
 
   /**
@@ -96,18 +97,21 @@ class OwlModemAT {
    * @return success status
    */
   bool sendData(str data);
-  bool sendData(char *data) { return sendData({.s = data, .len = strlen(data)});}
+  bool sendData(char *data) {
+    return sendData({.s = data, .len = strlen(data)});
+  }
 
   /**
    * Call this function periodically, to handle incoming message from the modem.
    */
   void spin();
-  
+
   /* Move modem to WaitResult (if data.s is nullptr) or WaitPrompt (otherwise) state and send the command.
    * @param command - AT command to send (without "\r\n" postfix)
    * @param timeout_ms - timeout on the command or 0 to wait indefinitely
    * @param data - optional data to send after prompt. Only pointer and length are copied over, so it shouldn't
-   *   be deallocated until command is the data is sent (modem state is changed to "idle", "wait_result" or "response_ready")
+   *   be deallocated until command is the data is sent (modem state is changed to "idle", "wait_result" or
+   * "response_ready")
    * @param data_term - optional terminating symbol appended to the sent data
    * @return false if command could not be sent. In that case the state of the modem remains unchanged
    */
@@ -116,7 +120,9 @@ class OwlModemAT {
   /*
    * Get the current state of the modem
    */
-  modem_state_t getModemState() { return state_; }
+  modem_state_t getModemState() {
+    return state_;
+  }
 
   /**
    * Get the status and response data of the last command. Also acknowledge
@@ -126,10 +132,10 @@ class OwlModemAT {
    */
   at_result_code_e getLastCommandResponse(str *out_response);
 
-  bool registerUrcHandler(const char* unique_id, UrcHandler handler, void *priv);
+  bool registerUrcHandler(const char *unique_id, UrcHandler handler, void *priv);
   void registerPrefixHandler(PrefixHandler handler, void *priv, const str *prefixes, int num_prefixes);
   void deregisterPrefixHandler();
-  void registerResponseHandler(ResponseHandler handler, void* priv);
+  void registerResponseHandler(ResponseHandler handler, void *priv);
 
   /**
    * Execute one AT command. Blockingly sleeps until some result is there. Only
@@ -146,7 +152,8 @@ class OwlModemAT {
                                      str command_data = {nullptr, 0}, uint16_t data_term = 0xFFFF);
   at_result_code_e doCommandBlocking(char *command, owl_time_t timeout_millis, str *out_response,
                                      str command_data = {nullptr, 0}, uint16_t data_term = 0xFFFF) {
-    return doCommandBlocking({.s = command, .len = strlen(command)}, timeout_millis, out_response, command_data, data_term);
+    return doCommandBlocking({.s = command, .len = strlen(command)}, timeout_millis, out_response, command_data,
+                             data_term);
   }
 
   /**
@@ -190,7 +197,7 @@ class OwlModemAT {
   str response_buffer_ = {.s = response_buffer_c_, .len = 0};
 
   UrcHandler urc_handlers_[MaxUrcHandlers];
-  const char* urc_handler_ids_[MaxUrcHandlers];
+  const char *urc_handler_ids_[MaxUrcHandlers];
   void *urc_handler_params_[MaxUrcHandlers];
   int num_urc_handlers_{0};
 

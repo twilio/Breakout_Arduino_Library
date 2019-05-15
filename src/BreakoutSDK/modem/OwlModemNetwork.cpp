@@ -270,8 +270,7 @@ bool OwlModemNetwork::processURCEPSRegistration(str urc, str data) {
 bool OwlModemNetwork::processURC(str urc, str data, void *instance) {
   OwlModemNetwork *inst = reinterpret_cast<OwlModemNetwork *>(instance);
 
-  return inst->processURCNetworkRegistration(urc, data) ||
-         inst->processURCGPRSRegistration(urc, data) ||
+  return inst->processURCNetworkRegistration(urc, data) || inst->processURCGPRSRegistration(urc, data) ||
          inst->processURCEPSRegistration(urc, data);
 }
 
@@ -309,8 +308,7 @@ int OwlModemNetwork::setModemFunctionality(at_cfun_fun_e fun, at_cfun_rst_e *res
     snprintf(buffer, 64, "AT+CFUN=%d", fun);
   else
     snprintf(buffer, 64, "AT+CFUN=%d,%d", fun, *reset);
-  return atModem_->doCommandBlocking(buffer, 3 * 60 * 1000, nullptr) ==
-         AT_Result_Code__OK;
+  return atModem_->doCommandBlocking(buffer, 3 * 60 * 1000, nullptr) == AT_Result_Code__OK;
 }
 
 
@@ -329,8 +327,7 @@ int OwlModemNetwork::getModemMNOProfile(at_umnoprof_mno_profile_e *out_profile) 
 int OwlModemNetwork::setModemMNOProfile(at_umnoprof_mno_profile_e profile) {
   char buffer[64];
   snprintf(buffer, 64, "AT+UMNOPROF=%d", profile);
-  return atModem_->doCommandBlocking(buffer, 3 * 60 * 1000, nullptr) ==
-         AT_Result_Code__OK;
+  return atModem_->doCommandBlocking(buffer, 3 * 60 * 1000, nullptr) == AT_Result_Code__OK;
 }
 
 
@@ -398,8 +395,7 @@ int OwlModemNetwork::setOperatorSelection(at_cops_mode_e mode, at_cops_format_e 
 
 int OwlModemNetwork::getOperatorList(str *out_response) {
   str command_response;
-  int result =
-      atModem_->doCommandBlocking("AT+COPS=?", 3 * 60 * 1000, &command_response) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking("AT+COPS=?", 3 * 60 * 1000, &command_response) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_cops, command_response, out_response);
   return 1;

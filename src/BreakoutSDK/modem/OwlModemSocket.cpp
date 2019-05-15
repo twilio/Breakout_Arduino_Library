@@ -277,10 +277,8 @@ bool OwlModemSocket::processURC(str urc, str data, void *instance) {
   OwlModemSocket *inst = reinterpret_cast<OwlModemSocket *>(instance);
 
   /* ordered based on the expected frequency of arrival */
-  return inst->processURCReceiveFrom(urc, data) ||
-         inst->processURCReceive(urc, data)     ||
-         inst->processURCTCPAccept(urc, data)   ||
-         inst->processURCConnected(urc, data)   ||
+  return inst->processURCReceiveFrom(urc, data) || inst->processURCReceive(urc, data) ||
+         inst->processURCTCPAccept(urc, data) || inst->processURCConnected(urc, data) ||
          inst->processURCClosed(urc, data);
 }
 
@@ -377,8 +375,7 @@ int OwlModemSocket::open(at_uso_protocol_e protocol, uint16_t local_port, uint8_
   int socket = 255;
   char buf[64];
   snprintf(buf, 64, "AT+USOCR=%d,%u", protocol, local_port);
-  int result =
-      atModem_->doCommandBlocking(buf, 3000, &socket_response) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 3000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usocr, socket_response, &socket_response);
   socket = str_to_uint32_t(socket_response, 10);
@@ -416,8 +413,7 @@ static str s_usoer = STRDECL("+USOER: ");
 
 int OwlModemSocket::getError(at_uso_error_e *out_error) {
   if (out_error) *out_error = (at_uso_error_e)-1;
-  int result = (atModem_->doCommandBlocking("AT+USOER", 1000, &socket_response) ==
-                AT_Result_Code__OK);
+  int result = (atModem_->doCommandBlocking("AT+USOER", 1000, &socket_response) == AT_Result_Code__OK);
   if (!result) return 0;
   atModem_->filterResponse(s_usoer, socket_response, &socket_response);
 
@@ -448,8 +444,7 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       LOG(L_ERR, "Socket %d has unsupported protocol %d\r\n", this->status[socket].protocol);
       return 0;
   }
-  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) ==
-               AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
   this->status[socket].is_connected         = 1;
   this->status[socket].handler_SocketClosed = cb;
@@ -465,8 +460,7 @@ int OwlModemSocket::send(uint8_t socket, str data) {
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) ==
-               AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return -1;
   OwlModemAT::filterResponse(s_usowr, socket_response, &socket_response);
   str token = {0};
@@ -564,8 +558,7 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result = atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response) ==
-               AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usost, socket_response, &socket_response);
   str token = {0};
@@ -613,8 +606,7 @@ int OwlModemSocket::receive(uint8_t socket, uint16_t len, str *out_data, int max
   if (out_data) out_data->len = 0;
   char buf[64];
   snprintf(buf, 64, "AT+USORD=%u,%u", socket, len);
-  int result =
-      atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usord, socket_response, &socket_response);
   str token             = {0};
@@ -741,8 +733,7 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
   }
   char buf[64];
   snprintf(buf, 64, "AT+USORF=%u,%u", socket, len);
-  int result =
-      atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
   OwlModemAT::filterResponse(s_usorf, socket_response, &socket_response);
   str token             = {0};
