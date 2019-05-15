@@ -41,69 +41,59 @@ class OwlModemInformation {
 
   /**
    * Retrieve Product Identification Information
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getProductIdentification(str *out_response, int max_response_len);
+  int getProductIdentification(str *out_response);
 
   /**
    * Retrieve Manufacturer Information
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getManufacturer(str *out_response, int max_response_len);
+  int getManufacturer(str *out_response);
 
   /**
    * Retrieve Model Information
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getModel(str *out_response, int max_response_len);
+  int getModel(str *out_response);
 
   /**
    * Retrieve Version Information
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getVersion(str *out_response, int max_response_len);
+  int getVersion(str *out_response);
 
   /**
    * Retrieve IMEI (modem serial number)
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getIMEI(str *out_response, int max_response_len);
+  int getIMEI(str *out_response);
 
   /**
    * Retrieve Battery Charge Levels
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getBatteryChargeLevels(str *out_response, int max_response_len);
+  int getBatteryChargeLevels(str *out_response);
 
   /**
    * Get indicators from the modem (various statuses, battery information, etc)
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getIndicators(str *out_response, int max_response_len);
+  int getIndicators(str *out_response);
 
   /**
    * Get help on the format of the indicators
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getIndicatorsHelp(str *out_response, int max_response_len);
-
-
+  int getIndicatorsHelp(str *out_response);
 
  private:
   OwlModemAT *atModem_ = 0;

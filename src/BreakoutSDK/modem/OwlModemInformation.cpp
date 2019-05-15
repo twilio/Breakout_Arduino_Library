@@ -27,55 +27,54 @@ OwlModemInformation::OwlModemInformation(OwlModemAT *atModem) : atModem_(atModem
 }
 
 
-int OwlModemInformation::getProductIdentification(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("ATI", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getProductIdentification(str *out_response) {
+  return atModem_->doCommandBlocking("ATI", 1000, out_response) == AT_Result_Code__OK;
 }
 
-int OwlModemInformation::getManufacturer(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("AT+CGMI", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getManufacturer(str *out_response) {
+  return atModem_->doCommandBlocking("AT+CGMI", 1000, out_response) == AT_Result_Code__OK;
 }
 
-int OwlModemInformation::getModel(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("AT+CGMM", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getModel(str *out_response) {
+  return atModem_->doCommandBlocking("AT+CGMM", 1000, out_response) == AT_Result_Code__OK;
 }
 
-int OwlModemInformation::getVersion(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("AT+CGMR", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getVersion(str *out_response) {
+  return atModem_->doCommandBlocking("AT+CGMR", 1000, out_response) == AT_Result_Code__OK;
 }
 
-int OwlModemInformation::getIMEI(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("AT+CGSN", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getIMEI(str *out_response) {
+  return atModem_->doCommandBlocking("AT+CGSN", 1000, out_response) == AT_Result_Code__OK;
 }
 
 static str s_cbc = STRDECL("+CBC: ");
 
-int OwlModemInformation::getBatteryChargeLevels(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+CBC", 1000, out_response, max_response_len) == AT_Result_Code__OK;
-  if (!result) return 0;
-  OwlModemAT::filterResponse(s_cbc, out_response);
+int OwlModemInformation::getBatteryChargeLevels(str *out_response) {
+  str command_response;
+  int result = atModem_->doCommandBlocking("AT+CBC", 1000, &command_response) == AT_Result_Code__OK;
+  if (!result) {
+    return 0;
+  }
+  OwlModemAT::filterResponse(s_cbc, command_response, out_response);
   return 1;
 }
 
 static str s_cind = STRDECL("+CIND: ");
 
-int OwlModemInformation::getIndicators(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+CIND?", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getIndicators(str *out_response) {
+  str command_response;
+
+  int result = atModem_->doCommandBlocking("AT+CIND?", 1000, &command_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_cind, out_response);
+  OwlModemAT::filterResponse(s_cind, command_response, out_response);
   return 1;
 }
 
-int OwlModemInformation::getIndicatorsHelp(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+CIND=?", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemInformation::getIndicatorsHelp(str *out_response) {
+  str command_response;
+
+  int result = atModem_->doCommandBlocking("AT+CIND=?", 1000, &command_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_cind, out_response);
+  OwlModemAT::filterResponse(s_cind, command_response, out_response);
   return 1;
 }

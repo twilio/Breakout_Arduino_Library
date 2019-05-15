@@ -156,7 +156,7 @@ bool Breakout::initModem() {
   LOG(L_NOTICE, ".. OwlModem - initialization successfully completed - next waiting for network registration\r\n");
 
   /* Read the ICCID */
-  if (!owlModem->SIM.getICCID(&buffer, 64)) {
+  if (!owlModem->SIM.getICCID(&buffer)) {
     LOG(L_ERR, "Error reading ICCID\r\n");
     goto error_stop;
   }

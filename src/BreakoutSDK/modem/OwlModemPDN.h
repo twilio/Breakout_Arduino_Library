@@ -27,11 +27,6 @@
 #include "enums.h"
 #include "OwlModemAT.h"
 
-
-
-#define MODEM_PDN_RESPONSE_BUFFER_SIZE 512
-
-
 /**
  * Twilio wrapper for the AT serial interface to a modem - Methods for Packet Data Network (aka APN configuration)
  */
@@ -69,8 +64,7 @@ class OwlModemPDN {
  private:
   OwlModemAT *atModem_ = 0;
 
-  char pdn_response_buffer[MODEM_PDN_RESPONSE_BUFFER_SIZE];
-  str pdn_response = {.s = pdn_response_buffer, .len = 0};
+  str pdn_response = {.s = nullptr, .len = 0};
 };
 
 #endif

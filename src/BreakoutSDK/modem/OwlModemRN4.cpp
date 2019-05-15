@@ -143,7 +143,7 @@ int OwlModemRN4::powerOff(owl_power_m bit_mask) {
 }
 
 int OwlModemRN4::isPoweredOn() {
-  return AT.doCommandBlocking("AT", 1000, 0, 0) == AT_Result_Code__OK;
+  return AT.doCommandBlocking("AT", 1000, nullptr) == AT_Result_Code__OK;
 }
 
 
@@ -202,29 +202,24 @@ int OwlModemRN4::initModem(int testing_variant) {
     }
 
     if ((testing_variant & Testing__Set_APN_Bands_to_Berlin) != 0) {
-      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+URAT=8", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting RAT to NB1\r\n");
       // This is a bitmask, LSB meaning Band1, MSB meaning Band64
-      if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for Cat-M1 to none\r\n");
-      if (AT.doCommandBlocking("AT+UBANDMASK=1,168761503", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+UBANDMASK=1,168761503", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for NB1 to 168761503 (manual default\r\n");
-      //
-      //      if (AT.doCommandBlocking("AT+UBANDMASK=1,524416", 5000, 0, 0) != AT_Result_Code__OK)
-      //        LOG(L_WARN, "Error setting band mask for NB1 to Band8 (900MHz) and Band20 (800MHz)\r\n");
-      if (AT.doCommandBlocking("AT+CGDCONT=1,\"IP\",\"" TESTING_APN "\"", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+CGDCONT=1,\"IP\",\"" TESTING_APN "\"", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting custom APN\r\n");
     }
     if ((testing_variant & Testing__Set_APN_Bands_to_US) != 0) {
-      if (AT.doCommandBlocking("AT+URAT=8", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+URAT=8", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting RAT to NB1\r\n");
       // This is a bitmask, LSB meaning Band1, MSB meaning Band64
-      if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+UBANDMASK=0,0", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for Cat-M1 to 2/4/5/12\r\n");
-      if (AT.doCommandBlocking("AT+UBANDMASK=1,2074", 5000, 0, 0) != AT_Result_Code__OK)
+      if (AT.doCommandBlocking("AT+UBANDMASK=1,2074", 5000, nullptr) != AT_Result_Code__OK)
         LOG(L_WARN, "Error setting band mask for NB1 to 2/4/5/12 (manual default)\r\n");
-      // if (AT.doCommandBlocking("AT+CGDCONT=1,\"IP\",\"" TESTING_APN "\"", 5000, 0, 0) != AT_Result_Code__OK)
-      // LOG(L_WARN, "Error setting custom APN\r\n");
     }
 
     if (!network.setModemFunctionality(AT_CFUN__FUN__Modem_Silent_Reset__No_SIM_Reset, 0))
@@ -281,29 +276,29 @@ int OwlModemRN4::initModem(int testing_variant) {
 #endif
 
 
-  if (AT.doCommandBlocking("AT+CSCS=\"GSM\"", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CSCS=\"GSM\"", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "Potential error setting character set to GSM\r\n");
   }
 
   /* Set the on-board LEDs */
-  if (AT.doCommandBlocking("AT+UGPIOC=23,10", 5000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+UGPIOC=23,10", 5000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "..  - failed to map pin 23 (yellow led)  to \"module operating status indication\"\r\n");
   }
-  if (AT.doCommandBlocking("AT+UGPIOC=16,2", 5000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+UGPIOC=16,2", 5000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "..  - failed to map pin 16 (blue led) to \"network status indication\"\r\n");
   }
 
   /* TODO - decide if to keep this in */
-  if (AT.doCommandBlocking("AT+CREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting URC to Registration and Location Updates for Network Registration Status events\r\n");
   }
-  if (AT.doCommandBlocking("AT+CGREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CGREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting GPRS URC to Registration and Location Updates for Network Registration Status "
         "events\r\n");
   }
-  if (AT.doCommandBlocking("AT+CEREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CEREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting EPS URC to Registration and Location Updates for Network Registration Status "
         "events\r\n");
@@ -311,18 +306,13 @@ int OwlModemRN4::initModem(int testing_variant) {
 
   if (SIM.handler_cpin) saved_handler = SIM.handler_cpin;
   SIM.setHandlerPIN(initCheckPIN);
-  if (AT.doCommandBlocking("AT+CPIN?", 5000, &response, MODEM_RESPONSE_BUFFER_SIZE) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CPIN?", 5000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "Error checking PIN status\r\n");
   }
   SIM.setHandlerPIN(saved_handler);
 
-  if (AT.doCommandBlocking("AT+UDCONF=1,1", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+UDCONF=1,1", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "Potential error setting ublox HEX mode for socket ops send/receive\r\n");
-  }
-
-  /* TODO: probably deprecated*/
-  if (!information.getModel(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
-    LOG(L_WARN, "Potential error caching the modem model\r\n");
   }
 
   LOG(L_DBG, "Modem correctly initialized\r\n");
@@ -369,7 +359,6 @@ void OwlModemRN4::bypassCLI() {
   in_bypass = 1;
   uint8_t c;
   int index = 0;
-  AT.pause();
   while (1) {
     if (modem_port.available()) {
       modem_port.read(&c, 1);
@@ -385,7 +374,6 @@ void OwlModemRN4::bypassCLI() {
       if (index == s_exitbypass.len) {
         modem_port.write((uint8_t *)"\r\n", 2);
         in_bypass = 0;
-        AT.resume();
         return;
       }
     }
@@ -470,20 +458,34 @@ void OwlModemRN4::computeHostDeviceInformation(str purpose) {
 
   // Param 2: Twilio_Seeed_(AT+CGMI -> u-blox) // OwlModemInformation::getManufacturer()
   char module_mfgr_buffer[64];
-  str module_mfgr = {.s = module_mfgr_buffer, .len = 0};
-  information.getManufacturer(&module_mfgr, 64);
+  str module_mfgr;
+  information.getManufacturer(&module_mfgr);
+  if (module_mfgr.len > 64) {
+    module_mfgr.len = 64;
+  }
+  memcpy(module_mfgr_buffer, module_mfgr.s, module_mfgr.len);
+  module_mfgr.s = module_mfgr_buffer;
 
   // Param 3: Wio-LTE-Cat-NB1_(AT+CGMM -> SARA-N410-02B) // OwlModemInformation::getModel()
   char module_model_buffer[64];
-  str module_model = {.s = module_model_buffer, .len = 0};
-  information.getModel(&module_model, 64);
+  str module_model;
+  information.getModel(&module_model);
+  if (module_model.len > 64) {
+    module_model.len = 64;
+  }
+  memcpy(module_model_buffer, module_model.s, module_model.len);
+  module_model.s = module_model_buffer;
 
   // Param 4: twilio-v0.9_u-blox-v7.4 (AT+CGMR -> L0.0.00.00.07.04 [May 25 2018 15:05:31]) //
   // OwlModemInformation::getVersion()
   char module_ver_buffer[64];
-  str module_ver = {.s = module_ver_buffer, .len = 0};
-  information.getVersion(&module_ver, 64);
-  // TODO: trim module_ver down to just important bit?
+  str module_ver;
+  information.getVersion(&module_ver);
+  if (module_ver.len > 64) {
+    module_ver.len = 64;
+  }
+  memcpy(module_ver_buffer, module_ver.s, module_ver.len);
+  module_ver.s = module_ver_buffer;
 
   hostdevice_information.len =
       snprintf(hostdevice_information.s, MODEM_HOSTDEVICE_INFORMATION_SIZE,
@@ -508,7 +510,7 @@ int OwlModemRN4::setHostDeviceInformation(str purpose) {
   LOG(L_INFO, "Setting HostDeviceInformation to: %.*s\r\n", hostdevice_information.len, hostdevice_information.s);
 
   for (int attempts = 10; attempts > 0; attempts--) {
-    if (AT.doCommandBlocking(command_buffer, 1000, &response, MODEM_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK) {
+    if (AT.doCommandBlocking(command_buffer, 1000, nullptr) == AT_Result_Code__OK) {
       LOG(L_INFO, ".. setting HostDeviceInformation successful.\r\n");
       registered = true;
       break;

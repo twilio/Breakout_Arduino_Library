@@ -41,7 +41,6 @@
  * Constants and Parameters
  */
 
-#define MODEM_LOG_BUFFER_SIZE 1024
 #define MODEM_HOSTDEVICE_INFORMATION_SIZE 256
 
 typedef enum {
@@ -183,8 +182,6 @@ class OwlModemRN4 {
   bool has_debug_port{false};
   bool has_gnss_port{false};
 
-  char response_buffer[MODEM_RESPONSE_BUFFER_SIZE];
-  str response = {.s = response_buffer, .len = 0};
   char c_hostdevice_information[MODEM_HOSTDEVICE_INFORMATION_SIZE + 1];
   str hostdevice_information = {.s = c_hostdevice_information, .len = 0};
   char c_short_hostdevice_information[MODEM_HOSTDEVICE_INFORMATION_SIZE + 1];

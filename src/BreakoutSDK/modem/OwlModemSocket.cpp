@@ -56,12 +56,13 @@ void OwlModemSocketStatus::setClosed() {
   handler_SocketClosed = 0;
 }
 
+static char URC_ID[] = "Socket";
 OwlModemSocket::OwlModemSocket(OwlModemAT *atModem) : atModem_(atModem) {
   for (uint8_t socket = 0; socket < MODEM_MAX_SOCKETS; socket++)
     status[socket].setClosed();
 
   if (atModem_ != nullptr) {
-    atModem_->registerUrcHandler(OwlModemSocket::processURC, this);
+    atModem_->registerUrcHandler(URC_ID, OwlModemSocket::processURC, this);
   }
 }
 
@@ -69,8 +70,10 @@ OwlModemSocket::OwlModemSocket(OwlModemAT *atModem) : atModem_(atModem) {
 
 static str s_uusoco = STRDECL("+UUSOCO");
 
-int OwlModemSocket::processURCConnected(str urc, str data) {
-  if (!str_equal(urc, s_uusoco)) return 0;
+bool OwlModemSocket::processURCConnected(str urc, str data) {
+  if (!str_equal(urc, s_uusoco)) {
+    return false;
+  }
   str token        = {0};
   uint8_t socket   = 0;
   int socket_error = 0;
@@ -97,14 +100,16 @@ int OwlModemSocket::processURCConnected(str urc, str data) {
       LOG(L_ERR, "Connected event on socket %d reported socket error %d\r\n", socket, socket_error);
     }
   }
-  return 1;
+  return true;
 }
 
 
 static str s_uusocl = STRDECL("+UUSOCL");
 
-int OwlModemSocket::processURCClosed(str urc, str data) {
-  if (!str_equal(urc, s_uusocl)) return 0;
+bool OwlModemSocket::processURCClosed(str urc, str data) {
+  if (!str_equal(urc, s_uusocl)) {
+    return false;
+  }
   str token      = {0};
   uint8_t socket = 0;
   for (int i = 0; str_tok(data, ",", &token); i++) {
@@ -128,14 +133,17 @@ int OwlModemSocket::processURCClosed(str urc, str data) {
     else
       (this->status[socket].handler_SocketClosed)(socket);
   }
-  return 1;
+  return true;
 }
 
 
 static str s_uusoli = STRDECL("+UUSOLI");
 
-int OwlModemSocket::processURCTCPAccept(str urc, str data) {
-  if (!str_equal(urc, s_uusoli)) return 0;
+bool OwlModemSocket::processURCTCPAccept(str urc, str data) {
+  if (!str_equal(urc, s_uusoli)) {
+    return false;
+  }
+
   str token                = {0};
   uint8_t new_socket       = 0;
   str remote_ip            = {0};
@@ -194,14 +202,17 @@ int OwlModemSocket::processURCTCPAccept(str urc, str data) {
       (this->status[listening_socket].handler_TCPAccept)(new_socket, remote_ip, remote_port, listening_socket, local_ip,
                                                          local_port);
   }
-  return 1;
+  return true;
 }
 
 
 static str s_uusord = STRDECL("+UUSORD");
 
-int OwlModemSocket::processURCReceive(str urc, str data) {
-  if (!str_equal(urc, s_uusord)) return 0;
+bool OwlModemSocket::processURCReceive(str urc, str data) {
+  if (!str_equal(urc, s_uusord)) {
+    return false;
+  }
+
   str token      = {0};
   uint8_t socket = 0;
   uint16_t len   = 0;
@@ -226,14 +237,17 @@ int OwlModemSocket::processURCReceive(str urc, str data) {
     this->status[socket].len_outstanding_receive_data = len;
     LOG(L_INFO, "Receive URC for queued received data on socket %d of %d bytes\r\n", socket, len);
   }
-  return 1;
+  return true;
 }
 
 
 static str s_uusorf = STRDECL("+UUSORF");
 
-int OwlModemSocket::processURCReceiveFrom(str urc, str data) {
-  if (!str_equal(urc, s_uusorf)) return 0;
+bool OwlModemSocket::processURCReceiveFrom(str urc, str data) {
+  if (!str_equal(urc, s_uusorf)) {
+    return false;
+  }
+
   str token      = {0};
   uint8_t socket = 0;
   uint16_t len   = 0;
@@ -255,20 +269,19 @@ int OwlModemSocket::processURCReceiveFrom(str urc, str data) {
     this->status[socket].len_outstanding_receivefrom_data = len;
     LOG(L_INFO, "Receive URC for queued received-from data on socket %d of %d bytes\r\n", socket, len);
   }
-  return 1;
+  return true;
 }
 
 
-int OwlModemSocket::processURC(str urc, str data, void *instance) {
+bool OwlModemSocket::processURC(str urc, str data, void *instance) {
   OwlModemSocket *inst = reinterpret_cast<OwlModemSocket *>(instance);
 
   /* ordered based on the expected frequency of arrival */
-  if (inst->processURCReceiveFrom(urc, data)) return 1;
-  if (inst->processURCReceive(urc, data)) return 1;
-  if (inst->processURCTCPAccept(urc, data)) return 1;
-  if (inst->processURCConnected(urc, data)) return 1;
-  if (inst->processURCClosed(urc, data)) return 1;
-  return 0;
+  return inst->processURCReceiveFrom(urc, data) ||
+         inst->processURCReceive(urc, data)     ||
+         inst->processURCTCPAccept(urc, data)   ||
+         inst->processURCConnected(urc, data)   ||
+         inst->processURCClosed(urc, data);
 }
 
 
@@ -365,9 +378,9 @@ int OwlModemSocket::open(at_uso_protocol_e protocol, uint16_t local_port, uint8_
   char buf[64];
   snprintf(buf, 64, "AT+USOCR=%d,%u", protocol, local_port);
   int result =
-      atModem_->doCommandBlocking(buf, 3000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 3000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_usocr, &socket_response);
+  OwlModemAT::filterResponse(s_usocr, socket_response, &socket_response);
   socket = str_to_uint32_t(socket_response, 10);
   if (out_socket) *out_socket = socket;
 
@@ -391,7 +404,7 @@ int OwlModemSocket::close(uint8_t socket) {
       snprintf(buf, 64, "AT+USOCL=%u", socket);
       break;
   }
-  int result = (atModem_->doCommandBlocking(buf, 120 * 1000, 0, 0) == AT_Result_Code__OK);
+  int result = (atModem_->doCommandBlocking(buf, 120 * 1000, nullptr) == AT_Result_Code__OK);
   if (!result) return 0;
 
   this->status[socket].setClosed();
@@ -403,10 +416,10 @@ static str s_usoer = STRDECL("+USOER: ");
 
 int OwlModemSocket::getError(at_uso_error_e *out_error) {
   if (out_error) *out_error = (at_uso_error_e)-1;
-  int result = (atModem_->doCommandBlocking("AT+USOER", 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+  int result = (atModem_->doCommandBlocking("AT+USOER", 1000, &socket_response) ==
                 AT_Result_Code__OK);
   if (!result) return 0;
-  atModem_->filterResponse(s_usoer, &socket_response);
+  atModem_->filterResponse(s_usoer, socket_response, &socket_response);
 
   if (out_error) *out_error = (at_uso_error_e)str_to_long_int(socket_response, 10);
 
@@ -435,7 +448,7 @@ int OwlModemSocket::connect(uint8_t socket, str remote_ip, uint16_t remote_port,
       LOG(L_ERR, "Socket %d has unsupported protocol %d\r\n", this->status[socket].protocol);
       return 0;
   }
-  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) ==
                AT_Result_Code__OK;
   if (!result) return 0;
   this->status[socket].is_connected         = 1;
@@ -452,10 +465,10 @@ int OwlModemSocket::send(uint8_t socket, str data) {
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+  int result = atModem_->doCommandBlocking(buf, 120 * 1000, &socket_response) ==
                AT_Result_Code__OK;
   if (!result) return -1;
-  OwlModemAT::filterResponse(s_usowr, &socket_response);
+  OwlModemAT::filterResponse(s_usowr, socket_response, &socket_response);
   str token = {0};
   for (int i = 0; str_tok(socket_response, ",\r\n", &token); i++)
     switch (i) {
@@ -551,10 +564,10 @@ int OwlModemSocket::sendToUDP(uint8_t socket, str remote_ip, uint16_t remote_por
   len += str_to_hex(buf + len, 1200 - len, data);
   buf[len++] = '\"';
   buf[len++] = 0;
-  int result = atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) ==
+  int result = atModem_->doCommandBlocking(buf, 10 * 1000, &socket_response) ==
                AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_usost, &socket_response);
+  OwlModemAT::filterResponse(s_usost, socket_response, &socket_response);
   str token = {0};
   for (int i = 0; str_tok(socket_response, ",\r\n", &token); i++)
     switch (i) {
@@ -601,9 +614,9 @@ int OwlModemSocket::receive(uint8_t socket, uint16_t len, str *out_data, int max
   char buf[64];
   snprintf(buf, 64, "AT+USORD=%u,%u", socket, len);
   int result =
-      atModem_->doCommandBlocking(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_usord, &socket_response);
+  OwlModemAT::filterResponse(s_usord, socket_response, &socket_response);
   str token             = {0};
   str sub               = {0};
   uint16_t received_len = 0;
@@ -729,9 +742,9 @@ int OwlModemSocket::receiveFromUDP(uint8_t socket, uint16_t len, str *out_remote
   char buf[64];
   snprintf(buf, 64, "AT+USORF=%u,%u", socket, len);
   int result =
-      atModem_->doCommandBlocking(buf, 1000, &socket_response, MODEM_SOCKET_RESPONSE_BUFFER_SIZE) == AT_Result_Code__OK;
+      atModem_->doCommandBlocking(buf, 1000, &socket_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_usorf, &socket_response);
+  OwlModemAT::filterResponse(s_usorf, socket_response, &socket_response);
   str token             = {0};
   str sub               = {0};
   uint16_t received_len = 0;
@@ -803,7 +816,7 @@ int OwlModemSocket::listenUDP(uint8_t socket, uint16_t local_port, OwlModem_UDPD
   }
   char buf[64];
   snprintf(buf, 64, "AT+USOLI=%u,%u", socket, local_port);
-  int result = atModem_->doCommandBlocking(buf, 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, nullptr) == AT_Result_Code__OK;
   if (!result) return 0;
 
   this->status[socket].handler_UDPData = cb;
@@ -847,7 +860,7 @@ int OwlModemSocket::acceptTCP(uint8_t socket, uint16_t local_port, OwlModem_TCPA
   }
   char buf[64];
   snprintf(buf, 64, "AT+USOLI=%u,%u", socket, local_port);
-  int result = atModem_->doCommandBlocking(buf, 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buf, 1000, nullptr) == AT_Result_Code__OK;
   if (!result) return 0;
 
   this->status[socket].handler_TCPAccept    = handler_tcp_accept;

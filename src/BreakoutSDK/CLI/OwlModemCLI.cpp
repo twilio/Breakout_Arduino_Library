@@ -32,8 +32,7 @@
 
 
 
-static char response_buffer[MODEM_RESPONSE_BUFFER_SIZE];
-static str response = {.s = response_buffer, .len = 0};
+static str response = {.s = nullptr, .len = 0};
 
 
 
@@ -162,7 +161,7 @@ class GetProductIdentification : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getProductIdentification(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getProductIdentification(&response)) {
       LOGF(L_CLI, "OK product_identification=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -176,7 +175,7 @@ class GetManufacturer : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getManufacturer(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getManufacturer(&response)) {
       LOGF(L_CLI, "OK manufacturer=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -190,7 +189,7 @@ class GetModel : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getModel(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getModel(&response)) {
       LOGF(L_CLI, "OK model=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -204,7 +203,7 @@ class GetVersion : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getVersion(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getVersion(&response)) {
       LOGF(L_CLI, "OK version=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -218,7 +217,7 @@ class GetIMEI : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getIMEI(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getIMEI(&response)) {
       LOGF(L_CLI, "OK IMEI=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -233,7 +232,7 @@ class GetBatteryChargeLevels : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getBatteryChargeLevels(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getBatteryChargeLevels(&response)) {
       LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -247,7 +246,7 @@ class GetIndicators : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getIndicators(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getIndicators(&response)) {
       LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -262,7 +261,7 @@ class GetIndicatorsHelp : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->information.getIndicatorsHelp(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->information.getIndicatorsHelp(&response)) {
       LOGF(L_CLI, "OK BatteryChargeLevels=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -278,7 +277,7 @@ class GetICCID : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->SIM.getICCID(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->SIM.getICCID(&response)) {
       LOGF(L_CLI, "OK ICCID=%.*s\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -292,7 +291,7 @@ class GetIMSI : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->SIM.getIMSI(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->SIM.getIMSI(&response)) {
       LOGF(L_CLI, "OK IMSI=%.*s\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -306,7 +305,7 @@ class GetMSISDN : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->SIM.getMSISDN(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->SIM.getMSISDN(&response)) {
       LOGF(L_CLI, "OK MSISDN=[%.*s]\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR status=[%.*s]\r\n", response.len, response.s);
@@ -499,7 +498,7 @@ class GetOperatorList : public OwlModemCLIExecutor {
   }
 
   void executor(OwlModemCLI &cli, OwlModemCLICommand &cmd) {
-    if (cli.owlModem->network.getOperatorList(&response, MODEM_RESPONSE_BUFFER_SIZE)) {
+    if (cli.owlModem->network.getOperatorList(&response)) {
       LOGF(L_CLI, "OK\r\n%.*s\r\n", response.len, response.s);
     } else {
       LOGF(L_CLI, "ERROR\r\n");
@@ -1822,15 +1821,18 @@ class BreakoutReceiveCommand : public OwlModemCLIExecutor {
     }
     size_t size                = 0;
     bool isBinary              = false;
-    command_status_code_e code = breakout->receiveCommand(MODEM_RESPONSE_BUFFER_SIZE, response.s, &size, &isBinary);
-    response.len               = size;
+
+    static char command_buffer[1024];
+    str command_str = {.s = command_buffer, .len = 0};
+    command_status_code_e code = breakout->receiveCommand(1024, command_buffer, &size, &isBinary);
+    command_str.len               = size;
     switch (code) {
       case COMMAND_STATUS_OK:
         if (isBinary) {
           LOG(L_CLI, "OK binary\r\n");
-          LOGSTR(L_CLI, response);
+          LOGSTR(L_CLI, command_str);
         } else {
-          LOG(L_CLI, "OK text [%.*s]\r\n", response.len, response.s);
+          LOG(L_CLI, "OK text [%.*s]\r\n", size, command_buffer);
         }
         break;
       case COMMAND_STATUS_ERROR:
@@ -2122,7 +2124,7 @@ int OwlModemCLI::handleUserInput(int resume) {
             /* AT<something> */
             command.s[command.len >= MODEM_CLI_CMD_LEN ? MODEM_CLI_CMD_LEN - 1 : command.len] = 0;
             at_result_code_e result_code =
-                owlModem->AT.doCommandBlocking(command.s, 30 * 1000, &response, MODEM_RESPONSE_BUFFER_SIZE);
+                owlModem->AT.doCommandBlocking(command.s, 30 * 1000, &response);
             if (!response.len)
               LOGF(L_CLI, " Command [%.*s] returned with result code %s (%d)\r\n", command.len, command.s,
                    at_result_code_text(result_code), result_code);

@@ -71,7 +71,7 @@ class OwlModemMQTTBG96 {
   }
 
  private:
-  static int processURC(str urc, str data, void* instance);
+  static bool processURC(str urc, str data, void* instance);
   void processURCQmtopen(str data);
   void processURCQmtclose(str data);
   void processURCQmtconn(str data);
@@ -90,9 +90,6 @@ class OwlModemMQTTBG96 {
   bool wait_for_command_[_num_mqtt_commands];
   bool command_success_[_num_mqtt_commands];
   bool waitResultBlocking(mqtt_command command, int32_t timeout);
-
-  // char mqtt_response_buffer[MODEM_MQTT_BG96_RESPONSE_BUFFER_SIZE];
-  // str mqtt_response = {.s = mqtt_response_buffer, .len = 0};
 };
 
 #endif  // __OWL_MODEM_MQTT_H__

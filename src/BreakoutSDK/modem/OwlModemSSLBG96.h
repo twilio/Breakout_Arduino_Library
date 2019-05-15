@@ -28,8 +28,6 @@
 
 #include "OwlModemAT.h"
 
-#define SSL_RESPONSE_BUFFER_SIZE 32
-
 class OwlModemSSLBG96 {
  public:
   OwlModemSSLBG96(OwlModemAT* atModem);
@@ -42,8 +40,7 @@ class OwlModemSSLBG96 {
 
  private:
   OwlModemAT* atModem_;
-  char ssl_response_buffer[SSL_RESPONSE_BUFFER_SIZE];
-  str ssl_response = {.s = ssl_response_buffer, .len = 0};
+  str ssl_response = {.s = nullptr, .len = 0};
 };
 
 #endif  // __OWL_MODEM_SSL_BG96_H__

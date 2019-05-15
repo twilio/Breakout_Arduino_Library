@@ -69,7 +69,7 @@ int OwlModemBG96::powerOn() {
 }
 
 int OwlModemBG96::powerOff() {
-  AT.doCommandBlocking("AT+QPOWD=0", 500, nullptr, 0);
+  AT.doCommandBlocking("AT+QPOWD=0", 500, nullptr);
   delay(300);
 
   pinMode(BG96_RESET_PIN, OUTPUT);
@@ -77,7 +77,7 @@ int OwlModemBG96::powerOff() {
 }
 
 int OwlModemBG96::isPoweredOn() {
-  return AT.doCommandBlocking("AT", 1000, 0, 0) == AT_Result_Code__OK;
+  return AT.doCommandBlocking("AT", 1000, nullptr) == AT_Result_Code__OK;
 }
 
 /**
@@ -113,24 +113,24 @@ int OwlModemBG96::initModem() {
     if (!network.setModemFunctionality(AT_CFUN__FUN__Minimum_Functionality, 0))
       LOG(L_WARN, "Error turning modem off\r\n");
 
-    if (AT.doCommandBlocking("AT+QCFG=\"nwscanseq\",03,1", 5000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QCFG=\"nwscanseq\",03,1", 5000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error setting RAT priority to NB1\r\n");
 
-    if (AT.doCommandBlocking("AT+QCFG=\"nwscanmode\",3,1", 5000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QCFG=\"nwscanmode\",3,1", 5000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error setting RAT technology to LTE\r\n");
 
-    if (AT.doCommandBlocking("AT+QCFG=\"iotopmode\",1,1", 5000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QCFG=\"iotopmode\",1,1", 5000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error setting network node to NB1\r\n");
 
-    if (AT.doCommandBlocking("AT+QCFG=\"band\",0,0,A0E189F,1", 5000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QCFG=\"band\",0,0,A0E189F,1", 5000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error setting NB bands to \"all bands\"\r\n");
 
     // TODO: celevel and servicedomain
 
-    if (AT.doCommandBlocking("AT+QURCCFG=\"urcport\",\"uart1\"", 5000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QURCCFG=\"urcport\",\"uart1\"", 5000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error directing URCs to the main UART\r\n");
 
-    if (AT.doCommandBlocking("AT+QICSGP=1,1,\"" TESTING_APN "\"", 1000, 0, 0) != AT_Result_Code__OK)
+    if (AT.doCommandBlocking("AT+QICSGP=1,1,\"" TESTING_APN "\"", 1000, nullptr) != AT_Result_Code__OK)
       LOG(L_WARN, "Error setting custom APN\r\n");
 
 
@@ -190,20 +190,20 @@ int OwlModemBG96::initModem() {
 #endif
 
 
-  if (AT.doCommandBlocking("AT+CSCS=\"GSM\"", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CSCS=\"GSM\"", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "Potential error setting character set to GSM\r\n");
   }
 
-  if (AT.doCommandBlocking("AT+CREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting URC to Registration and Location Updates for Network Registration Status events\r\n");
   }
-  if (AT.doCommandBlocking("AT+CGREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CGREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting GPRS URC to Registration and Location Updates for Network Registration Status "
         "events\r\n");
   }
-  if (AT.doCommandBlocking("AT+CEREG=2", 1000, 0, 0) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CEREG=2", 1000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN,
         "Potential error setting EPS URC to Registration and Location Updates for Network Registration Status "
         "events\r\n");
@@ -211,12 +211,11 @@ int OwlModemBG96::initModem() {
 
   if (SIM.handler_cpin) saved_handler = SIM.handler_cpin;
   SIM.setHandlerPIN(initCheckPIN);
-  if (AT.doCommandBlocking("AT+CPIN?", 5000, &response, MODEM_RESPONSE_BUFFER_SIZE) != AT_Result_Code__OK) {
+  if (AT.doCommandBlocking("AT+CPIN?", 5000, nullptr) != AT_Result_Code__OK) {
     LOG(L_WARN, "Error checking PIN status\r\n");
   }
 
-  AT.doCommandBlocking("AT+QIACT=1", 5000, &response,
-                       MODEM_RESPONSE_BUFFER_SIZE);  // ignore the result, which will be an error if already activated
+  AT.doCommandBlocking("AT+QIACT=1", 5000, nullptr);  // ignore the result, which will be an error if already activated
   LOG(L_DBG, "Modem correctly initialized\r\n");
   return 1;
 }

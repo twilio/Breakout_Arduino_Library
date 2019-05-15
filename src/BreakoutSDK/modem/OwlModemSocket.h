@@ -33,11 +33,6 @@
 #define MODEM_UDP_BUFFER_SIZE 512
 #define MODEM_MAX_SOCKETS 7
 
-
-#define MODEM_SOCKET_RESPONSE_BUFFER_SIZE 1200
-
-
-
 /**
  * Handler for UDP data
  * @param socket - socket the data was received on
@@ -108,9 +103,9 @@ class OwlModemSocket {
    * @param urc - event id
    * @param data - data of the event
    * @param instance - pointer to OwlModemSocket instance
-   * @return 1 if the line was handled, 0 if no match here
+   * @return if the line was handled
    */
-  static int processURC(str urc, str data, void *instance);
+  static bool processURC(str urc, str data, void *instance);
 
   /**
    * Handler for incoming data - triggers receive and handler calling for UDP/TCP queued packets.
@@ -326,8 +321,7 @@ class OwlModemSocket {
 
   OwlModemSocketStatus status[MODEM_MAX_SOCKETS];
 
-  char socket_response_buffer[MODEM_SOCKET_RESPONSE_BUFFER_SIZE];
-  str socket_response = {.s = socket_response_buffer, .len = 0};
+  str socket_response = {.s = nullptr, .len = 0};
 
 
   /** UDP buffer, to be used internally when receiving data */
@@ -337,11 +331,11 @@ class OwlModemSocket {
   int send(uint8_t socket, str data);
   int receive(uint8_t socket, uint16_t len, str *out_data, int max_data_len);
 
-  int processURCConnected(str urc, str data);
-  int processURCClosed(str urc, str data);
-  int processURCTCPAccept(str urc, str data);
-  int processURCReceive(str urc, str data);
-  int processURCReceiveFrom(str urc, str data);
+  bool processURCConnected(str urc, str data);
+  bool processURCClosed(str urc, str data);
+  bool processURCTCPAccept(str urc, str data);
+  bool processURCReceive(str urc, str data);
+  bool processURCReceiveFrom(str urc, str data);
 };
 
 #endif

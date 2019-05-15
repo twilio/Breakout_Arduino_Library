@@ -109,8 +109,5 @@ class OwlModemBG96 {
  private:
   bool has_modem_port{false};
 
-  char response_buffer[MODEM_RESPONSE_BUFFER_SIZE];
-  str response = {.s = response_buffer, .len = 0};
-
   static void initCheckPIN(str message);
 };

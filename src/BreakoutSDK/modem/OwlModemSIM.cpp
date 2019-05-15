@@ -25,13 +25,12 @@
 
 #include <stdio.h>
 
+static char URC_ID[] = "SIM";
 OwlModemSIM::OwlModemSIM(OwlModemAT *atModem) : atModem_(atModem) {
   if (atModem_ != nullptr) {
-    atModem_->registerUrcHandler(OwlModemSIM::processURC, this);
+    atModem_->registerUrcHandler(URC_ID, OwlModemSIM::processURC, this);
   }
 }
-
-
 
 static str s_cpin = {.s = "+CPIN", .len = 5};
 
@@ -48,55 +47,56 @@ int OwlModemSIM::handleCPIN(str urc, str data) {
   return 1;
 }
 
-int OwlModemSIM::processURC(str urc, str data, void *instance) {
+bool OwlModemSIM::processURC(str urc, str data, void *instance) {
   OwlModemSIM *inst = reinterpret_cast<OwlModemSIM *>(instance);
-  if (inst->handleCPIN(urc, data)) return 1;
-  return 0;
+  if (inst->handleCPIN(urc, data)) return true;
+  return false;
 }
 
 
 static str s_ccid = STRDECL("+CCID: ");
 
-int OwlModemSIM::getICCID(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+CCID", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemSIM::getICCID(str *out_response) {
+  str command_response;
+
+  int result = atModem_->doCommandBlocking("AT+CCID", 1000, &command_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_ccid, out_response);
+  OwlModemAT::filterResponse(s_ccid, command_response, out_response);
   return 1;
 }
 
-int OwlModemSIM::getIMSI(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  return atModem_->doCommandBlocking("AT+CIMI", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemSIM::getIMSI(str *out_response) {
+  return atModem_->doCommandBlocking("AT+CIMI", 1000, out_response) == AT_Result_Code__OK;
 }
 
 static str s_cnum = STRDECL("+CNUM: ");
 
-int OwlModemSIM::getMSISDN(str *out_response, int max_response_len) {
-  if (out_response) out_response->len = 0;
-  int result = atModem_->doCommandBlocking("AT+CNUM", 1000, out_response, max_response_len) == AT_Result_Code__OK;
+int OwlModemSIM::getMSISDN(str *out_response) {
+  str command_response;
+
+  int result = atModem_->doCommandBlocking("AT+CNUM", 1000, &command_response) == AT_Result_Code__OK;
   if (!result) return 0;
-  OwlModemAT::filterResponse(s_cnum, out_response);
+  OwlModemAT::filterResponse(s_cnum, command_response, out_response);
   return 1;
 }
 
 int OwlModemSIM::getPINStatus() {
   int result = 0;
-  result     = atModem_->doCommandBlocking("AT+CPIN?", 10 * 1000, 0, 0) == AT_Result_Code__OK;
+  result     = atModem_->doCommandBlocking("AT+CPIN?", 10 * 1000, nullptr) == AT_Result_Code__OK;
   return result;
 }
 
 int OwlModemSIM::verifyPIN(str pin) {
   char buffer[64];
   snprintf(buffer, 64, "AT+CPIN=%.*s", pin.len, pin.s);
-  int result = atModem_->doCommandBlocking(buffer, 10 * 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buffer, 10 * 1000, nullptr) == AT_Result_Code__OK;
   return result;
 }
 
 int OwlModemSIM::verifyPUK(str puk, str pin) {
   char buffer[64];
   snprintf(buffer, 64, "AT+CPIN=%.*s,%.*s", puk.len, puk.s, pin.len, pin.s);
-  int result = atModem_->doCommandBlocking(buffer, 10 * 1000, 0, 0) == AT_Result_Code__OK;
+  int result = atModem_->doCommandBlocking(buffer, 10 * 1000, nullptr) == AT_Result_Code__OK;
   return result;
 }
 

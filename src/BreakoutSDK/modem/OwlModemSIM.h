@@ -50,35 +50,32 @@ class OwlModemSIM {
    * Handler for Unsolicited Response Codes from the modem - called from OwlModem on timer, when URC is received
    * @param urc - event id
    * @param data - data of the event
-   * @return 1 if the line was handled, 0 if no match here
+   * @return true if the line was handled, false if no match here
    */
-  static int processURC(str urc, str data, void *instance);
+  static bool processURC(str urc, str data, void *instance);
 
 
 
   /**
    * Retrieve ICCID (SIM serial number)
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getICCID(str *out_response, int max_response_len);
+  int getICCID(str *out_response);
 
   /**
    * Retrieve IMSI (Mobile subscriber identifier)
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getIMSI(str *out_response, int max_response_len);
+  int getIMSI(str *out_response);
 
   /**
    * Retrieve MSISDN (SIM card stored own telephone number indication)
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getMSISDN(str *out_response, int max_response_len);
+  int getMSISDN(str *out_response);
 
   /**
    * Trigger retrieval of the current PIN status - setting the callback will trigger verification.

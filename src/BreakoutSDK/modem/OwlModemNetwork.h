@@ -29,8 +29,6 @@
 #include "OwlModemAT.h"
 
 
-#define MODEM_NETWORK_RESPONSE_BUFFER_SIZE 512
-
 /**
  * Handler function signature for Network Registration events (CS)
  * @param stat - status
@@ -77,9 +75,9 @@ class OwlModemNetwork {
    * Handler for Unsolicited Response Codes from the modem - called from OwlModem on timer, when URC is received
    * @param urc - event id
    * @param data - data of the event
-   * @return 1 if the line was handled, 0 if no match here
+   * @return if the line was handled
    */
-  static int processURC(str urc, str data, void *instance);
+  static bool processURC(str urc, str data, void *instance);
 
 
 
@@ -143,11 +141,10 @@ class OwlModemNetwork {
    * (<stat>,long <oper>,short <oper>,numeric <oper>[,<act>])[,(<stat>,long <oper>,short <oper>,numeric <oper>[,<act>])
    * [,...]],,(list-of-supported <mode>s),(list of supported <format>s)
    *
-   * @param out_response - output buffer to fill with the command response
-   * @param max_response_len - length of output buffer
+   * @param out_response - str object that will point to the response buffer
    * @return 1 on success, 0 on failure
    */
-  int getOperatorList(str *out_response, int max_response_len);
+  int getOperatorList(str *out_response);
 
 
   /**
@@ -263,16 +260,15 @@ class OwlModemNetwork {
  private:
   OwlModemAT *atModem_ = 0;
 
-  char network_response_buffer[MODEM_NETWORK_RESPONSE_BUFFER_SIZE];
-  str network_response = {.s = network_response_buffer, .len = 0};
+  str network_response = {.s = nullptr, .len = 0};
 
   OwlModem_NetworkRegistrationStatusChangeHandler_f handler_creg = 0;
   OwlModem_GPRSRegistrationStatusChangeHandler_f handler_cgreg   = 0;
   OwlModem_EPSRegistrationStatusChangeHandler_f handler_cereg    = 0;
 
-  int processURCNetworkRegistration(str urc, str data);
-  int processURCGPRSRegistration(str urc, str data);
-  int processURCEPSRegistration(str urc, str data);
+  bool processURCNetworkRegistration(str urc, str data);
+  bool processURCGPRSRegistration(str urc, str data);
+  bool processURCEPSRegistration(str urc, str data);
 
 
   void parseNetworkRegistrationStatus(str response, at_creg_n_e *out_n, at_creg_stat_e *out_stat, uint16_t *out_lac,
