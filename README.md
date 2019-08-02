@@ -1,3 +1,18 @@
+# DEPRECATION NOTICE
+
+**NB:** This repository is deprecated and here for historical purposes only.  Please visit the new SDK: [Breakout_Massive_SDK_Arduino](https://github.com/twilio/Breakout_Massive_SDK_Arduino/)
+
+The updated SDK has a number of bug fixes and optimizations around the u-blox SARA-N410 cellular module abstraction layer, introduces initial beta support for the Quectel BG96 module, and includes samples that demonstrate leveraging MQTT.
+
+The new SDK also makes use of the TLS stacks on the SARA-N410 and BG96 modules natively.
+
+The commands/CoAP bridge which was the only communication mechanism shown in the examples in the legacy SDK below is replaced by MQTT.
+
+---
+
+---
+
+---
 
 # Twilio Breakout SDK for Arduino
 This page documents how to get started using the Breakout SDK and what it provides. Today, the Breakout SDK is built for the STM32F405RG MCU and U-Blox Sara-N410 cellular module in mind. This specific Developer Board was provided in Twilio's Alfa Developer Kit and distributed to [SIGNAL 2018](https://www.twilio.com/signal) attendees, and it came with Grove sensors – humidity, light, and ultrasonic.
